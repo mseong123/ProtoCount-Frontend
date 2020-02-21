@@ -14,7 +14,9 @@ import authContext from './Shared/authContext';
 
 function App() {
     //auth default value is false and have to go through Login route when new App is served for first time. See route logic below.
-    const [auth,changeAuth]=useState(true);
+    const [auth,changeAuth]=useState(false);
+
+    
     
     let appRoutes=[];
     ComponentSummary.forEach(category=>{
