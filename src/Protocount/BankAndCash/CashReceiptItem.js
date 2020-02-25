@@ -17,7 +17,7 @@ function CashReceiptItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'DEBTOR'}),
+            body:JSON.stringify({item:'debtor'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -27,7 +27,7 @@ function CashReceiptItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'CASH_RECEIPT'}),
+            body:JSON.stringify({item:'cash_receipt'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -92,7 +92,7 @@ function CashReceiptItem (props) {
         </div>)
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='CASH_RECEIPT' successPath='/CashReceipt'
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='cash_receipt' successPath='/CashReceipt'
          >
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 

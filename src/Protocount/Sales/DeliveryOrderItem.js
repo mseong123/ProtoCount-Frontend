@@ -18,7 +18,7 @@ function DeliveryOrderItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'DEBTOR'}),
+            body:JSON.stringify({item:'debtor'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -28,7 +28,7 @@ function DeliveryOrderItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'STOCK'}),
+            body:JSON.stringify({item:'stock'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -159,7 +159,7 @@ function DeliveryOrderItem (props) {
 
     
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='DELIVERY_ORDER' successPath='/DeliveryOrder'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='delivery_order' successPath='/DeliveryOrder'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> printPreview? (
             <PrintPreviewLayoutOne description={DeliveryOrderItem.description} 

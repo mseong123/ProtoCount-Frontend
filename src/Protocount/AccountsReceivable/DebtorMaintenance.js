@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function DebtorMaintenance(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./DebtorItem' item='DEBTOR'
+                <Process createItemPath='./DebtorItem' item='debtor'
                 render={(list)=>{
                     return (
                     <ProcessLayout description={DebtorMaintenance.description} listname={'Debtor'} {...list}/>

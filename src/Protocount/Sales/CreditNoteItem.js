@@ -18,7 +18,7 @@ function CreditNoteItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'DEBTOR'}),
+            body:JSON.stringify({item:'debtor'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -28,7 +28,7 @@ function CreditNoteItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'STOCK'}),
+            body:JSON.stringify({item:'stock'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -38,7 +38,7 @@ function CreditNoteItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'CREDIT_NOTE'}),
+            body:JSON.stringify({item:'credit_note'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -204,7 +204,7 @@ function CreditNoteItem (props) {
 
     
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='CREDIT_NOTE' successPath='/CreditNote'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='credit_note' successPath='/CreditNote'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> printPreview? (
             <PrintPreviewLayoutOne description={CreditNoteItem.description} 

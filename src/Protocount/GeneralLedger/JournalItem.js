@@ -17,7 +17,7 @@ function JournalItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'JOURNAL'}),
+            body:JSON.stringify({item:'journal'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -149,7 +149,7 @@ function JournalItem (props) {
 
     
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='JOURNAL' successPath='/JournalEntry'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='journal' successPath='/JournalEntry'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 
             (<AppLayout >

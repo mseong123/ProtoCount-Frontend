@@ -17,7 +17,7 @@ function BankReceiptItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'DEBTOR'}),
+            body:JSON.stringify({item:'debtor'}),
             credentials:'include'
             }
     });//extension of Item component
@@ -27,7 +27,7 @@ function BankReceiptItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'BANK_RECEIPT'}),
+            body:JSON.stringify({item:'bank_receipt'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -37,7 +37,7 @@ function BankReceiptItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'BANK'}),
+            body:JSON.stringify({item:'bank'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -120,7 +120,7 @@ function BankReceiptItem (props) {
         </div>)
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='BANK_RECEIPT' successPath='/BankReceipt'
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='bank_receipt' successPath='/BankReceipt'
          >
             {
             ({usage,disabled,latestID,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 

@@ -17,7 +17,7 @@ function DebtorItem (props) {
     }
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='DEBTOR' successPath='/DebtorMaintenance'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='debtor' successPath='/DebtorMaintenance'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 
             (<AppLayout >

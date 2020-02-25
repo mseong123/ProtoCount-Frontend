@@ -17,7 +17,7 @@ function CreditorItem (props) {
     }
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='CREDITOR' successPath='/CreditorMaintenance'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='creditor' successPath='/CreditorMaintenance'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 
             (<AppLayout >

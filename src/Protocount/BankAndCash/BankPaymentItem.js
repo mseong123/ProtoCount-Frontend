@@ -17,7 +17,7 @@ function BankPaymentItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'CREDITOR'}),
+            body:JSON.stringify({item:'creditor'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -27,7 +27,7 @@ function BankPaymentItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'BANK_PAYMENT'}),
+            body:JSON.stringify({item:'bank_payment'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -37,7 +37,7 @@ function BankPaymentItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'BANK'}),
+            body:JSON.stringify({item:'bank'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -121,7 +121,7 @@ function BankPaymentItem (props) {
         </div>)
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='BANK_PAYMENT' successPath='/BankPayment'
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='bank_payment' successPath='/BankPayment'
          >
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 

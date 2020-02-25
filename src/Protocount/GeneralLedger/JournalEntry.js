@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function JournalEntry(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./JournalItem' item='JOURNAL'
+                <Process createItemPath='./JournalItem' item='journal'
                 render={(list)=>{
                     return (
                     <ProcessLayout description={JournalEntry.description} listname={'Journal'} {...list}/>

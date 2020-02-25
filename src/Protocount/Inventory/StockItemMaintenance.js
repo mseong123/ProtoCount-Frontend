@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function StockItemMaintenance(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./StockItem' item='STOCK'
+                <Process createItemPath='./StockItem' item='stock'
                 render={(list)=>{
                     return (
                     <ProcessLayout description={StockItemMaintenance.description} listname={'Stock Item'} {...list}/>

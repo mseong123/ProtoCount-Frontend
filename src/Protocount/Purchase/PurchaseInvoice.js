@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function PurchaseInvoice(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./PurchaseInvoiceItem' item='PURCHASE_INVOICE' 
+                <Process createItemPath='./PurchaseInvoiceItem' item='purchase_invoice' 
                 render={(list)=>{
                     return (
                     <ProcessLayout description={PurchaseInvoice.description} listname={PurchaseInvoice.description} {...list}/>

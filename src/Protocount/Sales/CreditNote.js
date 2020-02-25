@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function CreditNote(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./CreditNoteItem' item='CREDIT_NOTE'
+                <Process createItemPath='./CreditNoteItem' item='credit_note'
                 render={(list)=>{
                     return (
                     <ProcessLayout description={CreditNote.description} listname={CreditNote.description} {...list}/>

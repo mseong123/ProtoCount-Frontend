@@ -18,7 +18,7 @@ function SalesInvoiceItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'DEBTOR'}),
+            body:JSON.stringify({item:'debtor'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -28,7 +28,7 @@ function SalesInvoiceItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'STOCK'}),
+            body:JSON.stringify({item:'stock'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -38,7 +38,7 @@ function SalesInvoiceItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'SALES_INVOICE'}),
+            body:JSON.stringify({item:'sales_invoice'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -204,7 +204,7 @@ function SalesInvoiceItem (props) {
 
     
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='SALES_INVOICE' successPath='/SalesInvoice'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='sales_invoice' successPath='/SalesInvoice'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> printPreview? (
             <PrintPreviewLayoutOne description={SalesInvoiceItem.description} 

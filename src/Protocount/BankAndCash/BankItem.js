@@ -17,7 +17,7 @@ function BankItem (props) {
     }
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='BANK' successPath='/BankMaintenance'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='bank' successPath='/BankMaintenance'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 
             (<AppLayout >

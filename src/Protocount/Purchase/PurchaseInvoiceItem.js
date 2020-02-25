@@ -18,7 +18,7 @@ function PurchaseInvoiceItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'CREDITOR'}),
+            body:JSON.stringify({item:'creditor'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -28,7 +28,7 @@ function PurchaseInvoiceItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'STOCK'}),
+            body:JSON.stringify({item:'stock'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -38,7 +38,7 @@ function PurchaseInvoiceItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'PURCHASE_INVOICE'}),
+            body:JSON.stringify({item:'purchase_invoice'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -206,7 +206,7 @@ function PurchaseInvoiceItem (props) {
         </div>)
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='PURCHASE_INVOICE' successPath='/PurchaseInvoice'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='purchase_invoice' successPath='/PurchaseInvoice'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay})=> printPreview? (
             <PrintPreviewLayoutOne description={PurchaseInvoiceItem.description} 

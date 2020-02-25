@@ -17,7 +17,7 @@ function CashPaymentItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'CREDITOR'}),
+            body:JSON.stringify({item:'creditor'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -27,7 +27,7 @@ function CashPaymentItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'CASH_PAYMENT'}),
+            body:JSON.stringify({item:'cash_payment'}),
             credentials:'include'
         }
     });//extension of Item component
@@ -93,7 +93,7 @@ function CashPaymentItem (props) {
         </div>)
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='CASH_PAYMENT' successPath='/CashPayment'
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='cash_payment' successPath='/CashPayment'
          >
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 

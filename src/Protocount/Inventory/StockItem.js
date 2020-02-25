@@ -17,7 +17,7 @@ function StockItem (props) {
     }
 
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='STOCK' successPath='/StockItemMaintenance'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='stock' successPath='/StockItemMaintenance'>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 
             (<AppLayout >

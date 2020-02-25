@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function CreditorMaintenance(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./CreditorItem' item='CREDITOR'
+                <Process createItemPath='./CreditorItem' item='creditor'
                 render={(list)=>{
                     return (
                     <ProcessLayout description={CreditorMaintenance.description} listname={'Creditor'} {...list}/>

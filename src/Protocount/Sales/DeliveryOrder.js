@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function DeliveryOrder(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./DeliveryOrderItem' item='DELIVERY_ORDER'
+                <Process createItemPath='./DeliveryOrderItem' item='delivery_order'
                 render={(list)=>{
                     return (
                     <ProcessLayout description={DeliveryOrder.description} listname={DeliveryOrder.description} {...list}/>

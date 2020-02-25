@@ -74,7 +74,7 @@ function Process(props) {
         }
     function onItemClick(data){
         if(data)   
-            history.push('./'+props.createItemPath+'?item='+props.item+'&id='+data[props.item+'_NUM'])
+            history.push('./'+props.createItemPath+'?item='+props.item+'&id='+data[props.item.toUpperCase()+'_NUM'])
         else 
             history.push('./'+props.createItemPath)
     }

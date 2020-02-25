@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function SalesInvoice(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./SalesInvoiceItem' item='SALES_INVOICE'
+                <Process createItemPath='./SalesInvoiceItem' item='sales_invoice'
                 render={(list)=>{
                     return (
                     <ProcessLayout description={SalesInvoice.description} listname={SalesInvoice.description} {...list}/>

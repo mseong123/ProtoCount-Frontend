@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function PurchaseDebitNote(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./PurchaseDebitNoteItem' item='PURCHASE_DEBIT_NOTE' 
+                <Process createItemPath='./PurchaseDebitNoteItem' item='purchase_debit_note' 
                 render={(list)=>{
                     return (
                     <ProcessLayout description={PurchaseDebitNote.description} listname={PurchaseDebitNote.description} {...list}/>

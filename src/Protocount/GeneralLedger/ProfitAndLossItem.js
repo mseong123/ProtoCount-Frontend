@@ -17,7 +17,7 @@ function ProfitAndLossItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'PROFIT_AND_LOSS'}),
+            body:JSON.stringify({item:'profit_and_loss'}),
             credentials:'include'
         }
     });
@@ -182,7 +182,7 @@ function ProfitAndLossItem (props) {
                                                 ) 
                                                 return (
                                                     <tr key={i} style={{cursor:'pointer'}} onClick={(e)=>
-                                                        history.push('./'+createLink(item2[itemType],item2[itemNumber]))
+                                                        history.push('./'+createLink(item2[itemType].toLowerCase(),item2[itemNumber]))
                                                         }>
                                                         <td className='text-nowrap'>{item2[itemDate]}</td>
                                                         <td className='text-nowrap'>{item2[itemType]}</td>

@@ -17,7 +17,7 @@ function BalanceSheetItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'BALANCE_SHEET'}),
+            body:JSON.stringify({item:'balance_sheet'}),
             credentials:'include'
         }
     });
@@ -240,7 +240,7 @@ function BalanceSheetItem (props) {
                                             ) 
                                             return (
                                                 <tr key={i} style={{cursor:'pointer'}} onClick={(e)=>
-                                                    history.push('./'+createLink(item2[itemType],item2[itemNumber]))
+                                                    history.push('./'+createLink(item2[itemType].toLowerCase(),item2[itemNumber]))
                                                     }>
                                                     <td className='text-nowrap'>{item2[itemDate]}</td>
                                                     <td className='text-nowrap'>{item2[itemType]}</td>
@@ -313,7 +313,7 @@ function BalanceSheetItem (props) {
                                                 ) 
                                                 return (
                                                     <tr key={i} style={{cursor:'pointer'}} onClick={(e)=>
-                                                        history.push('./'+createLink(item2[itemType],item2[itemNumber]))
+                                                        history.push('./'+createLink(item2[itemType].toLowerCase(),item2[itemNumber]))
                                                         }>
                                                         <td className='text-nowrap'>{item2[itemDate]}</td>
                                                         <td className='text-nowrap'>{item2[itemType]}</td>

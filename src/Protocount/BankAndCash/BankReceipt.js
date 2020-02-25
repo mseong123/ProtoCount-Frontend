@@ -6,7 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function BankReceipt(props) {
     return (
             <AppLayout>
-                <Process createItemPath='./BankReceiptItem' item='BANK_RECEIPT'
+                <Process createItemPath='./BankReceiptItem' item='bank_receipt'
                 render={(list)=>{
                     return (
                     <ProcessLayout description={BankReceipt.description} listname={BankReceipt.description} {...list}/>

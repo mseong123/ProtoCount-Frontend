@@ -10,7 +10,7 @@ function AccountMaintenance(props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'ACCOUNT'}),
+            body:JSON.stringify({item:'account'}),
             credentials:'include'
         }
     });
@@ -55,7 +55,7 @@ function AccountMaintenance(props) {
                 init:{
                     method:'POST',
                     headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({item:'ACCOUNT'}),
+                    body:JSON.stringify({item:'account'}),
                     credentials:'include'
                 }
             })
@@ -75,7 +75,7 @@ function AccountMaintenance(props) {
                 init:{
                     method:'POST',
                     headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({item:'ACCOUNT'}),
+                    body:JSON.stringify({item:'account'}),
                     credentials:'include'
                 }
             })
@@ -94,7 +94,7 @@ function AccountMaintenance(props) {
                 init:{
                     method:'POST',
                     headers:{'Content-Type':'application/json'},
-                    body:JSON.stringify({item:'ACCOUNT'}),
+                    body:JSON.stringify({item:'account'}),
                     credentials:'include'
                 }
             })
@@ -155,7 +155,7 @@ function AccountMaintenance(props) {
                                                             method:'POST',
                                                             headers:{'Content-Type':'application/json'},
                                                             body:JSON.stringify({
-                                                                item:'ACCOUNT',
+                                                                item:'account',
                                                                 id:item2[glAccount]
                                                             }),
                                                             credentials:'include'
@@ -238,7 +238,7 @@ function AccountMaintenance(props) {
                                         method:'POST',
                                         headers:{'Content-Type':'application/json'},
                                         body:JSON.stringify({
-                                                item:'ACCOUNT',
+                                                item:'account',
                                                 param:inputStateCreate
                                         }),
                                         credentials:'include'
@@ -278,7 +278,7 @@ function AccountMaintenance(props) {
                                         method:'POST',
                                         headers:{'Content-Type':'application/json'},
                                         body:JSON.stringify({
-                                                item:'ACCOUNT',
+                                                item:'account',
                                                 param:inputStateUpdate
                                         }),
                                         credentials:'include'
