@@ -1,6 +1,6 @@
 # ProtoCount Accounting App
 
-[Live on Heroku](www.protocount.herokuapp.com) 
+[Live on Heroku](http://protocount.herokuapp.com) 
 
 Please use the following login details to access the app and experiment:
 
