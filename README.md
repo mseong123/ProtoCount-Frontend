@@ -24,13 +24,15 @@ git clone https://github.com/mseong123/protocount-create-react-app.git <target f
 cd <target folder>
 npm install
 ```
-2) To initiate development environment type `npm start` in repository local folder and the live app will be pushed to browser. Upon any amendments to source files, app will reload automatically in browser. 
+2) To initiate development environment type `npm start` in repository local folder and the live app will be pushed to browser. Upon any amendments to source files, app will reload automatically in browser.  
 
-*Please note that this app requires the back-end(Node.js and Mysql DB) in order to work. Please refer to [protocount-nodejs-mysql](https://github.com/mseong123/protocount-nodejs-mysql) for installation guidelines.* 
+*Please note that this app requires the back-end(Node.js and Mysql DB) in order to work. Please refer to [protocount-nodejs-mysql]      (https://github.com/mseong123/protocount-nodejs-mysql) for installation guidelines.* 
 
 3) source files and other assets are all included in /src folder. **Only amend these files and nothing else**
 
-4) type `npm run build` to compile source codes into HTML,CSS and JS codes for deployment. These files are contained in /build folder.
+4) type `npm run build` to compile source codes into HTML,CSS and JS codes for deployment. These files are contained in /build folder.  
+
+**See [Create-React-App](https://github.com/facebook/create-react-app) for detailed guidelines on usage of create-react-app tool**
 
 \
 \
