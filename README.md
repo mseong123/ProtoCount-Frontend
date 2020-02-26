@@ -26,7 +26,7 @@ npm install
 ```
 2) To initiate development environment type `npm start` in repository local folder and the live app will be pushed to browser. Upon any amendments to source files, app will reload automatically in browser.  
 
-*Please note that this app requires the back-end(Node.js and Mysql DB) in order to work. Please refer to [protocount-nodejs-mysql]      (https://github.com/mseong123/protocount-nodejs-mysql) for installation guidelines.* 
+*Please note that this app requires the back-end(Node.js and Mysql DB) in order to work. Please refer to* [protocount-nodejs-mysql](https://github.com/mseong123/protocount-nodejs-mysql) *for installation guidelines.* 
 
 3) source files and other assets are all included in /src folder. **Only amend these files and nothing else**
 
