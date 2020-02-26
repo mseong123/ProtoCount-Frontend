@@ -9,7 +9,7 @@ Please use the following login details to access the app and experiment:
 
 ### Description
 Accounting Single Page Application(SPA) built using the following front-end frameworks:
-1) react
+1) react (particularly react hooks)
 2) react-router
 3) bootstrap. 
 
