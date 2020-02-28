@@ -45,7 +45,7 @@ function Login(props) {
                             <label htmlFor='username'>Username:</label>
                             <input type='text' id='username' value={username} onChange={(e)=>changeUsername(e.target.value)} required className='form-control'></input>
                             <label htmlFor='password'>Password:</label>
-                            <input type='text' id='username' value={password} onChange={(e)=>changePassword(e.target.value)} required className='form-control'></input>
+                            <input type='password' id='username' value={password} onChange={(e)=>changePassword(e.target.value)} required className='form-control'></input>
                             <button type='submit' className='btn btn-primary my-3'>Submit</button>
                         </form>
                     </div>
