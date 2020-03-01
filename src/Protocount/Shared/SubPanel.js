@@ -14,7 +14,7 @@ function SubPanel (props) {
 
     return (
     <div className='card border-0 bg-dark text-light rounded-0'>
-        <div className='card-header'>
+        <div className='card-header' style={{backgroundColor:'rgba(0,0,0,0)'}}>
             <a href={'#'+props.name.replace(/ /g,'-')/*replace space for links to work*/} data-toggle='collapse' className='text-decoration-none text-reset'>
                 <h6>
                     {props.name}<img src={props.img} className='ml-3' style={{width:'25px'}} alt={props.name}/>

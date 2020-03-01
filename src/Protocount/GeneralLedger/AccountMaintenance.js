@@ -135,15 +135,15 @@ function AccountMaintenance(props) {
                 glCategoryAlreadyParsed.push(item[glCategory]);
                 result.push(
                     (<div key={item[glCategory]}>
-                        <div className='row py-1 bg-warning' style={{cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[glCategory].replace(/[ ._()]/g,'')}>
+                        <div className='row py-1 bg-dark text-white' style={{cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[glCategory].replace(/[ ._()]/g,'')}>
                             <p className='col-1'><i id={'plusminus'+item[glCategory].replace(/[ ._()]/g,'')} className='fa fa-plus-square mt-1 text-white'></i></p>
                             <p className='col'>{item[glCategory]}</p>
                         </div>
-                        <div className='collapse navbar-collapse' id={item[glCategory].replace(/[ ._()]/g,'')}>
+                        <div className='collapse navbar-collapse bg-secondary' style={{marginLeft:'-15px',marginRight:'-15px'}} id={item[glCategory].replace(/[ ._()]/g,'')}>
                             {data.map((item2,i)=>{
                                 if (item2[glCategory]===item[glCategory]) 
                                     return (
-                                    <div className='row py-1 border border-warning border-top-0' key={item2[glAccount]}>
+                                    <div className='row py-1 border-bottom border-white text-white' style={{margin:0}} key={item2[glAccount]}>
                                         <div className='offset-1 col-5 col-lg-7'>{item2[glDesc]}</div>
                                         <p className='col-3 col-lg-2'>{item2[glAccount]}</p>
                                         {item2[glStatus]==='NORMAL'? 
@@ -329,7 +329,7 @@ function AccountMaintenance(props) {
                         </div>
                     </section>
                    
-                    <section className='container mb-5'>
+                    <section className='container my-5'>
                         <div className='row text-white bg-info rounded-top py-2'>
                             <button className='col-1 btn btn-info' onClick={(e)=>collapsibleElementID.forEach(ID=>
                                 $('#'+ID).collapse('hide')

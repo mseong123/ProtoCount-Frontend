@@ -25,8 +25,11 @@ function SidePanel(props) {
     )
 
     return (
-        <aside id={parent} className={'accordion '+ (props.largeScreenStyle? 'd-none': 'd-block') + ' d-md-block py-md-5 bg-dark '+ (props.largeScreenStyle? 'position-sticky vh-100 overflow-auto':'')} style={{top:'0'}}>
+        <aside id={parent} className={'accordion '+ (props.largeScreenStyle? 'd-none': 'd-block') + ' d-md-block bg-dark '+ (props.largeScreenStyle? 'position-sticky vh-100 overflow-auto':'')} style={{top:'0'}}>
+            <h2 className="text-warning d-none d-md-block " style={{padding:"0.75rem 1.25rem"}}>Accounting <span className='text-info'>Software </span><small className='text-light d-block' style={{fontSize:'40%'}}>@coded by Mseong</small></h2>
+            <h4 className="text-warning d-md-none" style={{padding:"0.75rem 1.25rem"}}>Accounting <span className='text-info'>Software </span><small className='text-light d-block' style={{fontSize:'40%'}}>@coded by Mseong</small></h4>
             {SubPanelList}
+            
         </aside>
     )
 }

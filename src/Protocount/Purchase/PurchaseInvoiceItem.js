@@ -175,7 +175,7 @@ function PurchaseInvoiceItem (props) {
             disabled={disabled}/>
 
             <label htmlFor='subtotal' className='sr-only'/>
-            <input type='number' step='.01' disabled id='subtotal' className='col form-control rounded-0 text-right' 
+            <input type='number' step='.01' disabled id='subtotal' className='col form-control rounded-0 text-center' 
             value={calculateSubtotal(i)} 
             style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}}/>
         </div>)
@@ -294,7 +294,7 @@ function PurchaseInvoiceItem (props) {
                             </div>
 
                             <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-8 offset-2 col-md-4 offset-md-4 text-center' >
+                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
                                     <button type='button' disabled={disabled} className='btn btn-primary' 
                                     onClick={()=>changeInputState([...inputState,[inputState.length-initialNumberInputState+1,'','','','','']])}>
                                         +</button>

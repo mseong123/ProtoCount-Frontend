@@ -244,7 +244,7 @@ function DeliveryOrderItem (props) {
                             </div>
 
                             <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-8 offset-2 col-md-4 offset-md-4 text-center' >
+                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
                                     <button type='button' className='btn btn-primary' disabled={disabled}
                                     onClick={()=>changeInputState([...inputState,[inputState.length-initialNumberInputState+1,'','','']])}>
                                         +</button>
