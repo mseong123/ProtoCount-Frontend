@@ -220,7 +220,7 @@ function SalesInvoiceItem (props) {
                 footer='NET 30 Days. Finance Charge of 1.5% will be made on unpaid balances after 30 days.'
             />)
             :
-            (<AppLayout >
+            (<AppLayout>
                 <div className='container pb-5 px-md-5'>
 
                     {/*Heading renders depending on INSERT or UPDATE/DELETE state*/}

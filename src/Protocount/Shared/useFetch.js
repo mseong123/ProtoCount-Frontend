@@ -1,4 +1,5 @@
-import {useState,useEffect} from 'react'
+import {useState,useEffect,useContext} from 'react'
+import isLoadingContext from './isLoadingContext'
 
 /*a generic fetch hook for fetching all types of data. All known ERRORS occuring in APP, ExpressJS server and DB is handled and stored in 
 data and error state below.  Handle the data and error response in the originating component itself. */
@@ -6,12 +7,13 @@ function useFetch(fetchParam) {
     const [param,changeParam]=useState(fetchParam);
     const [data,changeData] = useState(null);
     const [error,changeError]=useState(null);
+    const {isLoading,changeIsLoading} = useContext(isLoadingContext);
+    
 
     
     useEffect(()=>{
-        
         if(param && param.url) {
-            
+            changeIsLoading(true)
             fetch(param.url,param.init).then(
                 (response)=>{
                     if (!response.ok) {
@@ -28,6 +30,7 @@ function useFetch(fetchParam) {
                     
                     changeError(null)/* ***data and error state is mutually exclusive, reset the error state to null when resolved because
                     useFetch can be used multiple times within a component for different url and usage*/
+                    changeIsLoading(false)
                 }
             ).catch(
                 
@@ -39,12 +42,13 @@ function useFetch(fetchParam) {
                 error=>{
                     changeError(error);
                     changeData(null)//reset data state to null when error happen. See above for reason***. 
+                    changeIsLoading(false)
                 }
             )
             }
     },[param])
 
-return [{data,error},changeParam];
+return [{data,error,isLoading},changeParam];
 }
 
 export default useFetch;

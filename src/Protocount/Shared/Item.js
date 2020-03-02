@@ -82,7 +82,7 @@ function Item(props) {
                         ...inputStateToBePrePopulated.slice(i+1,inputStateToBePrePopulated.length)];
                     })
                     
-                    console.log(dataSelect.data[0][props.item.toUpperCase()+'_NUM'])
+                    
                     changeIDInfo(state=>({
                         ...state,
                         currentIDPrefix:dataSelect.data[0][props.item.toUpperCase()+'_NUM'].substring(0,dataSelect.data[0][props.item.toUpperCase()+'_NUM'].indexOf("-")),
