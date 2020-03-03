@@ -27,8 +27,8 @@ function Login(props) {
                 style={{top:0,left:0, zIndex:'100000',backgroundColor:'rgba(255,255,255,0.6'}}>
                     <div className='spinner-grow' style={{width:'4rem',height:'4rem'}}><span className='sr-only'></span></div>
                 </div>:null}
-                <div className='col-md-4 offset-md-4'>
-                    <div className='jumbotron min-vh-100'>
+                <div className='col-10 offset-1 col-md-4 offset-md-4'>
+                    <div className='jumbotron min-vh-100' style={{marginBottom:0}}>
                         <h1 className='my-5'>
                             Login
                             <img src={logo} alt='logo' style={{width:'35px',height:'35px'}} className='d-inline-block mx-3'/>

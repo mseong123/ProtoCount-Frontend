@@ -338,20 +338,30 @@ function BalanceSheetItem (props) {
         return result;
     }
 
+    let errorDisplay=null;
+    if ((dataSelectBalanceSheet && dataSelectBalanceSheet.error) || errorSelectBalanceSheet) 
+    errorDisplay=(
+        <div className="alert alert-warning">
+            {dataSelectBalanceSheet && dataSelectBalanceSheet.error? 'Balance Sheet Data RETRIEVAL failed errno: '+dataSelectBalanceSheet.error.errno
+            +' code: '+dataSelectBalanceSheet.error.code+' message: '+dataSelectBalanceSheet.error.sqlMessage:null}
+            {errorSelectBalanceSheet? 'Balance Sheet Data RETRIEVAL failed '+errorSelectBalanceSheet : null}
+        </div>)
 
-    /*
-    
-                    */
     return (
         <AppLayout>
             <div className='container py-3 py-md-5 px-md-5 position-relative'>
                 <h4 className='text-center'>{url.companyTitle}</h4>
                 <h4 className='text-center mb-4'>{'Balance Sheet as at ' + url.date}</h4>
-                <div className='text-right position-sticky' style={{top:'10px',zIndex:'1000'}}>
-                    <button className='btn btn-info' style={{width:'2.5rem',height:'2.5rem'}} 
+                {errorDisplay}
+                <div className='text-right'>
+                    <button className='btn btn-dark mr-2' 
+                    onClick={(e)=>collapsibleElementID.forEach(ID=>
+                        $('#'+ID).collapse('show')
+                    )}><i className='fa fa-plus-square'></i> Expand</button>
+                    <button className='btn btn-light'  
                     onClick={(e)=>collapsibleElementID.forEach(ID=>
                         $('#'+ID).collapse('hide')
-                    )}>-</button>
+                    )}> <i className='fa fa-minus-square'></i> Collapse</button>
                 </div>
                 {netAssets}
                 <div className='row my-3 rounded' style={{backgroundColor:'rgba(248,222,126,0.6)'}}>

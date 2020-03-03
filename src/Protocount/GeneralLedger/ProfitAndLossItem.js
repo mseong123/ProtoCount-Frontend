@@ -206,6 +206,16 @@ function ProfitAndLossItem (props) {
         return result;
     }
 
+
+    let errorDisplay=null;
+    if ((dataSelectProfitAndLoss && dataSelectProfitAndLoss.error) || errorSelectProfitAndLoss) 
+    errorDisplay=(
+        <div className="alert alert-warning">
+            {dataSelectProfitAndLoss && dataSelectProfitAndLoss.error? 'Profit and Loss Data RETRIEVAL failed errno: '+dataSelectProfitAndLoss.error.errno
+            +' code: '+dataSelectProfitAndLoss.error.code+' message: '+dataSelectProfitAndLoss.error.sqlMessage:null}
+            {errorSelectProfitAndLoss? 'Profit and Loss Data RETRIEVAL failed '+errorSelectProfitAndLoss : null}
+        </div>)
+
     return (
         <AppLayout>
             <div className='container py-3 py-md-5 px-md-5 position-relative'>
@@ -214,11 +224,16 @@ function ProfitAndLossItem (props) {
                 <h4 className='text-center mb-4'>
                     {'Profit And Loss as at ' + url.date} 
                 </h4>
-                <div className='text-right position-sticky' style={{top:'10px',zIndex:'1000'}}>
-                    <button className='btn btn-info' style={{width:'2.5rem',height:'2.5rem'}} 
+                {errorDisplay}
+                <div className='text-right'>
+                    <button className='btn btn-dark mr-2'  
+                        onClick={(e)=>collapsibleElementID.forEach(ID=>
+                            $('#'+ID).collapse('show')
+                        )}> <i className='fa fa-plus-square'></i> Expand</button>
+                    <button className='btn btn-light'  
                     onClick={(e)=>collapsibleElementID.forEach(ID=>
                         $('#'+ID).collapse('hide')
-                    )}>-</button>
+                    )}> <i className='fa fa-minus-square'></i> Collapse</button>
                 </div>
                 {grossProfit}
                 <div className='row my-3 rounded' style={{backgroundColor:'rgba(248,222,126,0.3)'}}>
