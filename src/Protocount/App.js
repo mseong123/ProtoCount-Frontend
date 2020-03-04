@@ -13,6 +13,7 @@ import authContext from './Shared/authContext';
 import isLoadingContext from './Shared/isLoadingContext';
 
 
+
 function App() {
     //auth default value is false and have to go through Login route when new App is served for first time. See route logic below.
     const [auth,changeAuth]=useState(true);

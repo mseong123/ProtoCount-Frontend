@@ -50,6 +50,7 @@ function AccountMaintenance(props) {
         }
         else if (dataInsert && !dataInsert.error) {
             alert('Insert Successful!')
+            changeInputStateCreate(['','',''])
             changeParamSelectAccount({
                 url:'./SelectItem',
                 init:{
@@ -70,6 +71,7 @@ function AccountMaintenance(props) {
         }
         else if (dataUpdate && !dataUpdate.error) {
             alert('Update Successful!')
+            changeInputStateUpdate(['','','',''])
             changeParamSelectAccount({
                 url:'./SelectItem',
                 init:{

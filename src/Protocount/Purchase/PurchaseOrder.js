@@ -6,12 +6,7 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function PurchaseOrder(props) {
     return (
             <AppLayout>
-                <Process fetchpath='' createItemPath='./CreatePurchaseOrder' 
-                render={(list)=>{
-                    return (
-                    <ProcessLayout description={PurchaseOrder.description} listname={PurchaseOrder.description} {...list}/>
-                    )}
-                }/>
+                <h1>Coming Soon!</h1>
             </AppLayout>
     )
 }

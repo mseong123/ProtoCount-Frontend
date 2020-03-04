@@ -195,7 +195,7 @@ function BalanceSheetItem (props) {
                         return (
                         <div key={item[itemName]}>
                             <div className='row my-1 py-1 rounded bg-secondary text-white' style={{cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[itemName].replace(/[ ._()]/g,'')}>
-                                <p className='col-1'><i className='fa fa-plus-square mt-1 ' id={'plusminus'+item[itemName].replace(/[ ._]/g,'')}></i></p>
+                                <p className='col-1'><i className='fa fa-plus-square mt-1 ' id={'plusminus'+item[itemName].replace(/[ ._()]/g,'')}></i></p>
                                 <p className='h6 col-5 mb-0'>{item[itemName]}</p>
                                 <p className='h6 col text-right mb-0'>{numberFormatParser(data.reduce(
                                     (a,b)=>{
@@ -267,8 +267,8 @@ function BalanceSheetItem (props) {
                 glAccountAlreadyParsed.push(item[glAccount]);
                 result.push(
                     (<div key={item[glAccount]}>
-                        <div className='row background' style={{cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[glDesc].replace(/[ ._]/g,'')}>
-                            <i className='fa fa-plus-square mt-1 col-1' id={'plusminus'+item[glDesc].replace(/[ ._]/g,'')}></i>
+                        <div className='row background' style={{cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[glDesc].replace(/[ ._()]/g,'')}>
+                            <i className='fa fa-plus-square mt-1 col-1' id={'plusminus'+item[glDesc].replace(/[ ._()]/g,'')}></i>
                             <p className='col-2 mb-0'>{item[glAccount]}</p>
                             <p className='col-6 mb-0'>{item[glDesc]}</p>
                             <p className='col text-right mb-0'>{numberFormatParser(data.reduce(
@@ -283,7 +283,7 @@ function BalanceSheetItem (props) {
                             )}
                             </p>
                         </div>
-                        <div className='collapse navbar-collapse my-2 pl-3 pl-md-5 pr-2' id={item[glDesc].replace(/[ ._]/g,'')}>
+                        <div className='collapse navbar-collapse my-2 pl-3 pl-md-5 pr-2' id={item[glDesc].replace(/[ ._()]/g,'')}>
                             {item[itemName]? populateItemName(item):(
                                 <table id='table' className='table table-hover table-responsive-md'>
                                     <thead>

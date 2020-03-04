@@ -1,9 +1,9 @@
 import React from 'react';
-import numberFormatParser from '../Shared/numberFormatParser'
+import numberFormatParser from '../numberFormatParser'
 
 /*Layout for SALES INVOICE,PURCHASE INVOICE,DEBIT NOTE,CREDIT NOTE*/
 
-function PrintPreviewLayoutOne(props) {
+function DocumentOne(props) {
 
     const topLeftInput=props.topLeftInput? props.topLeftInput.map((input,i)=>
         <p className='my-2' key={i}>{input}</p>
@@ -40,9 +40,9 @@ function PrintPreviewLayoutOne(props) {
     
     return (
         <div className='container py-5' style={{maxWidth:'800px'}}>
-            <button type='click' className='btn btn-secondary d-print-none position-fixed' style={{ zIndex:'1000'}}
+            <button type='click' className='btn btn-secondary d-print-none mb-2' 
             onClick={()=>{
-                props.changePrintPreview(!props.printPreview);
+                props.changePreview(!props.preview);
                 document.querySelector("meta[name=viewport]").setAttribute(
                     'content','width=device-width, initial-scale=1.0');
                 }}>Back</button>
@@ -79,4 +79,4 @@ function PrintPreviewLayoutOne(props) {
 }
 
 
-export default PrintPreviewLayoutOne;
+export default DocumentOne;

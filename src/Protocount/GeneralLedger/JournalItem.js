@@ -2,6 +2,7 @@ import React,{useState,useEffect,useContext} from 'react';
 import Item from '../Shared/Item';
 import AppLayout from '../Shared/AppLayout';
 import useFetch from '../Shared/useFetch';
+import numberFormatParser from '../Shared/numberFormatParser';
 import authContext from '../Shared/authContext';
 
 
@@ -116,7 +117,7 @@ function JournalItem (props) {
             <input type='text' id='otherDescription' className='col form-control rounded-0' value={inputState[i+initialNumberInputState][3]?
             inputState[i+initialNumberInputState][3]:''} 
             onChange={(e)=>onChangeJournallineInput(e,i+initialNumberInputState,3)} disabled={disabled}
-            style={{flex:'1 0 150px',paddingLeft:0,paddingRight:0}}/>
+            style={{flex:'1 0 225px',paddingLeft:0,paddingRight:0}}/>
 
             <label htmlFor='debit' className='sr-only'/>
             <input type='number' min='0' step='.01' id='debit' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][4]?
@@ -209,7 +210,7 @@ function JournalItem (props) {
                                     <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Line Number</h6>
                                     <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>GL Code</h6>
                                     <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>GL Desc</h6>
-                                    <h6 className='col' style={{flex:'1 0 150px',paddingLeft:10,paddingRight:10}}>Other Description</h6>
+                                    <h6 className='col' style={{flex:'1 0 225px',paddingLeft:10,paddingRight:10}}>Other Description</h6>
                                     <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Debit</h6>
                                     <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Credit</h6>
                                 </div>
@@ -222,10 +223,10 @@ function JournalItem (props) {
                                 </div>
                             ):null}
                             <h5 className='text-right my-3'> 
-                                {'Total Debit: '+calculateDebitTotal()}
+                                {'Total Debit: '+numberFormatParser(calculateDebitTotal())}
                             </h5>
                             <h5 className='text-right my-3'>
-                                {'Total Crebit: '+calculateCreditTotal()}
+                                {'Total Crebit: '+numberFormatParser(calculateCreditTotal())}
                             </h5>
                                 
                         </fieldset>

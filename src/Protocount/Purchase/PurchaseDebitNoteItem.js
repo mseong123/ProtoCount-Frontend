@@ -2,7 +2,8 @@ import React,{useState,useEffect,useContext} from 'react';
 import Item from '../Shared/Item';
 import ItemButton from '../Shared/ItemButton';
 import AppLayout from '../Shared/AppLayout';
-import PrintPreviewLayoutOne from '../Shared/PrintPreviewLayoutOne'
+import DocumentOne from '../Shared/preview/DocumentOne';
+import numberFormatParser from '../Shared/numberFormatParser';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
 
@@ -50,7 +51,7 @@ function PurchaseDebitNoteItem (props) {
     /*8 initial core inputState array elements. Amend the number if additional input added in future. PurchaseDebitNoteline input elements are 
     added at end of inputState array*/
     const [initialNumberInputState]=useState(8);
-    const [printPreview,changePrintPreview]=useState(false);
+    const [preview,changePreview]=useState(false);
     const {changeAuth} = useContext(authContext);
 
     useEffect(()=>{
@@ -155,7 +156,7 @@ function PurchaseDebitNoteItem (props) {
             <label htmlFor='description' className='sr-only'/>
             <input type='text' id='description' required className='col form-control rounded-0' value={inputState[i+initialNumberInputState][2]} 
             onChange={(e)=>onChangePurchaseDebitNotelineInput(e,i+initialNumberInputState,2)} disabled={disabled}
-            style={{flex:'1 0 135px',paddingLeft:0,paddingRight:0}}/>
+            style={{flex:'1 0 225px',paddingLeft:0,paddingRight:0}}/>
 
             <label htmlFor='price' className='sr-only'/>
             <input type='number' required min='0' step='.01' id='price' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][3]} 
@@ -173,8 +174,8 @@ function PurchaseDebitNoteItem (props) {
             style={{flex:'1 0 75px',paddingLeft:0,paddingRight:0}}/>
 
             <label htmlFor='subtotal' className='sr-only'/>
-            <input type='number' step='.01' disabled id='subtotal' className='col form-control rounded-0 text-center' 
-            value={calculateSubtotal(i)} 
+            <input type='text' step='.01' disabled id='subtotal' className='col form-control rounded-0 text-center' 
+            value={numberFormatParser(calculateSubtotal(i))} 
             style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}}/>
         </div>)
         )
@@ -206,10 +207,10 @@ function PurchaseDebitNoteItem (props) {
     return (
         <Item inputState={inputState} changeInputState={changeInputState} url={url} item='purchase_debit_note' successPath='/PurchaseDebitNote'>
             {
-            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> printPreview? (
-            <PrintPreviewLayoutOne description={PurchaseDebitNoteItem.description} 
-                changePrintPreview={changePrintPreview}
-                printPreview={printPreview}
+            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> preview? (
+            <DocumentOne description={PurchaseDebitNoteItem.description} 
+                changePreview={changePreview}
+                preview={preview}
                 topLeftInput={[inputState[1],inputState[2]]}
                 topRightField={[PurchaseDebitNoteItem.description+' No','Date','Other Description']}
                 topRightInput={[inputState[3],inputState[4],inputState[5]]}
@@ -317,7 +318,7 @@ function PurchaseDebitNoteItem (props) {
                                     <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}}>
                                         <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Line Number</h6>
                                         <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Item Code</h6>
-                                        <h6 className='col' style={{flex:'1 0 135px',paddingLeft:10,paddingRight:10}}>Description</h6>
+                                        <h6 className='col' style={{flex:'1 0 225px',paddingLeft:10,paddingRight:10}}>Description</h6>
                                         <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Price</h6>
                                         <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Qty</h6>
                                         <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Discount</h6>
@@ -328,14 +329,14 @@ function PurchaseDebitNoteItem (props) {
                                 </div>
                                 <h5 className='text-right my-3'>
                                     
-                                    {'Total: '+calculateTotal()}
+                                    {'Total: '+numberFormatParser(calculateTotal())}
                                     </h5>
                                 
                             </fieldset>
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 
-                        changeDisabled={changeDisabled} printPreview={printPreview} changePrintPreview={changePrintPreview}/>
+                        changeDisabled={changeDisabled} preview={preview} changePreview={changePreview}/>
                         
                         
                         

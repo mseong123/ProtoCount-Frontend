@@ -11,12 +11,12 @@ function ItemButton(props) {
             {props.usage==='UPDATE/DELETE'?(
                 <button type='button' onClick={(e)=>{props.onDelete()}} className='btn btn-danger mx-1 my-1'>Delete</button>
             ):null}
-            {props.changePrintPreview? (
+            {props.changePreview? (
                 <button type='button' onClick={(e)=>{
-                    props.changePrintPreview(!props.printPreview);
+                    props.changePreview(!props.preview);
                     document.querySelector("meta[name=viewport]").setAttribute(
                         'content','width=device-width, initial-scale=0.5');
-                }} className='btn btn-info mx-1 my-1'>Print Preview</button>
+                }} className='btn btn-info mx-1 my-1'>Preview</button>
             ):null}
         </div>
     )

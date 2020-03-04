@@ -189,8 +189,8 @@ function CashPaymentItem (props) {
                             <div className='form-group form-row col-md-5 mx-3'>
                                 <label htmlFor='amount'>Amount <span className='text-warning'>*</span></label>
                                 <input type='number' id='amount' onChange={(e)=>onChange(e.target.value,6)} value={inputState[6]} 
-                                disabled={disabled} required min={isCreditorPayment?'default':'0'} className='form-control'/>
-                                <small className="text-warning">If transaction is REFUND from Creditor, use negative amount</small>
+                                disabled={disabled} required min='0' step='.01' className='form-control'/>
+                                
                             </div>
 
                         </div>
