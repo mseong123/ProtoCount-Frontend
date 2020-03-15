@@ -6,7 +6,12 @@ import ProcessLayout from '../Shared/ProcessLayout';
 function PurchaseReturn(props) {
     return (
             <AppLayout>
-                <h1>Coming Soon!</h1>
+                <Process createItemPath='./PurchaseReturnItem' item='purchase_return'
+                render={(list)=>{
+                    return (
+                    <ProcessLayout description={PurchaseReturn.description} listname={PurchaseReturn.description} {...list}/>
+                    )}
+                }/>
             </AppLayout>
     )
 }

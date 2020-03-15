@@ -56,41 +56,52 @@ function Item(props) {
     
     const {changeAuth} = useContext(authContext)
     const history=useHistory();
+    
+    /*The below useEffect logic conditions to handle each type of data fetched using the useFetch hooks*/
+
+    useEffect(()=>{        
+
+        /* 1) For 'UPDATE/DELETE' state, pre-populate input state with fetched data. Input state are set at parent component (ie. StockItem.js,
+        DeliveryOrderItem.js) and changeState functions for each input state are passed as prop (props.changeInputState) 
+        to this component for initial pre-population once dataSelect is resolved*/ 
+
+        if (dataSelect && dataSelect.auth===false) {
+            /*if server sends object.auth===false due to failed cookie validation, will auto-redirect to /Login page after alert.
+            Same for all types of data fetch*/
+                alert('Cookies Expired or Authorisation invalid. Please Login again!')
+                changeAuth(false)
+            }
+            
+        else if (dataSelect && dataSelect.field && dataSelect.data[0]) {
+                /*In order for correct pre-population of input state, make sure that in the parent component, order of inputState
+                array elements correspond to field order in DB (ie if STOCK_NUM is first field column in DB, inputState[0] will be 
+                populated with fetched data from DB for field STOCK_NUM) */
+                let inputStateToBePrePopulated=[];
+                dataSelect.field.forEach((field,i)=>{
+                    inputStateToBePrePopulated=
+                    [...inputStateToBePrePopulated.slice(0,i),(dataSelect.data[0][field.name]?dataSelect.data[0][field.name]:''),
+                    ...inputStateToBePrePopulated.slice(i+1,inputStateToBePrePopulated.length)];
+                })
+                
+                
+                changeIDInfo(state=>({
+                    ...state,
+                    currentIDPrefix:dataSelect.data[0][props.item.toUpperCase()+'_NUM'].substring(0,dataSelect.data[0][props.item.toUpperCase()+'_NUM'].indexOf("-")),
+                }))
+                props.changeInputState(inputStateToBePrePopulated)
+                
+                if(props.changeParamOutstanding)
+                    props.changeParamOutstanding(
+                        props.paramOutstanding(
+                            inputStateToBePrePopulated[props.debtorCreditorNumPosition],
+                            inputStateToBePrePopulated[props.oldNumPosition]
+                            )
+                        )
+            }
+                
+        },[dataSelect,errorSelect])
 
     useEffect(()=>{
-            /*The below logic conditions to handle each type of data fetched using the useFetch hooks*/
-
-            /* 1) For 'UPDATE/DELETE' state, pre-populate input state with fetched data. Input state are set at parent component (ie. StockItem.js,
-            DeliveryOrderItem.js) and changeState functions for each input state are passed as prop (props.changeInputState) 
-            to this component for initial pre-population once dataSelect is resolved*/ 
-
-            if (dataSelect && dataSelect.auth===false) {
-                /*if server sends object.auth===false due to failed cookie validation, will auto-redirect to /Login page after alert.
-                Same for all types of data fetch*/
-                    alert('Cookies Expired or Authorisation invalid. Please Login again!')
-                    changeAuth(false)
-                }
-                
-            else if (dataSelect && dataSelect.field && dataSelect.data[0]) {
-                    /*In order for correct pre-population of input state, make sure that in the parent component, order of inputState
-                    array elements correspond to field order in DB (ie if STOCK_NUM is first field column in DB, inputState[0] will be 
-                    populated with fetched data from DB for field STOCK_NUM) */
-                    let inputStateToBePrePopulated=[];
-                    dataSelect.field.forEach((field,i)=>{
-                        inputStateToBePrePopulated=
-                        [...inputStateToBePrePopulated.slice(0,i),(dataSelect.data[0][field.name]?dataSelect.data[0][field.name]:''),
-                        ...inputStateToBePrePopulated.slice(i+1,inputStateToBePrePopulated.length)];
-                    })
-                    
-                    
-                    changeIDInfo(state=>({
-                        ...state,
-                        currentIDPrefix:dataSelect.data[0][props.item.toUpperCase()+'_NUM'].substring(0,dataSelect.data[0][props.item.toUpperCase()+'_NUM'].indexOf("-")),
-                    }))
-                    props.changeInputState(inputStateToBePrePopulated)
-                    
-                }
-
             /*2) obtain latest primary list key from DB for this item*/
             if (dataIDList && dataIDList.auth===false) {
                     alert('Cookies Expired or Authorisation invalid. Please Login again!');
@@ -151,7 +162,9 @@ function Item(props) {
             }
 
             
-    },[dataSelect,errorSelect,dataIDList,errorIDList,dataInsert,errorInsert,dataUpdate,errorUpdate,dataDelete,errorDelete])
+    },[dataIDList,errorIDList,dataInsert,errorInsert,dataUpdate,errorUpdate,dataDelete,errorDelete])
+
+    
 
     function onInsert() {
         changeParamInsert({
@@ -268,12 +281,17 @@ function Item(props) {
         <div className="alert alert-warning">
             {dataSelect && dataSelect.error? 'Data RETRIEVAL for item failed errno: '+dataSelect.error.errno+' code: '+dataSelect.error.code+' message: '+dataSelect.error.sqlMessage:null}
             {errorSelect? 'Data RETRIEVAL for item failed '+errorSelect : null}
+            
             {dataInsert && dataInsert.error? 'Data INSERT for item failed errno: '+dataInsert.error.errno+' code: '+dataInsert.error.code+' message: '+dataInsert.error.sqlMessage:null}
             {errorInsert? 'Data INSERT for item failed '+errorInsert : null}
+            
             {dataUpdate && dataUpdate.error? 'Data UPDATE for item failed errno: '+dataUpdate.error.errno+' code: '+dataUpdate.error.code+' message: '+dataUpdate.error.sqlMessage:null}
             {errorUpdate? 'Data UPDATE for item failed '+errorUpdate : null}
+            
             {dataDelete && dataDelete.error? 'Data DELETE for item failed errno: '+dataDelete.error.errno+' code: '+dataDelete.error.code+' message: '+dataDelete.error.sqlMessage:null}
             {errorDelete? 'Data DELETE for item failed '+errorDelete : null}
+            <br/>
+            <br/>
             {dataIDList && dataIDList.error? 'ID RETRIEVAL for item failed errno: '+dataIDList.error.errno+' code: '+dataIDList.error.code+' message: '+dataIDList.error.sqlMessage:null}
             {errorIDList? 'ID RETRIEVAL for item failed '+errorIDList:null}
         </div>

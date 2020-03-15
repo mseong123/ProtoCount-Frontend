@@ -16,13 +16,13 @@ import SalesSVG from './svg/006-call.svg';
 
 
 //Purchase
-import PurchaseOrder from '../Purchase/PurchaseOrder';
 import PurchaseReturn from '../Purchase/PurchaseReturn';
 import PurchaseInvoice from '../Purchase/PurchaseInvoice';
 import PurchaseDebitNote from '../Purchase/PurchaseDebitNote';
 import PurchaseCreditNote from '../Purchase/PurchaseCreditNote';
 import PurchaseReport from '../Purchase/PurchaseReport';
 import SupplierPriceListReport from '../Purchase/SupplierPriceListReport';
+import PurchaseReturnItem from '../Purchase/PurchaseReturnItem';
 import PurchaseInvoiceItem from '../Purchase/PurchaseInvoiceItem';
 import PurchaseDebitNoteItem from '../Purchase/PurchaseDebitNoteItem';
 import PurchaseCreditNoteItem from '../Purchase/PurchaseCreditNoteItem';
@@ -92,7 +92,7 @@ Same with description string (ie DeliveryOrder.description='Delivery Order') use
 const ComponentSummary = [ 
     {name:'Dashboard',svg:DashboardSVG ,process:[Dashboard], item:[], report:[]},
     {name:'Sales',svg:SalesSVG ,process:[DeliveryOrder,SalesInvoice,DebitNote,CreditNote], item:[DeliveryOrderItem,SalesInvoiceItem,DebitNoteItem,CreditNoteItem], report:[SalesReport]},
-    {name:'Purchase',svg:PurchaseSVG ,process:[PurchaseOrder,PurchaseReturn,PurchaseInvoice,PurchaseDebitNote,PurchaseCreditNote], item:[PurchaseInvoiceItem,PurchaseDebitNoteItem,PurchaseCreditNoteItem], report:[PurchaseReport,SupplierPriceListReport]},
+    {name:'Purchase',svg:PurchaseSVG ,process:[PurchaseReturn,PurchaseInvoice,PurchaseDebitNote,PurchaseCreditNote], item:[PurchaseReturnItem,PurchaseInvoiceItem,PurchaseDebitNoteItem,PurchaseCreditNoteItem], report:[PurchaseReport,SupplierPriceListReport]},
     {name:'Inventory',svg:InventorySVG ,process:[StockItemMaintenance], item:[StockItem], report:[StockCardReport,StockAgingReport]},
     {name:'Bank and Cash',svg:BankAndCashSVG ,process:[BankMaintenance,BankReceipt,BankPayment,CashReceipt,CashPayment], item:[BankItem,BankReceiptItem,BankPaymentItem,CashReceiptItem,CashPaymentItem], report:[]},
     {name:'Accounts Receivable',svg:AccountsReceivableSVG ,process:[DebtorMaintenance], item:[DebtorItem], report:[DebtorAgingReport,DebtorBalanceReport,DebtorCollectionReport]},

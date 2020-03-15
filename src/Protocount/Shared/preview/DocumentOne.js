@@ -60,7 +60,9 @@ function DocumentOne(props) {
             <hr className='border border-secondary my-3'/>
             <table className='table table-bordered'>
                 <thead>
-                    {bottomField}
+                    <tr>
+                        {bottomField}
+                    </tr>
                 </thead>
                     
                 <tbody>

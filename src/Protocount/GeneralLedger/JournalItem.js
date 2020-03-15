@@ -23,11 +23,12 @@ function JournalItem (props) {
         }
     });//extension of Item component
 
+    
+    const linePosition=4;
+
     const [GLCodeList,changeGLCodeList] = useState(null);
-    const [inputState,changeInputState]=useState(['','','',''])
-    /*4 initial core inputState array elements. Amend the number if additional input added in future. Journalline input elements are 
-    added at end of inputState array*/
-    const [initialNumberInputState]=useState(4);
+    const [inputState,changeInputState]=useState(['','','','',[]])
+    
     const [notBalanced,changeNotBalanced]=useState(false);
     const {changeAuth} = useContext(authContext);
 
@@ -51,26 +52,30 @@ function JournalItem (props) {
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1)])
     }
-    function onChangeJournallineInput(e,order,innerOrder) {
-        changeInputState([...inputState.slice(0,order),inputState.slice(order,order+1)[0].slice(0,innerOrder).concat(e.target.value)
-        .concat(inputState.slice(order,order+1)[0].slice(innerOrder+1,inputState.slice(order,order+1)[0].length)),
-        ...inputState.slice(order+1)])
+    function onChangeJournallineInput(e,order,lineNumber,innerOrder) {
+        changeInputState(inputState.slice(0,order)
+        .concat([inputState[order].slice(0,lineNumber)
+        .concat([inputState[order][lineNumber].slice(0,innerOrder)
+        .concat(e)
+        .concat(inputState[order][lineNumber].slice(innerOrder+1))])
+        .concat(inputState[order].slice(lineNumber+1))])
+        .concat(inputState.slice(order+1)))
     }
 
     function calculateDebitTotal() {
         let total=0
-        inputState.slice(initialNumberInputState).forEach((journallineSet,i)=>{
-            if(inputState[i+initialNumberInputState][4])
-             total+=parseFloat(inputState[i+initialNumberInputState][4])
+        inputState[linePosition].forEach((journallineSet,i)=>{
+            if(inputState[linePosition][i][4])
+             total+=parseFloat(inputState[linePosition][i][4])
         })
         return total.toFixed(2);
     }
 
     function calculateCreditTotal() {
         let total=0
-        inputState.slice(initialNumberInputState).forEach((journallineSet,i)=>{
-            if(inputState[i+initialNumberInputState][5]) {
-             total+=parseFloat(inputState[i+initialNumberInputState][5])
+        inputState[linePosition].forEach((journallineSet,i)=>{
+            if(inputState[linePosition][i][5]) {
+             total+=parseFloat(inputState[linePosition][i][5])
             }
         })
         return total.toFixed(2);
@@ -78,17 +83,19 @@ function JournalItem (props) {
     
     function journallineListRender(disabled) {
     return(
-        inputState.slice(initialNumberInputState).map((journallineSet,i)=>
+        inputState[linePosition].map((journallineSet,i)=>
         <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}} key={i}>
             {/*set fixed flex basis so layout is consistent with h6 header as well*/}
             <label htmlFor='lineNumber' className='sr-only'/>
-            <input type='number' id='lineNumber' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][0]?
-            inputState[i+initialNumberInputState][0]:''} 
-            onChange={(e)=>e} style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}} disabled={disabled}/>
-            <div className='col input-group' style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}}>
+            <input type='number' id='lineNumber' className='col form-control rounded-0 text-center' value={inputState[linePosition][i][0]?
+            inputState[linePosition][i][0]:''} 
+            onChange={(e)=>e} style={{flex:'1 0 90px',paddingLeft:10,paddingRight:0}} disabled={disabled}/>
+
+            <div className='col input-group' style={{flex:'1 0 120px',paddingLeft:0,paddingRight:0}}>
                 <label htmlFor='glCode' className='sr-only'/>
                 <input type='text' id ='glCode' required className='form-control rounded-0' disabled={disabled}
-                value={inputState[i+initialNumberInputState][1]?inputState[i+initialNumberInputState][1]:''} onChange={(e)=>e}/>
+                style={{paddingLeft:10}}
+                value={inputState[linePosition][i][1]?inputState[linePosition][i][1]:''} onChange={(e)=>e}/>
                 <select className='form-control rounded-0' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>{
                         let glDescription='';
                         dataSelectGLCode.data.forEach(data=>{
@@ -97,39 +104,43 @@ function JournalItem (props) {
                             if(data[dataSelectGLCode.field[0].name]==e.target.value) 
                                 glDescription=data[dataSelectGLCode.field[1].name]?data[dataSelectGLCode.field[1].name]:'';
                         })
+
+                        changeInputState(inputState.slice(0,linePosition)
+                        .concat([inputState[linePosition].slice(0,i)
+                        .concat([inputState[linePosition][i].slice(0,1)
+                        .concat(e.target.value).concat(glDescription)
+                        .concat(inputState[linePosition][i].slice(3))])
+                        .concat(inputState[linePosition].slice(i+1))])
+                        .concat(inputState.slice(linePosition+1)))
         
-                        changeInputState([...inputState.slice(0,i+initialNumberInputState),[i+1].concat([e.target.value]).concat(glDescription)
-                        .concat(inputState.slice(i+initialNumberInputState,i+initialNumberInputState+1)[0]
-                        .slice(3,inputState.slice(i+initialNumberInputState,i+initialNumberInputState+1)[0].length)),
-                        ...inputState.slice(i+initialNumberInputState+1)])
                         }}>
                     <option value=''>-select an option- </option>
                     {GLCodeList}
                 </select>
             </div>
             <label htmlFor='glDescription' className='sr-only'/>
-            <input type='text' id='glDescription' required className='col form-control rounded-0' value={inputState[i+initialNumberInputState][2]?
-            inputState[i+initialNumberInputState][2]:''} 
+            <input type='text' id='glDescription' required className='col form-control rounded-0' value={inputState[linePosition][i][2]?
+            inputState[linePosition][i][2]:''} 
             onChange={(e)=>e} disabled={disabled}
-            style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}}/>
+            style={{flex:'1 0 120px',paddingLeft:10,paddingRight:0}}/>
 
             <label htmlFor='otherDescription' className='sr-only'/>
-            <input type='text' id='otherDescription' className='col form-control rounded-0' value={inputState[i+initialNumberInputState][3]?
-            inputState[i+initialNumberInputState][3]:''} 
-            onChange={(e)=>onChangeJournallineInput(e,i+initialNumberInputState,3)} disabled={disabled}
-            style={{flex:'1 0 225px',paddingLeft:0,paddingRight:0}}/>
+            <input type='text' id='otherDescription' className='col form-control rounded-0' value={inputState[linePosition][i][3]?
+            inputState[linePosition][i][3]:''} 
+            onChange={(e)=>onChangeJournallineInput(e.target.value,linePosition,i,3)} disabled={disabled}
+            style={{flex:'1 0 225px',paddingLeft:10,paddingRight:0}}/>
 
             <label htmlFor='debit' className='sr-only'/>
-            <input type='number' min='0' step='.01' id='debit' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][4]?
-            inputState[i+initialNumberInputState][4]:''} 
-            onChange={(e)=>onChangeJournallineInput(e,i+initialNumberInputState,4)} disabled={disabled}
-            style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}}/>
+            <input type='number' min='0' step='.01' id='debit' className='col form-control rounded-0 text-center' value={inputState[linePosition][i][4]?
+            inputState[linePosition][i][4]:''} 
+            onChange={(e)=>onChangeJournallineInput(e.target.value,linePosition,i,4)} disabled={disabled}
+            style={{flex:'1 0 90px',paddingLeft:10,paddingRight:0}}/>
 
             <label htmlFor='credit' className='sr-only'/>
-            <input type='number' min='0' step='.01' id='credit' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][5]?
-            inputState[i+initialNumberInputState][5]:''} 
-            onChange={(e)=>onChangeJournallineInput(e,i+initialNumberInputState,5)} disabled={disabled}
-            style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}}/>
+            <input type='number' min='0' step='.01' id='credit' className='col form-control rounded-0 text-center' value={inputState[linePosition][i][5]?
+            inputState[linePosition][i][5]:''} 
+            onChange={(e)=>onChangeJournallineInput(e.target.value,linePosition,i,5)} disabled={disabled}
+            style={{flex:'1 0 90px',paddingLeft:10,paddingRight:0}}/>
 
         </div>)
         )
@@ -195,21 +206,32 @@ function JournalItem (props) {
                         <fieldset className='form-group border border-secondary pb-4 rounded px-3'>
                             <legend className='col-form-label col-8 offset-2 col-md-4 offset-md-4 text-center' >
                                 <button type='button' className='btn btn-primary' disabled={disabled}
-                                onClick={()=>changeInputState([...inputState,[inputState.length-initialNumberInputState+1,'','','','','']])}>
+                                onClick={()=>
+                                    changeInputState(
+                                        inputState.slice(0,linePosition)
+                                        .concat([inputState[linePosition].slice(0)
+                                            .concat(
+                                                [[inputState[linePosition].length+1,'','','','','']])])
+                                        .concat(inputState.slice(linePosition+1))
+                                    )
+                                }>
                                     +</button>
                                 <h6 className='d-inline-block mx-2 mx-md-4'>Journal Line</h6>
-                                <button type='button' className='btn btn-secondary' disabled={disabled} onClick={()=>changeInputState([
-                                    ...inputState.slice(0,initialNumberInputState),
-                                    ...inputState.slice(initialNumberInputState,inputState.length-1)
-                                    ])
+                                <button type='button' className='btn btn-secondary' disabled={disabled} 
+                                onClick={()=>
+                                    changeInputState(
+                                        inputState.slice(0,linePosition)
+                                        .concat([inputState[linePosition].slice(0,inputState[linePosition].length-1)])
+                                        .concat(inputState.slice(linePosition+1))
+                                    )
                                 }>-</button>
                             </legend>
                             <div className="overflow-auto">
                                 {/*flex nowrap and overflow auto for mobile view*/}
                                 <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}}>
                                     <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Line Number</h6>
-                                    <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>GL Code</h6>
-                                    <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>GL Desc</h6>
+                                    <h6 className='col' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10}}>GL Code</h6>
+                                    <h6 className='col' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10}}>GL Desc</h6>
                                     <h6 className='col' style={{flex:'1 0 225px',paddingLeft:10,paddingRight:10}}>Other Description</h6>
                                     <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Debit</h6>
                                     <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Credit</h6>

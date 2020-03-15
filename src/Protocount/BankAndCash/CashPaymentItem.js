@@ -4,7 +4,8 @@ import ItemButton from '../Shared/ItemButton';
 import AppLayout from '../Shared/AppLayout';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
-
+import OffsetRender from '../Shared/OffsetRender';
+import numberFormatParser from '../Shared/numberFormatParser';
 
 
 function CashPaymentItem (props) {
@@ -32,10 +33,28 @@ function CashPaymentItem (props) {
         }
     });//extension of Item component
 
+    const [{data:dataSelectCreditorOutstanding,error:errorSelectCreditorOutstanding},changeParamCreditorOutstanding]=useFetch(null);//extension of Item component
+
+    /*Position of inputState variable used in other components. */
+    const creditorNumPosition=1;
+    const amountPosition=6;
+    const glPosition=7;
+    const oldNumPosition=9;
+    const offsetPositionPurchaseInvoice=10;
+    const offsetPositionPurchaseDebitNote=11;
+
+    /*inputState offset inner positions*/
+    const offsetDocNumPosition=0;
+    const offsetAmountPosition=1;
+
+    const offsetDescriptionOne='PURCHASE INVOICE';
+    const offsetDescriptionTwo='PURCHASE DEBIT NOTE';
+
     const [creditorList,changeCreditorList] = useState(null);
     const [GLCodeList,changeGLCodeList] = useState(null);
+    const [errorUnappliedAmount,changeErrorUnappliedAmount] = useState(null);
     const [isCreditorPayment,changeIsCreditorPayment] = useState(true);
-    const [inputState,changeInputState]=useState(['','','','','','','','','','']) 
+    const [inputState,changeInputState]=useState(['','','','','','','','','','',[],[]]) 
     const {changeAuth} = useContext(authContext);
 
     useEffect(()=>{
@@ -66,35 +85,90 @@ function CashPaymentItem (props) {
                 )
             )
         
-        if (inputState[7]!=='') {
+        if (inputState[glPosition]!=='') {
             changeIsCreditorPayment(false)
         }
 
-    },[dataSelectCreditor,errorSelectCreditor,dataSelectGLCode,errorSelectGLCode,inputState[7]])
+    },[dataSelectCreditor,errorSelectCreditor,dataSelectGLCode,errorSelectGLCode,inputState[glPosition]])
+
+    /*have a separate useeffect for debtor outstanding fetch because fetch happens many time during lifecycle of component*/
+
+    useEffect(()=>{
+        if (dataSelectCreditorOutstanding && dataSelectCreditorOutstanding.auth===false) {
+            alert('Cookies Expired or Authorisation invalid. Please Login again!');
+            changeAuth(false);
+        }
+    },[dataSelectCreditorOutstanding,errorSelectCreditorOutstanding])
+
+    function paramCreditorOutstanding(creditorNum,oldNum){
+        return {
+            url:'./getCreditorOutstanding',
+            init:{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    creditorNum:creditorNum,
+                    oldNum:oldNum
+                }),
+                credentials:'include'
+            }
+        }
+    }
 
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1,inputState.length)])
+    }
+
+    function calculateTotal() {
+        return +(inputState[amountPosition]);
+    }
+
+    function calculateUnappliedAmount(exclude) {
+        return inputState[offsetPositionPurchaseDebitNote].reduce((a,b)=>{
+            
+            if(exclude===b[offsetDocNumPosition]) {
+                return a
+            }     
+            else return a-b[offsetAmountPosition];
+        },inputState[offsetPositionPurchaseInvoice].reduce((a,b)=>{
+            
+            if(exclude===b[offsetDocNumPosition]) {
+                return a
+            }     
+            else return a-b[offsetAmountPosition];
+        },calculateTotal())
+        )
     }
     
     /*error display extension from error display already provided by Item Component*/
     let errorDisplayExtension=null;
     
-    if ((dataSelectCreditor && dataSelectCreditor.error) || errorSelectCreditor || (dataSelectGLCode && dataSelectGLCode.error) || errorSelectGLCode ) 
+    if ((dataSelectCreditor && dataSelectCreditor.error) || errorSelectCreditor || (dataSelectGLCode && dataSelectGLCode.error) 
+    || errorSelectGLCode || (dataSelectCreditorOutstanding && dataSelectCreditorOutstanding.error) ||
+    errorSelectCreditorOutstanding ) 
     errorDisplayExtension=(
         <div className="alert alert-warning">
             {dataSelectCreditor && dataSelectCreditor.error? 'Creditor List RETRIEVAL for item failed errno: '+dataSelectCreditor.error.errno
             +' code: '+dataSelectCreditor.error.code+' message: '+dataSelectCreditor.error.sqlMessage:null}
             {errorSelectCreditor? 'Creditor List RETRIEVAL for item failed '+errorSelectCreditor : null}
-            
+            <br/>
+            <br/>
             {dataSelectGLCode && dataSelectGLCode.error? 'GL Code List RETRIEVAL for item failed errno: '+dataSelectGLCode.error.errno
             +' code: '+dataSelectGLCode.error.code+' message: '+dataSelectGLCode.error.sqlMessage:null}
             {errorSelectGLCode? 'GL Code List RETRIEVAL for item failed '+errorSelectGLCode : null}
+            <br/>
+            <br/>
+            {dataSelectCreditorOutstanding && dataSelectCreditorOutstanding.error? 'Creditor Outstanding List RETRIEVAL for item failed errno: '
+            + dataSelectCreditorOutstanding.error.errno +' code: '+dataSelectCreditorOutstanding.error.code+' message: '+ 
+            dataSelectCreditorOutstanding.error.sqlMessage:null}
+            {errorSelectCreditorOutstanding? 'Creditor Outstanding List RETRIEVAL for item failed '+errorSelectCreditorOutstanding : null}
 
         </div>)
 
     return (
         <Item inputState={inputState} changeInputState={changeInputState} url={url} item='cash_payment' successPath='/CashPayment'
-         >
+        paramOutstanding={paramCreditorOutstanding} changeParamOutstanding={changeParamCreditorOutstanding} 
+        debtorCreditorNumPosition={creditorNumPosition} oldNumPosition={oldNumPosition}>
             {
             ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 
             (<AppLayout >
@@ -109,12 +183,25 @@ function CashPaymentItem (props) {
 
                     {/*onInsert and onUpdate needs to be attached to HTML form onSubmit eventhandler since native HTML form 
                     validation only works if submit event is handled here*/}
-                    <form onSubmit={(e)=>{e.preventDefault(); if(usage==='INSERT') onInsert(); else onUpdate()}}>
+                    <form onSubmit={(e)=>{e.preventDefault(); 
+                        if (calculateUnappliedAmount()!==0 && isCreditorPayment) {
+                            changeErrorUnappliedAmount(
+                                (<p className='col-md-12 text-right alert alert-warning mx-3'>
+                                    Total not fully offset. Please amend. 
+                                </p>)
+                            )
+                        } else {
+                            if(usage==='INSERT') onInsert(); 
+                            else onUpdate()
+                        }
+                        }}>
                         <div className='form-check'>
                             <input className="form-check-input" type="checkbox" checked={isCreditorPayment} disabled={disabled} id="isCreditorPayment" 
                             onChange={(e)=>{
                                 changeIsCreditorPayment(!isCreditorPayment);
-                                changeInputState([...inputState.slice(0,1),'',...inputState.slice(2,7),'',...inputState.slice(8)])
+                                changeInputState([...inputState.slice(0,creditorNumPosition),'',
+                                ...inputState.slice(creditorNumPosition+1,glPosition),'',
+                                ...inputState.slice(glPosition+1,offsetPositionPurchaseInvoice),[],[]])
                                 }
                             }/>
                             <label className="form-check-label" htmlFor="isCreditorPayment">
@@ -128,8 +215,11 @@ function CashPaymentItem (props) {
                                 <label className='mt-3' htmlFor='creditorID' >Creditor ID</label>
                                 <div className='input-group'>
                                     <input type='text' id='creditorID' value={inputState[1]} onChange={(e)=>e} required className='form-control' />
-                                    <select className='form-control' style={{flex:'0 1 0'}} onChange={(e)=>{
+                                    <select className='form-control' style={{flex:'0 1 0'}} value={inputState[1]} onChange={(e)=>{
                                     onChange(e.target.value,1)
+                                    changeParamCreditorOutstanding(
+                                        paramCreditorOutstanding(e.target.value,inputState[oldNumPosition])
+                                        )
                                     }}>
                                         <option value=''> -select an option- </option>
                                         {creditorList}
@@ -192,6 +282,25 @@ function CashPaymentItem (props) {
                                 disabled={disabled} required min='0' step='.01' className='form-control'/>
                                 
                             </div>
+
+                            {isCreditorPayment?
+                            (<h6 className='text-right my-3 col-12' style={{paddingRight:30}}>
+                                <span className='alert alert-secondary'>{'Unapplied Amount: '+numberFormatParser(calculateUnappliedAmount())}</span>
+                            </h6>):null}
+                            {errorUnappliedAmount}
+
+                            {isCreditorPayment?
+                            (<fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
+                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
+                                    <h6 className='d-inline-block mx-2 mx-md-4'>OFFSET Purchase Invoice/Purchase Debit Note</h6>
+                                </legend>
+                                <OffsetRender dataSelectOutstanding={dataSelectCreditorOutstanding} inputState={inputState} 
+                                changeInputState={changeInputState} disabled={disabled}
+                                calculateUnappliedAmount={calculateUnappliedAmount} calculateTotal={calculateTotal}
+                                offsetPositionOne={offsetPositionPurchaseInvoice} offsetPositionTwo={offsetPositionPurchaseDebitNote}
+                                offsetDescriptionOne={offsetDescriptionOne} offsetDescriptionTwo={offsetDescriptionTwo}
+                                changeErrorUnappliedAmount={changeErrorUnappliedAmount}/>
+                            </fieldset>):null}
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 

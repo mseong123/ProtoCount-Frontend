@@ -48,7 +48,7 @@ function useFetch(fetchParam) {
             }
     },[param])
 
-return [{data,error,isLoading},changeParam];
+return [{data,error},changeParam];
 }
 
 export default useFetch;

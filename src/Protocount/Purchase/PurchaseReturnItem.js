@@ -6,11 +6,10 @@ import DocumentOne from '../Shared/preview/DocumentOne';
 import numberFormatParser from '../Shared/numberFormatParser';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
-import LineRender from '../Shared/LineRender';
 
 
 
-function PurchaseDebitNoteItem (props) {
+function PurchaseReturnItem (props) {
     const url={
         item:new URLSearchParams(props.location.search).get('item'),
         id:new URLSearchParams(props.location.search).get('id'),
@@ -35,23 +34,12 @@ function PurchaseDebitNoteItem (props) {
         }
     });//extension of Item component
 
-    const [{data:dataSelectGLCode,error:errorSelectGLCode}]=useFetch({
-        url:'./getEligibleGLAccount',
-        init:{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'purchase_debit_note'}),
-            credentials:'include'
-        }
-    });//extension of Item component
 
-    /*Position of inputState variable used in other components. */
-    const linePosition=8;
+    const linePosition=7;
 
     const [creditorList,changeCreditorList] = useState(null);
     const [stockList,changeStockList] = useState(null);
-    const [GLCodeList,changeGLCodeList] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','','',[]]) 
+    const [inputState,changeInputState]=useState(['','','','','','','',[]]) 
     
     const [preview,changePreview]=useState(false);
     const {changeAuth} = useContext(authContext);
@@ -63,7 +51,7 @@ function PurchaseDebitNoteItem (props) {
                     changeAuth(false);
                 }
         else if (dataSelectCreditor && dataSelectCreditor.data && dataSelectCreditor.field) 
-            changeCreditorList(dataSelectCreditor.data.map(data=>(
+        changeCreditorList(dataSelectCreditor.data.map(data=>(
             <option key={data[dataSelectCreditor.field[0].name]} value={data[dataSelectCreditor.field[0].name]}>
                 {data[dataSelectCreditor.field[0].name]+' | '+(data[dataSelectCreditor.field[1].name]?data[dataSelectCreditor.field[1].name]:'')}
             </option>)
@@ -84,52 +72,93 @@ function PurchaseDebitNoteItem (props) {
             )
         )
 
-        if (dataSelectGLCode && dataSelectGLCode.auth===false) {
-                alert('Cookies Expired or Authorisation invalid. Please Login again!');
-                changeAuth(false);
-            }
-        else if (dataSelectGLCode && dataSelectGLCode.data && dataSelectGLCode.field) 
-            changeGLCodeList(dataSelectGLCode.data.map(data=>(
-            <option key={data[dataSelectGLCode.field[0].name]} value={data[dataSelectGLCode.field[0].name]}>
-                {(data[dataSelectGLCode.field[0].name]?data[dataSelectGLCode.field[0].name]:'')
-                +' | '+(data[dataSelectGLCode.field[1].name]?data[dataSelectGLCode.field[1].name]:'')}
-            </option>)
-            )
-        )
 
-    },[dataSelectCreditor,errorSelectCreditor,dataSelectStock,errorSelectStock,dataSelectGLCode,errorSelectGLCode])
+    },[dataSelectCreditor,errorSelectCreditor,dataSelectStock,errorSelectStock])
 
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1)])
     }
-    
-    function calculateSubtotal(i) {
-        if (inputState[linePosition][i][3]!=='' && inputState[linePosition][i][4]!=='' && inputState[linePosition][i][5]!=='')
-            return ((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
-            -parseFloat(inputState[linePosition][i][5])).toFixed(2)
-        else return '';
+    function onChangePurchaseReturnLineInput(e,order,lineNumber,innerOrder) {
+        changeInputState(inputState.slice(0,order)
+        .concat([inputState[order].slice(0,lineNumber)
+        .concat([inputState[order][lineNumber].slice(0,innerOrder)
+        .concat(e)
+        .concat(inputState[order][lineNumber].slice(innerOrder+1))])
+        .concat(inputState[order].slice(lineNumber+1))])
+        .concat(inputState.slice(order+1)))
     }
+    
 
     function calculateTotal() {
         let total=0
-        inputState[linePosition].forEach((lineSet,i)=>{
+        inputState[linePosition].forEach((purchasereturnlineSet,i)=>{
 
-            if(inputState[linePosition][i][3]!=='' && inputState[linePosition][i][4]!=='' && 
-            inputState[linePosition][i][5]!=='')
-             total=total+((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
-             -parseFloat(inputState[linePosition][i][5]))
+            if(inputState[linePosition][i][3]!=='')
+             total=total+(parseInt(inputState[linePosition][i][3]))
         })
-        return +(total.toFixed(2));
+        return total;
     }
     
+    function purchasereturnlineListRender(disabled) {
+    return(
+        inputState[linePosition].map((purchasereturnlineSet,i)=>
+        <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}} key={i}>
+            {/*set fixed flex basis so layout is consistent with h6 header as well*/}
+            <label htmlFor='lineNumber' className='sr-only'/>
+            <input type='number' id='lineNumber' className='col form-control rounded-0 text-center' 
+            value={inputState[linePosition][i][0]?inputState[linePosition][i][0]:''} 
+            onChange={(e)=>e} style={{flex:'1 0 50px',paddingLeft:10,paddingRight:0}} disabled={disabled}/>
+
+            <div className='col input-group' style={{flex:'1 0 50px',paddingLeft:0,paddingRight:0}}>
+                <label htmlFor='itemCode' className='sr-only'/>
+                <input type='text' id ='itemCode' className='form-control rounded-0' disabled={disabled}
+                style={{paddingLeft:10}}
+                value={inputState[linePosition][i][1]?inputState[linePosition][i][1]:''} 
+                onChange={(e)=>onChangePurchaseReturnLineInput(e.target.value,linePosition,i,1)}/>
+                <select className='form-control rounded-0' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>{
+                        let stockDescription='';
+                        
+                        dataSelectStock.data.forEach(data=>{
+                            
+                            if(data[dataSelectStock.field[0].name]===e.target.value) {
+                                stockDescription=data[dataSelectStock.field[1].name]?data[dataSelectStock.field[1].name]:'';
+                            }
+                        })
+                        
+                        changeInputState(inputState.slice(0,linePosition)
+                        .concat([inputState[linePosition].slice(0,i)
+                        .concat([inputState[linePosition][i].slice(0,1)
+                        .concat(e.target.value).concat(stockDescription)
+                        .concat(inputState[linePosition][i].slice(3))])
+                        .concat(inputState[linePosition].slice(i+1))])
+                        .concat(inputState.slice(linePosition+1)))
+
+                        }}>
+                    <option value=''>-select an option- </option>
+                    {stockList}
+                </select>
+            </div>
+            <label htmlFor='description' className='sr-only'/>
+            <input type='text' id='description' required className='col form-control rounded-0' value={inputState[linePosition][i][2]} 
+            onChange={(e)=>onChangePurchaseReturnLineInput(e.target.value,linePosition,i,2)} disabled={disabled}
+            style={{flex:'1 0 225px',paddingLeft:10,paddingRight:0}}/>
+
+            <label htmlFor='qty' className='sr-only'/>
+            <input type='number' required min='0' step='1' id='qty' className='col form-control rounded-0 text-center' value={inputState[linePosition][i][3]} 
+            onChange={(e)=>onChangePurchaseReturnLineInput(e.target.value,linePosition,i,3)} disabled={disabled}
+            style={{flex:'1 0 75px',paddingLeft:10,paddingRight:0}}/>
+
+            
+        </div>)
+        )
+    }
     
     
     /*error display extension from error display already provided by Item Component*/
     let errorDisplayExtension=null;
     
     
-    if ((dataSelectCreditor && dataSelectCreditor.error) || errorSelectCreditor ||(dataSelectStock && dataSelectStock.error) || errorSelectStock ||
-    (dataSelectGLCode && dataSelectGLCode.error) || errorSelectGLCode) 
+    if ((dataSelectCreditor && dataSelectCreditor.error) || errorSelectCreditor ||(dataSelectStock && dataSelectStock.error) || errorSelectStock ) 
     errorDisplayExtension=(
         <div className="alert alert-warning">
             {dataSelectCreditor && dataSelectCreditor.error? 'Creditor List RETRIEVAL for item failed errno: '+dataSelectCreditor.error.errno
@@ -140,29 +169,25 @@ function PurchaseDebitNoteItem (props) {
             {dataSelectStock && dataSelectStock.error? 'Stock List RETRIEVAL for item failed errno: '+dataSelectStock.error.errno
             +' code: '+dataSelectStock.error.code+' message: '+dataSelectStock.error.sqlMessage:null}
             {errorSelectStock? 'Stock List RETRIEVAL for item failed '+errorSelectStock : null}
-            <br/>
-            <br/>
-            {dataSelectGLCode && dataSelectGLCode.error? 'GL Code List RETRIEVAL for item failed errno: '+dataSelectGLCode.error.errno
-            +' code: '+dataSelectGLCode.error.code+' message: '+dataSelectGLCode.error.sqlMessage:null}
-            {errorSelectGLCode? 'GL Code List RETRIEVAL for item failed '+errorSelectGLCode : null}
+
         </div>)
 
     
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='purchase_debit_note' successPath='/PurchaseDebitNote'>
+        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='purchase_return' successPath='/PurchaseReturn'>
             {
-            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay})=> preview? (
-            <DocumentOne description={PurchaseDebitNoteItem.description} 
+            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> preview? (
+            <DocumentOne description={PurchaseReturnItem.description} 
                 changePreview={changePreview}
                 preview={preview}
                 topLeftInput={[inputState[1],inputState[2]]}
-                topRightField={[PurchaseDebitNoteItem.description+' No','Date','Other Description']}
-                topRightInput={[inputState[3],inputState[4],inputState[5]]}
-                bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
+                topRightField={[PurchaseReturnItem.description+' No','Date','Other Description']}
+                topRightInput={[inputState[3],inputState[4]]}
+                bottomField={['','Item Code','Description','Qty']}
                 bottomInput={inputState[linePosition]}
-                calculateSubtotal={calculateSubtotal}
-                calculateTotal={calculateTotal}
                 
+                calculateTotal={calculateTotal}
+                footer=''
             />)
             :
             (<AppLayout >
@@ -170,7 +195,7 @@ function PurchaseDebitNoteItem (props) {
 
                     {/*Heading renders depending on INSERT or UPDATE/DELETE state*/}
 
-                    <h3 className='my-3'>{(usage==='INSERT'? 'Create':'Update') + ' '+ PurchaseDebitNoteItem.description}</h3>
+                    <h3 className='my-3'>{(usage==='INSERT'? 'Create':'Update') + ' '+ PurchaseReturnItem.description}</h3>
                     <small className='text-warning'>* required</small>
                     {errorDisplay}
                     {errorDisplayExtension}
@@ -214,25 +239,19 @@ function PurchaseDebitNoteItem (props) {
                             </fieldset>
 
                             <div className='form-group col-md-5 mx-3'>
-                                <label htmlFor='purchaseDebitNoteNumber' className='mt-3'>Purchase Debit Note Number <span className='text-warning'>*</span></label>
-                                <input type='text' id='purchaseDebitNoteNumber' maxLength='50' value={inputState[3]} onChange={
-                                    (e)=>onChange(e.target.value,3)} disabled={disabled} required className='form-control' />
-
+                                <label htmlFor='purchaseReturnNumber' className='mt-3'>Purchase Return Number <span className='text-warning'>*</span></label>
+                                {inputNumberRender({
+                                    onChange:onChange,
+                                    layout:'',
+                                    position:3,
+                                    labelID:'purchaseReturnNumber'
+                                })
+                                }
+                                
                                 <label htmlFor='date' className='mt-3'>Date <span className='text-warning'>*</span></label>
                                 <input type='date' disabled={disabled} required value={inputState[4]} onChange={(e)=>onChange(e.target.value,4)} 
                                 className='form-control'/>
                                 
-                                <label className='mt-3' htmlFor='glCode' >GL Code <span className='text-warning'>*</span></label>
-                                <div className='input-group'>
-                                    <input type='text' id='glCode' value={inputState[6]} onChange={(e)=>e} required className='form-control' 
-                                    disabled={disabled}/>
-                                    <select className='form-control' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>{
-                                    onChange(e.target.value,6)
-                                    }}>
-                                        <option value=''> -select an option- </option>
-                                        {GLCodeList}
-                                    </select>
-                                </div>
                                 <label htmlFor='description' className='mt-3'>Description</label>
                                 <textarea id='description' onChange={(e)=>onChange(e.target.value,5)} value={inputState[5]} 
                                 disabled={disabled} className='form-control'/>
@@ -240,19 +259,20 @@ function PurchaseDebitNoteItem (props) {
                             </div>
 
                             <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-8 offset-2 col-md-6 offset-md-3 text-center' >
+                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
                                     <button type='button' className='btn btn-primary' disabled={disabled}
                                     onClick={()=>
                                         changeInputState(
                                             inputState.slice(0,linePosition)
                                             .concat([inputState[linePosition].slice(0)
                                                 .concat(
-                                                    [[inputState[linePosition].length+1,'','','',0,0]])])
+                                                    [[inputState[linePosition].length+1,'','','']])])
                                             .concat(inputState.slice(linePosition+1))
                                         )
+                                    
                                     }>
                                         +</button>
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>Purchase Debit Note Line</h6>
+                                    <h6 className='d-inline-block mx-2 mx-md-4'>Purchase Return Line</h6>
                                     <button type='button' className='btn btn-secondary' disabled={disabled}
                                     onClick={()=>
                                         changeInputState(
@@ -262,16 +282,24 @@ function PurchaseDebitNoteItem (props) {
                                         )
                                     }>-</button>
                                 </legend>
-
-                                <LineRender linePosition={linePosition} disabled={disabled} inputState={inputState}
-                                changeInputState={changeInputState} dataSelectStock={dataSelectStock} stockList={stockList}
-                                calculateSubtotal={calculateSubtotal}/>
-
+                                <div className="overflow-auto">
+                                    {/*flex nowrap and overflow auto for mobile view*/}
+                                    <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}}>
+                                        <h6 className='col' style={{flex:'1 0 50px',paddingLeft:10,paddingRight:10}}>Line Number</h6>
+                                        <h6 className='col' style={{flex:'1 0 50px',paddingLeft:10,paddingRight:10}}>Item Code</h6>
+                                        <h6 className='col' style={{flex:'1 0 225px',paddingLeft:10,paddingRight:10}}>Description</h6>
+                                        <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Qty</h6>
+                                        
+                                    </div>
+                                    {purchasereturnlineListRender(disabled)}
+                                    
+                                </div>
+                                <h5 className='text-right my-3'>
+                                    
+                                    {'Total: '+numberFormatParser(calculateTotal())}
+                                    </h5>
+                                
                             </fieldset>
-                            
-                            <h5 className='text-right my-3 col-12'>
-                                {'Total: '+numberFormatParser(calculateTotal())}
-                            </h5>
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 
@@ -287,8 +315,8 @@ function PurchaseDebitNoteItem (props) {
         </Item>
     )
 }
-PurchaseDebitNoteItem.description='Purchase Debit Note';
-PurchaseDebitNoteItem.path='/PurchaseDebitNoteItem';
+PurchaseReturnItem.description='Purchase Return';
+PurchaseReturnItem.path='/PurchaseReturnItem';
 
-export default PurchaseDebitNoteItem;
+export default PurchaseReturnItem;
 

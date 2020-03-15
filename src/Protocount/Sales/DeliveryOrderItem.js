@@ -34,12 +34,13 @@ function DeliveryOrderItem (props) {
         }
     });//extension of Item component
 
+
+    const linePosition=7;
+
     const [debtorList,changeDebtorList] = useState(null);
     const [stockList,changeStockList] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','']) 
-    /*7 initial core inputState array elements. Amend the number if additional input added in future. DeliveryOrderline input elements are 
-    added at end of inputState array*/
-    const [initialNumberInputState]=useState(7);
+    const [inputState,changeInputState]=useState(['','','','','','','',[]]) 
+    
     const [preview,changePreview]=useState(false);
     const {changeAuth} = useContext(authContext);
 
@@ -77,35 +78,43 @@ function DeliveryOrderItem (props) {
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1)])
     }
-    function onChangeDeliveryOrderlineInput(e,order,innerOrder) {
-        changeInputState([...inputState.slice(0,order),inputState.slice(order,order+1)[0].slice(0,innerOrder).concat(e.target.value)
-        .concat(inputState.slice(order,order+1)[0].slice(innerOrder+1,inputState.slice(order,order+1)[0].length)),
-        ...inputState.slice(order+1)])
+    function onChangeDeliveryOrderlineInput(e,order,lineNumber,innerOrder) {
+        changeInputState(inputState.slice(0,order)
+        .concat([inputState[order].slice(0,lineNumber)
+        .concat([inputState[order][lineNumber].slice(0,innerOrder)
+        .concat(e)
+        .concat(inputState[order][lineNumber].slice(innerOrder+1))])
+        .concat(inputState[order].slice(lineNumber+1))])
+        .concat(inputState.slice(order+1)))
     }
     
 
     function calculateTotal() {
         let total=0
-        inputState.slice(initialNumberInputState,inputState.length).forEach((deliveryorderlineSet,i)=>{
+        inputState[linePosition].forEach((deliveryorderlineSet,i)=>{
 
-            if(inputState[i+initialNumberInputState][3]!=='')
-             total=total+(parseInt(inputState[i+initialNumberInputState][3]))
+            if(inputState[linePosition][i][3]!=='')
+             total=total+(parseInt(inputState[linePosition][i][3]))
         })
         return total;
     }
     
     function deliveryorderlineListRender(disabled) {
     return(
-        inputState.slice(initialNumberInputState).map((deliveryorderlineSet,i)=>
+        inputState[linePosition].map((deliveryorderlineSet,i)=>
         <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}} key={i}>
             {/*set fixed flex basis so layout is consistent with h6 header as well*/}
             <label htmlFor='lineNumber' className='sr-only'/>
-            <input type='number' id='lineNumber' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][0]} 
-            onChange={(e)=>e} style={{flex:'1 0 50px',paddingLeft:0,paddingRight:0}} disabled={disabled}/>
+            <input type='number' id='lineNumber' className='col form-control rounded-0 text-center' 
+            value={inputState[linePosition][i][0]?inputState[linePosition][i][0]:''} 
+            onChange={(e)=>e} style={{flex:'1 0 50px',paddingLeft:10,paddingRight:0}} disabled={disabled}/>
+
             <div className='col input-group' style={{flex:'1 0 50px',paddingLeft:0,paddingRight:0}}>
                 <label htmlFor='itemCode' className='sr-only'/>
                 <input type='text' id ='itemCode' className='form-control rounded-0' disabled={disabled}
-                value={inputState[i+initialNumberInputState][1]?inputState[i+initialNumberInputState][1]:''} onChange={(e)=>onChangeDeliveryOrderlineInput(e,i+initialNumberInputState,1)}/>
+                style={{paddingLeft:10}}
+                value={inputState[linePosition][i][1]?inputState[linePosition][i][1]:''} 
+                onChange={(e)=>onChangeDeliveryOrderlineInput(e.target.value,linePosition,i,1)}/>
                 <select className='form-control rounded-0' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>{
                         let stockDescription='';
                         
@@ -115,25 +124,29 @@ function DeliveryOrderItem (props) {
                                 stockDescription=data[dataSelectStock.field[1].name]?data[dataSelectStock.field[1].name]:'';
                             }
                         })
-        
-                        changeInputState([...inputState.slice(0,i+initialNumberInputState),[i+1].concat([e.target.value]).concat(stockDescription)
-                        .concat(inputState.slice(i+initialNumberInputState,i+initialNumberInputState+1)[0]
-                        .slice(3,inputState.slice(i+initialNumberInputState,i+initialNumberInputState+1)[0].length)),
-                        ...inputState.slice(i+initialNumberInputState+1,inputState.length)])
+                        
+                        changeInputState(inputState.slice(0,linePosition)
+                        .concat([inputState[linePosition].slice(0,i)
+                        .concat([inputState[linePosition][i].slice(0,1)
+                        .concat(e.target.value).concat(stockDescription)
+                        .concat(inputState[linePosition][i].slice(3))])
+                        .concat(inputState[linePosition].slice(i+1))])
+                        .concat(inputState.slice(linePosition+1)))
+
                         }}>
                     <option value=''>-select an option- </option>
                     {stockList}
                 </select>
             </div>
             <label htmlFor='description' className='sr-only'/>
-            <input type='text' id='description' required className='col form-control rounded-0' value={inputState[i+initialNumberInputState][2]} 
-            onChange={(e)=>onChangeDeliveryOrderlineInput(e,i+initialNumberInputState,2)} disabled={disabled}
-            style={{flex:'1 0 225px',paddingLeft:0,paddingRight:0}}/>
+            <input type='text' id='description' required className='col form-control rounded-0' value={inputState[linePosition][i][2]} 
+            onChange={(e)=>onChangeDeliveryOrderlineInput(e.target.value,linePosition,i,2)} disabled={disabled}
+            style={{flex:'1 0 225px',paddingLeft:10,paddingRight:0}}/>
 
             <label htmlFor='qty' className='sr-only'/>
-            <input type='number' required min='0' step='1' id='qty' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][3]} 
-            onChange={(e)=>onChangeDeliveryOrderlineInput(e,i+initialNumberInputState,3)} disabled={disabled}
-            style={{flex:'1 0 75px',paddingLeft:0,paddingRight:0}}/>
+            <input type='number' required min='0' step='1' id='qty' className='col form-control rounded-0 text-center' value={inputState[linePosition][i][3]} 
+            onChange={(e)=>onChangeDeliveryOrderlineInput(e.target.value,linePosition,i,3)} disabled={disabled}
+            style={{flex:'1 0 75px',paddingLeft:10,paddingRight:0}}/>
 
             
         </div>)
@@ -151,7 +164,8 @@ function DeliveryOrderItem (props) {
             {dataSelectDebtor && dataSelectDebtor.error? 'Debtor List RETRIEVAL for item failed errno: '+dataSelectDebtor.error.errno
             +' code: '+dataSelectDebtor.error.code+' message: '+dataSelectDebtor.error.sqlMessage:null}
             {errorSelectDebtor? 'Debtor List RETRIEVAL for item failed '+errorSelectDebtor : null}
-
+            <br/>
+            <br/>
             {dataSelectStock && dataSelectStock.error? 'Stock List RETRIEVAL for item failed errno: '+dataSelectStock.error.errno
             +' code: '+dataSelectStock.error.code+' message: '+dataSelectStock.error.sqlMessage:null}
             {errorSelectStock? 'Stock List RETRIEVAL for item failed '+errorSelectStock : null}
@@ -170,7 +184,7 @@ function DeliveryOrderItem (props) {
                 topRightField={[DeliveryOrderItem.description+' No','Date','Other Description']}
                 topRightInput={[inputState[3],inputState[4]]}
                 bottomField={['','Item Code','Description','Qty']}
-                bottomInput={inputState.slice(initialNumberInputState)}
+                bottomInput={inputState[linePosition]}
                 
                 calculateTotal={calculateTotal}
                 footer='Goods sold are neither returnable or refundable. Otherwise a cancellation fee of 20% on purchase price will be imposed.'
@@ -247,14 +261,25 @@ function DeliveryOrderItem (props) {
                             <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
                                 <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
                                     <button type='button' className='btn btn-primary' disabled={disabled}
-                                    onClick={()=>changeInputState([...inputState,[inputState.length-initialNumberInputState+1,'','','']])}>
+                                    onClick={()=>
+                                        changeInputState(
+                                            inputState.slice(0,linePosition)
+                                            .concat([inputState[linePosition].slice(0)
+                                                .concat(
+                                                    [[inputState[linePosition].length+1,'','','']])])
+                                            .concat(inputState.slice(linePosition+1))
+                                        )
+                                    
+                                    }>
                                         +</button>
                                     <h6 className='d-inline-block mx-2 mx-md-4'>Delivery Order Line</h6>
                                     <button type='button' className='btn btn-secondary' disabled={disabled}
-                                    onClick={()=>changeInputState([
-                                        ...inputState.slice(0,initialNumberInputState),
-                                        ...inputState.slice(initialNumberInputState,inputState.length-1)
-                                    ])
+                                    onClick={()=>
+                                        changeInputState(
+                                            inputState.slice(0,linePosition)
+                                            .concat([inputState[linePosition].slice(0,inputState[linePosition].length-1)])
+                                            .concat(inputState.slice(linePosition+1))
+                                        )
                                     }>-</button>
                                 </legend>
                                 <div className="overflow-auto">

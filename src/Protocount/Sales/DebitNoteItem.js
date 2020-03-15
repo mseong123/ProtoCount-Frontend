@@ -6,7 +6,7 @@ import DocumentOne from '../Shared/preview/DocumentOne';
 import numberFormatParser from '../Shared/numberFormatParser';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
-
+import LineRender from '../Shared/LineRender';
 
 
 function DebitNoteItem (props) {
@@ -44,13 +44,14 @@ function DebitNoteItem (props) {
         }
     });//extension of Item component
 
+    /*Position of inputState variable used in other components. */
+    const linePosition=8;
+
     const [debtorList,changeDebtorList] = useState(null);
     const [stockList,changeStockList] = useState(null);
     const [GLCodeList,changeGLCodeList] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','','']) 
-    /*8 initial core inputState array elements. Amend the number if additional input added in future. DebitNoteline input elements are 
-    added at end of inputState array*/
-    const [initialNumberInputState]=useState(8);
+    const [inputState,changeInputState]=useState(['','','','','','','','',[]]) 
+    
     const [preview,changePreview]=useState(false);
     const {changeAuth} = useContext(authContext);
 
@@ -100,87 +101,25 @@ function DebitNoteItem (props) {
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1)])
     }
-    function onChangeDebitnotelineInput(e,order,innerOrder) {
-        changeInputState([...inputState.slice(0,order),inputState.slice(order,order+1)[0].slice(0,innerOrder).concat(e.target.value)
-        .concat(inputState.slice(order,order+1)[0].slice(innerOrder+1,inputState.slice(order,order+1)[0].length)),
-        ...inputState.slice(order+1)])
-    }
+    
     function calculateSubtotal(i) {
-        if (inputState[i+initialNumberInputState][3]!=='' && inputState[i+initialNumberInputState][4]!=='' && inputState[i+initialNumberInputState][5]!=='')
-            return ((parseFloat(inputState[i+initialNumberInputState][3])*parseFloat(inputState[i+initialNumberInputState][4]))-parseFloat(inputState[i+initialNumberInputState][5])).toFixed(2)
+        if (inputState[linePosition][i][3]!=='' && inputState[linePosition][i][4]!=='' && inputState[linePosition][i][5]!=='')
+            return ((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
+            -parseFloat(inputState[linePosition][i][5])).toFixed(2)
         else return '';
     }
 
     function calculateTotal() {
         let total=0
-        inputState.slice(initialNumberInputState,inputState.length).forEach((debitnotelineSet,i)=>{
+        inputState[linePosition].forEach((lineSet,i)=>{
 
-            if(inputState[i+initialNumberInputState][3]!=='' && inputState[i+initialNumberInputState][4]!=='' && inputState[i+initialNumberInputState][5]!=='')
-             total=total+((parseFloat(inputState[i+initialNumberInputState][3])*parseFloat(inputState[i+initialNumberInputState][4]))-parseFloat(inputState[i+initialNumberInputState][5]))
+            if(inputState[linePosition][i][3]!=='' && inputState[linePosition][i][4]!=='' && 
+            inputState[linePosition][i][5]!=='')
+             total=total+((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
+             -parseFloat(inputState[linePosition][i][5]))
         })
-        return total.toFixed(2);
+        return +(total.toFixed(2));
     }
-    
-    function debitnotelineListRender(disabled) {
-    return(
-        inputState.slice(initialNumberInputState).map((debitnotelineSet,i)=>
-        <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}} key={i}>
-            {/*set fixed flex basis so layout is consistent with h6 header as well*/}
-            <label htmlFor='lineNumber' className='sr-only'/>
-            <input type='number' id='lineNumber' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][0]} 
-            onChange={(e)=>e} style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}} disabled={disabled}/>
-            <div className='col input-group' style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}}>
-                <label htmlFor='itemCode' className='sr-only'/>
-                <input type='text' id ='itemCode' className='form-control rounded-0' disabled={disabled}
-                value={inputState[i+initialNumberInputState][1]?inputState[i+initialNumberInputState][1]:''} onChange={(e)=>onChangeDebitnotelineInput(e,i+initialNumberInputState,1)}/>
-                <select className='form-control rounded-0' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>{
-                        let stockDescription='';
-                        let stockPrice='';
-                        dataSelectStock.data.forEach(data=>{
-                            
-                            if(data[dataSelectStock.field[0].name]===e.target.value) {
-                                stockDescription=data[dataSelectStock.field[1].name]?data[dataSelectStock.field[1].name]:'';
-                                stockPrice=data[dataSelectStock.field[2].name]?data[dataSelectStock.field[2].name]:'';
-                            }
-                        })
-        
-                        changeInputState([...inputState.slice(0,i+initialNumberInputState),[i+1].concat([e.target.value]).concat(stockDescription)
-                        .concat(stockPrice).concat(inputState.slice(i+initialNumberInputState,i+initialNumberInputState+1)[0]
-                        .slice(4,inputState.slice(i+initialNumberInputState,i+initialNumberInputState+1)[0].length)),
-                        ...inputState.slice(i+initialNumberInputState+1,inputState.length)])
-                        }}>
-                    <option value=''>-select an option- </option>
-                    {stockList}
-                </select>
-            </div>
-            <label htmlFor='description' className='sr-only'/>
-            <input type='text' id='description' required className='col form-control rounded-0' value={inputState[i+initialNumberInputState][2]} 
-            onChange={(e)=>onChangeDebitnotelineInput(e,i+initialNumberInputState,2)} disabled={disabled}
-            style={{flex:'1 0 225px',paddingLeft:0,paddingRight:0}}/>
-
-            <label htmlFor='price' className='sr-only'/>
-            <input type='number' required min='0' step='.01' id='price' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][3]} 
-            onChange={(e)=>onChangeDebitnotelineInput(e,i+initialNumberInputState,3)} disabled={disabled}
-            style={{flex:'1 0 75px',paddingLeft:0,paddingRight:0}}/>
-
-            <label htmlFor='qty' className='sr-only'/>
-            <input type='number' required min='0' step='1' id='qty' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][4]} 
-            onChange={(e)=>onChangeDebitnotelineInput(e,i+initialNumberInputState,4)} disabled={disabled}
-            style={{flex:'1 0 75px',paddingLeft:0,paddingRight:0}}/>
-
-            <label htmlFor='discount' className='sr-only'/>
-            <input type='number' required min='0' step='.01' id='discount' className='col form-control rounded-0 text-center' value={inputState[i+initialNumberInputState][5]} 
-            onChange={(e)=>onChangeDebitnotelineInput(e,i+initialNumberInputState,5)} disabled={disabled}
-            style={{flex:'1 0 75px',paddingLeft:0,paddingRight:0}}/>
-
-            <label htmlFor='subtotal' className='sr-only'/>
-            <input type='text' step='.01' disabled id='subtotal' className='col form-control rounded-0 text-center' 
-            value={numberFormatParser(calculateSubtotal(i))} 
-            style={{flex:'1 0 90px',paddingLeft:0,paddingRight:0}}/>
-        </div>)
-        )
-    }
-    
     
     /*error display extension from error display already provided by Item Component*/
     let errorDisplayExtension=null;
@@ -193,11 +132,13 @@ function DebitNoteItem (props) {
             {dataSelectDebtor && dataSelectDebtor.error? 'Debtor List RETRIEVAL for item failed errno: '+dataSelectDebtor.error.errno
             +' code: '+dataSelectDebtor.error.code+' message: '+dataSelectDebtor.error.sqlMessage:null}
             {errorSelectDebtor? 'Debtor List RETRIEVAL for item failed '+errorSelectDebtor : null}
-
+            <br/>
+            <br/>
             {dataSelectStock && dataSelectStock.error? 'Stock List RETRIEVAL for item failed errno: '+dataSelectStock.error.errno
             +' code: '+dataSelectStock.error.code+' message: '+dataSelectStock.error.sqlMessage:null}
             {errorSelectStock? 'Stock List RETRIEVAL for item failed '+errorSelectStock : null}
-
+            <br/>
+            <br/>
             {dataSelectGLCode && dataSelectGLCode.error? 'GL Code List RETRIEVAL for item failed errno: '+dataSelectGLCode.error.errno
             +' code: '+dataSelectGLCode.error.code+' message: '+dataSelectGLCode.error.sqlMessage:null}
             {errorSelectGLCode? 'GL Code List RETRIEVAL for item failed '+errorSelectGLCode : null}
@@ -215,7 +156,7 @@ function DebitNoteItem (props) {
                 topRightField={[DebitNoteItem.description+' No','Date','Other Description']}
                 topRightInput={[inputState[3],inputState[4],inputState[5]]}
                 bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
-                bottomInput={inputState.slice(initialNumberInputState)}
+                bottomInput={inputState[linePosition]}
                 calculateSubtotal={calculateSubtotal}
                 calculateTotal={calculateTotal}
                 footer='NET 30 Days. Finance Charge of 1.5% will be made on unpaid balances after 30 days.'
@@ -303,36 +244,36 @@ function DebitNoteItem (props) {
                             <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
                                 <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
                                     <button type='button' className='btn btn-primary' disabled={disabled}
-                                    onClick={()=>changeInputState([...inputState,[inputState.length-initialNumberInputState+1,'','','','','']])}>
+                                    onClick={()=>
+                                        changeInputState(
+                                            inputState.slice(0,linePosition)
+                                            .concat([inputState[linePosition].slice(0)
+                                                .concat(
+                                                    [[inputState[linePosition].length+1,'','','','','']])])
+                                            .concat(inputState.slice(linePosition+1))
+                                        )
+                                    }>
                                         +</button>
                                     <h6 className='d-inline-block mx-2 mx-md-4'>Debit Note Line</h6>
                                     <button type='button' className='btn btn-secondary' disabled={disabled}
-                                    onClick={()=>changeInputState([
-                                        ...inputState.slice(0,initialNumberInputState),
-                                        ...inputState.slice(initialNumberInputState,inputState.length-1)
-                                    ])
+                                    onClick={()=>
+                                        changeInputState(
+                                            inputState.slice(0,linePosition)
+                                            .concat([inputState[linePosition].slice(0,inputState[linePosition].length-1)])
+                                            .concat(inputState.slice(linePosition+1))
+                                        )
                                     }>-</button>
                                 </legend>
-                                <div className="overflow-auto">
-                                    {/*flex nowrap and overflow auto for mobile view*/}
-                                    <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}}>
-                                        <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Line Number</h6>
-                                        <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Item Code</h6>
-                                        <h6 className='col' style={{flex:'1 0 225px',paddingLeft:10,paddingRight:10}}>Description</h6>
-                                        <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Price</h6>
-                                        <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Qty</h6>
-                                        <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Discount</h6>
-                                        <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Subtotal</h6>
-                                    </div>
-                                    {debitnotelineListRender(disabled)}
-                                    
-                                </div>
-                                <h5 className='text-right my-3'>
-                                    
-                                    {'Total: '+numberFormatParser(calculateTotal())}
-                                    </h5>
                                 
+                                <LineRender linePosition={linePosition} disabled={disabled} inputState={inputState}
+                                changeInputState={changeInputState} dataSelectStock={dataSelectStock} stockList={stockList}
+                                calculateSubtotal={calculateSubtotal} />
+
                             </fieldset>
+
+                            <h5 className='text-right my-3 col-12'>
+                                {'Total: '+numberFormatParser(calculateTotal())}
+                            </h5>
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 
