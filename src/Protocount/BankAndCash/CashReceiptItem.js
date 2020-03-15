@@ -284,7 +284,7 @@ function CashReceiptItem (props) {
                             </div>
 
                             {isDebtorPayment?
-                            (<h6 className='text-right my-3 col-12' style={{paddingRight:30}}>
+                            (<h6 className='text-right my-4 col-12' style={{paddingRight:30}}>
                                 <span className='alert alert-secondary'>{'Unapplied Amount: '+numberFormatParser(calculateUnappliedAmount())}</span>
                             </h6>):null}
                             {errorUnappliedAmount}
@@ -292,7 +292,7 @@ function CashReceiptItem (props) {
                             {isDebtorPayment?
                             (<fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
                                 <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>OFFSET Sales Invoice/Debit Note</h6>
+                                    <h6 className='d-inline-block mx-2 mx-md-4'>OFFSET <br/> Sales Invoice / Debit Note</h6>
                                 </legend>
                                 <OffsetRender dataSelectOutstanding={dataSelectDebtorOutstanding} inputState={inputState} 
                                 changeInputState={changeInputState} disabled={disabled}

@@ -348,11 +348,11 @@ function PurchaseCreditNoteItem (props) {
 
                             </fieldset>
 
-                            <h5 className='text-right mt-3 col-12'>
+                            <h5 className='text-right mt-3 mb-4 col-12'>
                                 {'Total: '+numberFormatParser(calculateTotal())}
                             </h5>
-                            <h6 className='text-right mb-3 col-12'>
-                                {'Unapplied Amount: '+numberFormatParser(calculateUnappliedAmount())}
+                            <h6 className='text-right mb-4 col-12'>
+                                <span className="alert alert-secondary">{'Unapplied Amount: '+numberFormatParser(calculateUnappliedAmount())}</span>
                             </h6>
                             {errorUnappliedAmount}
 
