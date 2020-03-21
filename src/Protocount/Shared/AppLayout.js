@@ -20,7 +20,7 @@ function AppLayout(props) {
                         <div>{props.children}</div>
                         
                     </div>
-                    <div className='col-md-3 order-md-first px-0' >
+                    <div className='col-md-3 order-md-first px-0 d-print-none' >
                         <SidePanel largeScreenStyle={true}/>
                     </div>
                 </div>

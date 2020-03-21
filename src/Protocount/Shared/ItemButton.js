@@ -15,7 +15,7 @@ function ItemButton(props) {
                 <button type='button' onClick={(e)=>{
                     props.changePreview(!props.preview);
                     document.querySelector("meta[name=viewport]").setAttribute(
-                        'content','width=device-width, initial-scale=0.5');
+                        'content','width=device-width, initial-scale=0.4');
                 }} className='btn btn-info mx-1 my-1'>Preview</button>
             ):null}
         </div>

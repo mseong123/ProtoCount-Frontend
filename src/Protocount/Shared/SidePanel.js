@@ -16,7 +16,6 @@ function SidePanel(props) {
         category.report.forEach(component=>
             SubPanelListReportItems.push(component.description)
             )
-        
         return (
             <SubPanel key={category.name} name={category.name} img={category.svg} parent={parent}
             items={SubPanelListItems} reportItems={SubPanelListReportItems}/>

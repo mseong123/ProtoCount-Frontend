@@ -25,11 +25,11 @@ function SubPanel (props) {
         <div className='list-group list-group-flush collapse' id={props.name.replace(/ /g,'-')/*replace space for links to work*/ } data-parent={"#"+props.parent}>
             {items}
             {reportItems.length>0? 
-                (<a href={'#'+props.name+'-report'} data-toggle='collapse' className='list-group-item bg-secondary text-decoration-none text-reset'>
+                (<a href={'#'+props.name.replace(/ /g,'-')+'-report'} data-toggle='collapse' className='list-group-item bg-secondary text-decoration-none text-reset'>
                     <h6>Report</h6>
                 </a>) : null
             }
-            <div className='list-group collapse' id={props.name+'-report'}>
+            <div className='list-group collapse' id={props.name.replace(/ /g,'-')+'-report'}>
                 {reportItems}
             </div>
         </div>

@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useState,useEffect} from 'react';
 import {
     BrowserRouter as Router,
     Redirect,
@@ -12,8 +12,6 @@ import ComponentSummary from './Shared/ComponentSummary';
 import authContext from './Shared/authContext';
 import isLoadingContext from './Shared/isLoadingContext';
 
-
-
 function App() {
     //auth default value is false and have to go through Login route when new App is served for first time. See route logic below.
     const [auth,changeAuth]=useState(false);
@@ -22,6 +20,11 @@ function App() {
     const [isLoading,changeIsLoading]=useState(false);
 
     
+    useEffect(()=>{
+        document.querySelector("meta[name=viewport]").setAttribute(
+            'content','width=device-width, initial-scale=1.0');
+        }
+    )
     
     let appRoutes=[];
     ComponentSummary.forEach(category=>{

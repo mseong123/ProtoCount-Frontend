@@ -68,7 +68,7 @@ function JournalItem (props) {
             if(inputState[linePosition][i][4])
              total+=parseFloat(inputState[linePosition][i][4])
         })
-        return total.toFixed(2);
+        return +(total.toFixed(2));
     }
 
     function calculateCreditTotal() {
@@ -78,7 +78,7 @@ function JournalItem (props) {
              total+=parseFloat(inputState[linePosition][i][5])
             }
         })
-        return total.toFixed(2);
+        return +(total.toFixed(2));
     }
     
     function journallineListRender(disabled) {
@@ -211,7 +211,7 @@ function JournalItem (props) {
                                         inputState.slice(0,linePosition)
                                         .concat([inputState[linePosition].slice(0)
                                             .concat(
-                                                [[inputState[linePosition].length+1,'','','','','']])])
+                                                [[inputState[linePosition].length+1,'','','','0','0']])])
                                         .concat(inputState.slice(linePosition+1))
                                     )
                                 }>

@@ -45,12 +45,13 @@ function PurchaseInvoiceItem (props) {
     });//extension of Item component
 
     /*Position of inputState variable used in other components. */
-    const linePosition=8;
+    const creditTermPosition=7;
+    const linePosition=10;
 
     const [creditorList,changeCreditorList] = useState(null);
     const [stockList,changeStockList] = useState(null);
     const [GLCodeList,changeGLCodeList] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','','',[]]) 
+    const [inputState,changeInputState]=useState(['','','','','','','','COD','','',[]]) 
     
     const [preview,changePreview]=useState(false);
     const {changeAuth} = useContext(authContext);
@@ -153,8 +154,8 @@ function PurchaseInvoiceItem (props) {
                 changePreview={changePreview}
                 preview={preview}
                 topLeftInput={[inputState[1],inputState[2]]}
-                topRightField={[PurchaseInvoiceItem.description+' No','Date','Other Description']}
-                topRightInput={[inputState[3],inputState[4],inputState[6]]}
+                topRightField={[PurchaseInvoiceItem.description+' No','Date','Credit Term','Other Description']}
+                topRightInput={[inputState[4],inputState[5],inputState[7]==='COD'?'C.O.D.':inputState[7]+' Days',inputState[6]]}
                 bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
                 bottomInput={inputState[linePosition]}
                 calculateSubtotal={calculateSubtotal}
@@ -186,17 +187,21 @@ function PurchaseInvoiceItem (props) {
                                     <select className='form-control' style={{flex:'0 1 0'}} onChange={(e)=>{
                                         let creditorName='';
                                         let creditorAddress='';
-                                    
+                                        let creditorDefaultCreditTerm='';
+
                                         dataSelectCreditor.data.forEach(data=>{
                                             
                                             if(data[dataSelectCreditor.field[0].name]===e.target.value) {
                                                 creditorName=data[dataSelectCreditor.field[1].name]?data[dataSelectCreditor.field[1].name]:'';
                                                 creditorAddress=data[dataSelectCreditor.field[2].name]?data[dataSelectCreditor.field[2].name]:'';
+                                                creditorDefaultCreditTerm=data[dataSelectCreditor.field[7].name]?data[dataSelectCreditor.field[7].name]:'';
                                             }
                                             
                                         })
                                     
-                                    changeInputState([e.target.value,creditorName,creditorAddress,...inputState.slice(3,inputState.length)])
+                                    changeInputState([e.target.value,creditorName,creditorAddress,
+                                        ...inputState.slice(3,creditTermPosition),creditorDefaultCreditTerm,
+                                        ...inputState.slice(creditTermPosition+1)])
                                     }}>
                                         <option value=''> -select an option- </option>
                                         {creditorList}
@@ -210,26 +215,36 @@ function PurchaseInvoiceItem (props) {
                             </fieldset>
                             <div className='form-group col-md-5 mx-3'>
                                 <label htmlFor='purchaseInvoiceNumber' className='mt-3'>Purchase Invoice Number <span className='text-warning'>*</span></label>
-                                <input type='text' id='purchaseInvoiceNumber' maxLength='50' value={inputState[3]} onChange={
-                                    (e)=>onChange(e.target.value,3)} disabled={disabled} required className='form-control' />
+                                <input type='text' id='purchaseInvoiceNumber' maxLength='50' value={inputState[4]} onChange={
+                                    (e)=>onChange(e.target.value,4)} disabled={disabled} required className='form-control' />
                                 
                                 <label htmlFor='date' className='mt-3'>Date <span className='text-warning'>*</span></label>
-                                <input type='date' disabled={disabled} required value={inputState[4]} onChange={(e)=>onChange(e.target.value,4)} 
+                                <input type='date' disabled={disabled} required value={inputState[5]} onChange={(e)=>onChange(e.target.value,5)} 
                                 className='form-control'/>
 
                                 <label className='mt-3' htmlFor='GLCode' >GL Code <span className='text-warning'>*</span></label>
                                 <div className='input-group'>
-                                    <input type='text' id='GLCode' value={inputState[6]} onChange={(e)=>e} required className='form-control' 
+                                    <input type='text' id='GLCode' value={inputState[8]} onChange={(e)=>e} required className='form-control' 
                                     disabled={disabled}/>
                                     <select className='form-control' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>
-                                        onChange(e.target.value,6)}>
+                                        onChange(e.target.value,8)}>
                                         <option value=''> -select an option- </option>
                                         {GLCodeList}
                                     </select>
                                 </div>
 
+                                <label htmlFor='creditTerm' className='mt-3'>Credit Term</label>
+                                <select id='creditTerm' onChange={(e)=> onChange(e.target.value,7)} value={inputState[7]} disabled={disabled} 
+                                className='form-control'>
+                                    <option value='COD'>C.O.D.</option>
+                                    <option value='30'>30 Days</option>
+                                    <option value='45'>45 Days</option>
+                                    <option value='60'>60 Days</option>
+                                    <option value='90'>90 Days</option>
+                                </select>
+
                                 <label htmlFor='description' className='mt-3'>Description</label>
-                                <textarea id='description' onChange={(e)=>onChange(e.target.value,5)} value={inputState[5]} 
+                                <textarea id='description' onChange={(e)=>onChange(e.target.value,6)} value={inputState[6]} 
                                 disabled={disabled} className='form-control'/>
                             </div>
 

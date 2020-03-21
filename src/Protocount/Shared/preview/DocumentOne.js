@@ -1,5 +1,6 @@
 import React from 'react';
-import numberFormatParser from '../numberFormatParser'
+import numberFormatParser from '../numberFormatParser';
+
 
 /*Layout for SALES INVOICE,PURCHASE INVOICE,DEBIT NOTE,CREDIT NOTE*/
 

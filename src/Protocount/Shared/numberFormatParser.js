@@ -6,7 +6,7 @@ function numberFormatParser(num){
         return s2 || (s1 + ',');
       }
     )
-    else return 0;
+    else return '';
   }
 
   export default numberFormatParser;
