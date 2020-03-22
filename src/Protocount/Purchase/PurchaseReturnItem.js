@@ -2,6 +2,12 @@ import React,{useState,useEffect,useContext} from 'react';
 import Item from '../Shared/Item';
 import ItemButton from '../Shared/ItemButton';
 import AppLayout from '../Shared/AppLayout';
+import {
+    Switch,
+    Route,
+    useRouteMatch,
+    Redirect
+} from 'react-router-dom';
 import DocumentOne from '../Shared/preview/DocumentOne';
 import numberFormatParser from '../Shared/numberFormatParser';
 import useFetch from '../Shared/useFetch';
@@ -41,7 +47,7 @@ function PurchaseReturnItem (props) {
     const [stockList,changeStockList] = useState(null);
     const [inputState,changeInputState]=useState(['','','','','','','',[]]) 
     
-    const [preview,changePreview]=useState(false);
+    const {path} = useRouteMatch();
     const {changeAuth} = useContext(authContext);
 
     useEffect(()=>{
@@ -74,6 +80,18 @@ function PurchaseReturnItem (props) {
 
 
     },[dataSelectCreditor,errorSelectCreditor,dataSelectStock,errorSelectStock])
+
+    useEffect(()=>{
+        function setScale() {
+            document.querySelector("meta[name=viewport]").setAttribute(
+                'content','width=device-width, initial-scale=1.0');
+        }
+        window.addEventListener('popstate',setScale)
+            
+        return function unattach() {
+                window.removeEventListener('popstate',setScale)
+            }
+        },[])
 
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1)])
@@ -176,21 +194,22 @@ function PurchaseReturnItem (props) {
     return (
         <Item inputState={inputState} changeInputState={changeInputState} url={url} item='purchase_return' successPath='/PurchaseReturn'>
             {
-            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> preview? (
-            <DocumentOne description={PurchaseReturnItem.description} 
-                changePreview={changePreview}
-                preview={preview}
-                topLeftInput={[inputState[1],inputState[2]]}
-                topRightField={[PurchaseReturnItem.description+' No','Date','Other Description']}
-                topRightInput={[inputState[3],inputState[4]]}
-                bottomField={['','Item Code','Description','Qty']}
-                bottomInput={inputState[linePosition]}
-                
-                calculateTotal={calculateTotal}
-                footer=''
-            />)
-            :
-            (<AppLayout >
+            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> 
+            (<Switch>
+                <Route exact path={`${path}/Preview`}>
+                    <DocumentOne description={PurchaseReturnItem.description} 
+                        backPath={PurchaseReturnItem.path} 
+                        topLeftInput={[inputState[1],inputState[2]]}
+                        topRightField={[PurchaseReturnItem.description+' No','Date','Other Description']}
+                        topRightInput={[inputState[3],inputState[4]]}
+                        bottomField={['','Item Code','Description','Qty']}
+                        bottomInput={inputState[linePosition]}
+                        calculateTotal={calculateTotal}
+                        footer=''
+                    />
+            </Route>
+            <Route exact path={path}>
+            <AppLayout >
                 <div className='container pb-5 px-md-5'>
 
                     {/*Heading renders depending on INSERT or UPDATE/DELETE state*/}
@@ -303,14 +322,16 @@ function PurchaseReturnItem (props) {
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 
-                        changeDisabled={changeDisabled} preview={preview} changePreview={changePreview}/>
+                        changeDisabled={changeDisabled} path={`${path}/Preview`}/>
                         
                         
                         
                     </form>
                 </div>
-            </AppLayout>)
-            }
+            </AppLayout>
+            </Route>
+            <Redirect to={PurchaseReturnItem.path}/>
+        </Switch>)}
         
         </Item>
     )

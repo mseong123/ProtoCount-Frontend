@@ -2,6 +2,12 @@ import React,{useState,useEffect,useContext} from 'react';
 import Item from '../Shared/Item';
 import ItemButton from '../Shared/ItemButton';
 import AppLayout from '../Shared/AppLayout';
+import {
+    Switch,
+    Route,
+    useRouteMatch,
+    Redirect
+} from 'react-router-dom';
 import DocumentOne from '../Shared/preview/DocumentOne';
 import numberFormatParser from '../Shared/numberFormatParser';
 import useFetch from '../Shared/useFetch';
@@ -54,8 +60,9 @@ function SalesInvoiceItem (props) {
     const [GLCodeList,changeGLCodeList] = useState(null);
     const [inputState,changeInputState]=useState(['','','','','','','','COD','','',[]]) 
     
-    const [preview,changePreview]=useState(false);
+    const {path} = useRouteMatch();
     const {changeAuth} = useContext(authContext);
+    
 
     useEffect(()=>{
         
@@ -99,6 +106,18 @@ function SalesInvoiceItem (props) {
         )
 
     },[dataSelectDebtor,errorSelectDebtor,dataSelectStock,errorSelectStock,dataSelectGLCode,errorSelectGLCode])
+
+    useEffect(()=>{
+        function setScale() {
+            document.querySelector("meta[name=viewport]").setAttribute(
+                'content','width=device-width, initial-scale=1.0');
+        }
+        window.addEventListener('popstate',setScale)
+            
+        return function unattach() {
+                window.removeEventListener('popstate',setScale)
+            }
+        },[])
 
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1)])
@@ -147,25 +166,26 @@ function SalesInvoiceItem (props) {
             {errorSelectGLCode? 'GL Code List RETRIEVAL for item failed '+errorSelectGLCode : null}
         </div>)
 
-    
     return (
-        <Item inputState={inputState} changeInputState={changeInputState} url={url} item='sales_invoice' successPath='/SalesInvoice'>
-            {
-            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=> preview? (
-            <DocumentOne description={SalesInvoiceItem.description} 
-                changePreview={changePreview}
-                preview={preview}
-                topLeftInput={[inputState[1],inputState[2]]}
-                topRightField={[SalesInvoiceItem.description+' No','Date','Credit Term','Other Description']}
-                topRightInput={[inputState[4],inputState[5],inputState[7]==='COD'?'C.O.D.':inputState[7]+' Days',inputState[6]]}
-                bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
-                bottomInput={inputState[linePosition]}
-                calculateSubtotal={calculateSubtotal}
-                calculateTotal={calculateTotal}
-                footer='NET 30 Days. Finance Charge of 1.5% will be made on unpaid balances after 30 days.'
-            />)
-            :
-            (<AppLayout>
+    <Item inputState={inputState} changeInputState={changeInputState} url={url} item='sales_invoice' successPath='/SalesInvoice'>
+        {
+        ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay,inputNumberRender})=>
+        (<Switch>
+            <Route exact path={`${path}/Preview`}>
+                <DocumentOne description={SalesInvoiceItem.description}
+                    backPath={SalesInvoiceItem.path} 
+                    topLeftInput={[inputState[1],inputState[2]]}
+                    topRightField={[SalesInvoiceItem.description+' No','Date','Credit Term','Other Description']}
+                    topRightInput={[inputState[4],inputState[5],inputState[7]==='COD'?'C.O.D.':inputState[7]+' Days',inputState[6]]}
+                    bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
+                    bottomInput={inputState[linePosition]}
+                    calculateSubtotal={calculateSubtotal}
+                    calculateTotal={calculateTotal}
+                    footer='NET 30 Days. Finance Charge of 1.5% will be made on unpaid balances after 30 days.'
+                />
+            </Route>
+            <Route exact path={path}>
+                <AppLayout>
                 <div className='container pb-5 px-md-5'>
 
                     {/*Heading renders depending on INSERT or UPDATE/DELETE state*/}
@@ -296,14 +316,16 @@ function SalesInvoiceItem (props) {
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 
-                        changeDisabled={changeDisabled} preview={preview} changePreview={changePreview}/>
+                        changeDisabled={changeDisabled} path={`${path}/Preview`}/>
                         
                         
                         
                     </form>
                 </div>
-            </AppLayout>)
-            }
+                </AppLayout>
+            </Route>
+            <Redirect to={SalesInvoiceItem.path}/>
+        </Switch>)}
         
         </Item>
     )

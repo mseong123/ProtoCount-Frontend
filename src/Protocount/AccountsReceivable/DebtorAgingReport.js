@@ -1,5 +1,11 @@
 import React,{useState,useContext,useEffect} from 'react';
 import AppLayout from '../Shared/AppLayout'
+import {
+    Switch,
+    Route,
+    useRouteMatch,
+    Redirect
+} from 'react-router-dom';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
 import {useHistory} from 'react-router-dom';
@@ -29,7 +35,7 @@ function DebtorAgingReport(props) {
             credentials:'include'
         }
     });
-
+    
     const [debtorList,changeDebtorList] = useState(null);
 
     const [currDate,changeCurrDate] = useState (getFormattedDate(new Date()))
@@ -40,9 +46,9 @@ function DebtorAgingReport(props) {
 
     /*Preview states*/
     const [withDetails,changeWithDetails]=useState(false)
-    const [preview,changePreview]=useState(false);
     const [generateReportWarning,changeGenerateReportWarning]=useState(false);
 
+    const {path} = useRouteMatch();
     const {changeAuth} = useContext(authContext);
     const history=useHistory();
 
@@ -93,6 +99,19 @@ function DebtorAgingReport(props) {
     }
         
     },[resultInput])
+
+    useEffect(()=>{
+    function setScale() {
+        document.querySelector("meta[name=viewport]").setAttribute(
+            'content','width=device-width, initial-scale=1.0');
+    }
+    window.addEventListener('popstate',setScale)
+        
+    return function unattach() {
+            window.removeEventListener('popstate',setScale)
+        }
+    },[])
+
 
     function getFormattedDate(date) {
         let currDate=new Date(date)
@@ -434,22 +453,25 @@ function DebtorAgingReport(props) {
     )
 
     return (
-        preview && resultInput? <DebtorCreditorAgingOne 
-            preview={preview}
-            changePreview={changePreview}
-            description={DebtorAgingReport.description}
-            resultInput={resultInput}
-            withDetails={withDetails}
-            dataSelectDebtorAging={dataSelectDebtorAging}
-            populateTableMonthsHeader={populateTableMonthsHeader}
-            populateTableMonthsAmount={populateTableMonthsAmount}
-            calculateAgingCurrentAmount={calculateAgingCurrentAmount}
-            populateMonthsAmount={populateMonthsAmount}
-            calculateAgingRemainderAmount={calculateAgingRemainderAmount}
-            
-            getFormattedDate={getFormattedDate}
-            />:
-        <AppLayout>
+    <Switch>
+        <Route exact path={`${path}/Preview`}>
+            {resultInput?
+            (<DebtorCreditorAgingOne
+                backPath={DebtorAgingReport.path}
+                description={DebtorAgingReport.description}
+                resultInput={resultInput}
+                withDetails={withDetails}
+                dataSelectDebtorAging={dataSelectDebtorAging}
+                populateTableMonthsHeader={populateTableMonthsHeader}
+                populateTableMonthsAmount={populateTableMonthsAmount}
+                calculateAgingCurrentAmount={calculateAgingCurrentAmount}
+                populateMonthsAmount={populateMonthsAmount}
+                calculateAgingRemainderAmount={calculateAgingRemainderAmount}
+                getFormattedDate={getFormattedDate}
+            />):<Redirect to={DebtorAgingReport.path}/>}
+        </Route>
+        <Route exact path={path}>
+            <AppLayout>
                 <div className='container pt-3' style={{paddingLeft:20,paddingRight:20}}>
                     <h3>{DebtorAgingReport.description}</h3>
                     <form className='mt-3' onSubmit={e=>{
@@ -530,9 +552,9 @@ function DebtorAgingReport(props) {
                                 changeGenerateReportWarning(true)
                             }
                             else {
-                                changePreview(!props.preview);
                                 document.querySelector("meta[name=viewport]").setAttribute(
-                                'content','width=device-width, initial-scale=0.3');
+                                'content','width=device-width, initial-scale=0.4');
+                                history.push('./DebtorAgingReport/Preview')
                             }}
                         } 
                         className='btn btn-info mx-1 my-1'>Preview</button>
@@ -571,11 +593,11 @@ function DebtorAgingReport(props) {
 
                     
                     </div>):null}
-                    
-                    
-                    
                 </div>
-        </AppLayout>
+            </AppLayout>
+        </Route>
+        <Redirect to={DebtorAgingReport.path}/>
+    </Switch>
     )
 }
 DebtorAgingReport.description='Debtor Aging Report';

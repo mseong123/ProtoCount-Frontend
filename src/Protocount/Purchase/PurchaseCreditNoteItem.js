@@ -2,6 +2,12 @@ import React,{useState,useEffect,useContext} from 'react';
 import Item from '../Shared/Item';
 import ItemButton from '../Shared/ItemButton';
 import AppLayout from '../Shared/AppLayout';
+import {
+    Switch,
+    Route,
+    useRouteMatch,
+    Redirect
+} from 'react-router-dom';
 import DocumentOne from '../Shared/preview/DocumentOne';
 import numberFormatParser from '../Shared/numberFormatParser';
 import useFetch from '../Shared/useFetch';
@@ -68,7 +74,7 @@ function PurchaseCreditNoteItem (props) {
     const [errorUnappliedAmount,changeErrorUnappliedAmount] = useState(null);
     const [inputState,changeInputState]=useState(['','','','','','','','',[],[],[]]) 
     
-    const [preview,changePreview]=useState(false);
+    const {path} = useRouteMatch();
     const {changeAuth} = useContext(authContext);
 
     useEffect(()=>{
@@ -121,6 +127,18 @@ function PurchaseCreditNoteItem (props) {
             changeAuth(false);
         }
     },[dataSelectCreditorOutstanding,errorSelectCreditorOutstanding])
+
+    useEffect(()=>{
+        function setScale() {
+            document.querySelector("meta[name=viewport]").setAttribute(
+                'content','width=device-width, initial-scale=1.0');
+        }
+        window.addEventListener('popstate',setScale)
+            
+        return function unattach() {
+                window.removeEventListener('popstate',setScale)
+            }
+        },[])
 
     function paramCreditorOutstanding(creditorNum,oldNum){
         return {
@@ -214,21 +232,22 @@ function PurchaseCreditNoteItem (props) {
         paramOutstanding={paramCreditorOutstanding} changeParamOutstanding={changeParamCreditorOutstanding} 
         debtorCreditorNumPosition={creditorNumPosition} oldNumPosition={oldNumPosition}>
             {
-            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay})=> preview? (
-            <DocumentOne description={PurchaseCreditNoteItem.description} 
-                changePreview={changePreview}
-                preview={preview}
-                topLeftInput={[inputState[1],inputState[2]]}
-                topRightField={[PurchaseCreditNoteItem.description+' No','Date','Other Description']}
-                topRightInput={[inputState[3],inputState[4],inputState[5]]}
-                bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
-                bottomInput={inputState[linePosition]}
-                calculateSubtotal={calculateSubtotal}
-                calculateTotal={calculateTotal}
-                
-            />)
-            :
-            (<AppLayout >
+            ({usage,disabled,changeDisabled,onInsert,onUpdate,onDelete,errorDisplay})=> 
+            (<Switch>
+                <Route path={`${path}/Preview`}>
+                    <DocumentOne description={PurchaseCreditNoteItem.description} 
+                        backPath={'.'+PurchaseCreditNoteItem.path} 
+                        topLeftInput={[inputState[1],inputState[2]]}
+                        topRightField={[PurchaseCreditNoteItem.description+' No','Date','Other Description']}
+                        topRightInput={[inputState[3],inputState[4],inputState[5]]}
+                        bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
+                        bottomInput={inputState[linePosition]}
+                        calculateSubtotal={calculateSubtotal}
+                        calculateTotal={calculateTotal}
+                    />
+                </Route>
+                <Route exact path={path}>
+                <AppLayout >
                 <div className='container pb-5 px-md-5'>
 
                     {/*Heading renders depending on INSERT or UPDATE/DELETE state*/}
@@ -370,12 +389,14 @@ function PurchaseCreditNoteItem (props) {
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 
-                        changeDisabled={changeDisabled} preview={preview} changePreview={changePreview}/>
+                        changeDisabled={changeDisabled} path={`${path}/Preview`}/>
                         
                     </form>
                 </div>
-            </AppLayout>)
-            }
+            </AppLayout>
+            </Route>
+            <Redirect to={PurchaseCreditNoteItem.path}/>
+        </Switch>)}
         
         </Item>
     )

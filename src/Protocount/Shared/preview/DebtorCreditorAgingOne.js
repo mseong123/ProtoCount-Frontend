@@ -1,11 +1,13 @@
 import React from 'react';
-import numberFormatParser from '../numberFormatParser'
+import numberFormatParser from '../numberFormatParser';
+import {useHistory} from 'react-router-dom';
 
 /*Layout for Debtor Aging Report and Creditor Aging Report*/
 
 function DebtorCreditorAgingOne(props) {
 
 const {currDate,debtorID,agingMonths}=props.resultInput;
+const history=useHistory();
 
 function populateDebtor(currDate,debtorID,agingMonths) {
         const data=props.dataSelectDebtorAging.data;
@@ -179,9 +181,9 @@ function populateDebtor(currDate,debtorID,agingMonths) {
         <div className='container-fluid py-1'>
             <button type='click' className='btn btn-secondary d-print-none mb-2' 
                 onClick={()=>{
-                    props.changePreview(!props.preview);
                     document.querySelector("meta[name=viewport]").setAttribute(
                     'content','width=device-width, initial-scale=1.0');
+                    history.push(props.backPath)
             }}>Back</button>
             <h2 className='text-center mb-3'>
                 {props.description+' as at '+ (props.resultInput['currDate'])}
