@@ -8,7 +8,7 @@ import authContext from './authContext';
 function Process(props) {
     /*this is a reusable component for all process components (i.e. StockItemMaintenance.js,DeliveryOrder.js). Contains state logic 
     for fetching DB select data usinguseFetch hook) and filtering the fetched data*/
-        const [{data:dataSelect,error:errorSelect},changeParam]=useFetch({
+        const [{data:dataSelect,error:errorSelect},changeParamSelect]=useFetch({
             url:'./SelectItem',
             init:{
                 method:'POST',
@@ -17,10 +17,14 @@ function Process(props) {
                 credentials:'include'
                 }
             });
+        const [{data:dataDelete,error:errorDelete},changeParamDelete]=useFetch(null);
         const [filteredData,changeFilteredData] = useState(null)
         const {changeAuth} = useContext(authContext);
         const [search,changeSearch] = useState('');
         const [searchCriteria,changeSearchCriteria] = useState('');
+        const [itemsToBeDeleted,changeItemsToBeDeleted] = useState([]);
+        const [errorDeleteDisplay,changeErrorDeleteDisplay] = useState(null);
+        
         const history=useHistory();
         
     //sanitize and filter initial DB dataSelect.data and dataSelect.field returned from fetch
@@ -35,8 +39,46 @@ function Process(props) {
                 field: dataSelect.field? dataSelect.field.map(field=>field.name):null,
                 error:dataSelect.error
             })
+        
         },[dataSelect,errorSelect])
     
+    useEffect(()=>{
+        if (dataDelete && dataDelete.auth===false) {
+            alert('Cookies Expired or Authorisation invalid. Please Login again!');
+            changeAuth(false);
+        }
+        else if (dataDelete && !dataDelete.error && !errorDelete) {
+            alert('Delete Successful!');
+            changeErrorDeleteDisplay(null)
+            changeItemsToBeDeleted([]);
+            filteredData.data.forEach(data=>{
+                document.getElementById(data[props.item.toUpperCase()+'_NUM']).checked=false;
+            });
+            changeParamSelect({
+                url:'./SelectItem',
+                init:{
+                    method:'POST',
+                    headers:{'Content-Type':'application/json'},
+                    body:JSON.stringify({item:props.item}),
+                    credentials:'include'
+                    }
+                })
+        }
+        else if ((dataDelete && dataDelete.error) || errorDelete) {
+            changeErrorDeleteDisplay(
+                (<div className="alert alert-warning">
+                    {dataDelete && dataDelete.error? 'DELETE failed errno: '+dataDelete.error.errno+' code: '
+                     +dataDelete.error.code+' message: '+dataDelete.error.sqlMessage:null}
+                    {errorDelete? 'DELETE failed: '+errorDelete : null} 
+                </div>)
+            )
+            
+        }
+    },[dataDelete,errorDelete])
+    
+console.log(dataDelete? dataDelete.error:null)
+console.log(errorDelete)
+
     function searchCriteriaChange(e) {
         changeSearchCriteria(e.target.value);
     }
@@ -62,7 +104,12 @@ function Process(props) {
     }
     
     function refresh() {
-        changeParam({
+        changeErrorDeleteDisplay(null);
+        changeItemsToBeDeleted([]);
+            filteredData.data.forEach(data=>{
+                document.getElementById(data[props.item.toUpperCase()+'_NUM']).checked=false;
+            });
+        changeParamSelect({
             url:'./SelectItem',
             init:{
                 method:'POST',
@@ -72,6 +119,24 @@ function Process(props) {
                 }
             })
         }
+
+    function deleteList() {
+        if(window.confirm('Confirm Delete?'))  
+        changeParamDelete({
+            url:'./DeleteItem',
+            init:{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({
+                    item:props.item,
+                    id:itemsToBeDeleted
+                }),
+                credentials:'include'
+            }
+        })
+    
+    }
+    
     function onItemClick(data){
         if(data)   
             history.push('./'+props.createItemPath+'?item='+props.item+'&id='+data[props.item.toUpperCase()+'_NUM'])
@@ -93,16 +158,38 @@ function Process(props) {
             ))
         }
         
-        
+
         if (filteredData && filteredData.data) {
         dataList=filteredData.data.map((data,i)=>{
             if(data.selected) {
                 return (
-                    <tr key={i} onClick={()=>/*closure in effect here*/onItemClick(data)} style={{cursor:'pointer'}}>
+                    <tr key={data[props.item.toUpperCase()+'_NUM']}>
+                        <td className='align-baseline'>
+                            <input type='checkbox' id={data[props.item.toUpperCase()+'_NUM']} onChange={(e)=>{
+                                const targetPosition = itemsToBeDeleted.indexOf(data[props.item.toUpperCase()+'_NUM'])
+                                if (e.target.checked) 
+                                    changeItemsToBeDeleted(
+                                        [...itemsToBeDeleted,data[props.item.toUpperCase()+'_NUM']]
+                                    )
+                                else {
+                                    if(targetPosition!==-1) 
+                                        changeItemsToBeDeleted(
+                                            [...itemsToBeDeleted.slice(0,targetPosition),
+                                                ...itemsToBeDeleted.slice(targetPosition+1)])
+                                }
+                            }}/>
+                            
+                        </td>
+                        <td className='align-baseline'>
+                            <button className='btn btn-dark ' 
+                                onClick={()=>/*closure in effect here*/onItemClick(data)}>
+                                View
+                            </button>
+                        </td>
                         {filteredData && filteredData.field? filteredData.field.map(field=>{
                             {/*use Math.random cos filteredData.data[field] might have repeated null values or same cell value in same tr 
                             and hence duplicate keys*/}
-                            return (<td key={Math.random()}>{data[field]}</td>)
+                            return (<td className='text-nowrap align-baseline' key={Math.random()}>{data[field]}</td>)
                         }):null}
                     </tr>)
                     }
@@ -113,9 +200,31 @@ function Process(props) {
         
         
         if (filteredData && !filteredData.error && !errorSelect) 
-            result=<table id='table' className='table table-bordered table-hover table-responsive'>
+            result=
+            (
+            <div className='overflow-auto'style={{transform:'rotateX(180deg)'}}>
+                <table id='table' className='table table-bordered table-hover' 
+            style={{transform:'rotateX(180deg)'}}>
                         <thead>
                             <tr>
+                                <th className='text-nowrap'><input type='checkbox' onChange={(e)=>{
+                                    if (e.target.checked) {
+                                        let array=[]
+                                        filteredData.data.forEach(data=>{
+                                            document.getElementById(data[props.item.toUpperCase()+'_NUM']).checked=true;
+                                            array.push(data[props.item.toUpperCase()+'_NUM'])
+                                        })
+                                        changeItemsToBeDeleted(array)
+                                    }
+                                    else {
+                                        filteredData.data.forEach(data=>{
+                                            document.getElementById(data[props.item.toUpperCase()+'_NUM']).checked=false;
+                                        })
+                                        changeItemsToBeDeleted([]);
+                                    }
+                                    
+                                }}/></th>
+                                <th></th>
                                 {fieldList}
                             </tr>
                         </thead>
@@ -123,18 +232,20 @@ function Process(props) {
                             {dataList}
                         </tbody>
                     </table>
+                    </div>)
         
         else if ((filteredData && filteredData.error) || errorSelect) 
                 result= (<div className="alert alert-warning">
-                            {filteredData && filteredData.error? '<DATABASE ERROR> '+filteredData.error.errno+' '
-                            +filteredData.error.code+' '+filteredData.error.sqlMessage:null}
+                            {filteredData && filteredData.error? '<DATABASE ERROR> errno: '+filteredData.error.errno+' code: '
+                            +filteredData.error.code+' message: '+filteredData.error.sqlMessage:null}
                             {errorSelect? 'OTHER ERROR '+errorSelect.name+' '+errorSelect.message:null}
                         </div>)
         
         else result=null;
-            
+        
 
-        return props.render({searchCriteriaList,result,onItemClick,refresh,search,searchChange,searchCriteria,searchCriteriaChange})
+        return props.render({searchCriteriaList,result,onItemClick,refresh,search,searchChange,
+            searchCriteria,searchCriteriaChange,deleteList,errorDeleteDisplay,itemsToBeDeleted})
 }
 
 export default Process;

@@ -197,6 +197,7 @@ function Item(props) {
     }
 
     function onDelete() {
+        if(window.confirm('Confirm Delete?'))
         changeParamDelete({
             url:'./DeleteItem',
             init:{
@@ -204,7 +205,7 @@ function Item(props) {
                 headers:{'Content-Type':'application/json'},
                 body:JSON.stringify({
                     item:props.item,
-                    id:props.url.id
+                    id:[props.url.id]
                 }),
                 credentials:'include'
             }
