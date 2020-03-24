@@ -2,6 +2,7 @@ import React,{useState,useEffect,useContext} from 'react';
 import {useHistory} from 'react-router-dom';
 import useFetch from './useFetch'
 import authContext from './authContext';
+import {sort} from './sort';
 
 
 
@@ -75,9 +76,6 @@ function Process(props) {
             
         }
     },[dataDelete,errorDelete])
-    
-console.log(dataDelete? dataDelete.error:null)
-console.log(errorDelete)
 
     function searchCriteriaChange(e) {
         changeSearchCriteria(e.target.value);
@@ -154,7 +152,25 @@ console.log(errorDelete)
                 )
             )
             fieldList=filteredData.field.map(field=>(
-                <th key={field} className='text-nowrap'>{field.replace(/_/g,' ')}</th>
+                <th key={field} style={{}} style={{cursor:'pointer'}} className='text-nowrap' data-order='asc'
+                onClick={(e)=>{
+                    e.target.setAttribute('data-order',e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                    changeFilteredData({...filteredData,
+                        data:sort(filteredData.data,field,e.target.getAttribute('data-order'))
+                    })
+
+                    if (e.target.getAttribute('data-order')==='asc') {
+                        document.getElementById(field.replace(/_/g,' ')).classList.remove('fa-caret-up');
+                        document.getElementById(field.replace(/_/g,' ')).classList.add('fa-caret-down')
+                    }
+                    else {
+                        document.getElementById(field.replace(/_/g,' ')).classList.remove('fa-caret-down');
+                        document.getElementById(field.replace(/_/g,' ')).classList.add('fa-caret-up')
+                    }
+                        
+                    }}>
+                    {field.replace(/_/g,' ')}<i id={field.replace(/_/g,' ')} className='fa fa-caret-down ml-2'></i>
+                </th>
             ))
         }
         

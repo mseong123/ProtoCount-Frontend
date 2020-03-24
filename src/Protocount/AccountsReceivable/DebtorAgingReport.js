@@ -568,30 +568,31 @@ function DebtorAgingReport(props) {
                     <hr/>
                     
                     {resultInput? 
-                    (<div className="overflow-auto mb-5">
-                        <h5>Result</h5>
-                        <div className='row flex-nowrap text-white bg-secondary pt-2 pb-1' 
-                        style={{
-                            marginLeft:0,
-                            marginRight:0,
-                            /*width to total all child widths since parent container width doesn't cover overflow due to nowrap*/
-                            width:calculatedWidth
-                            }}>
-                            <h6 style={{flex:'1 0 34px',paddingLeft:10,paddingRight:10}}></h6>
-                            <h6 style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10}}>Debtor No.</h6>
-                            <h6 style={{flex:'1 0 200px',paddingLeft:10,paddingRight:10}}>Name</h6>
-                            <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Current</h6>
-                            {populateMonthsHeader(resultInput['agingMonths'])}
-                            <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>
-                                {'> '+resultInput['agingMonths']+' Month'}
-                                </h6>
-                            <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Total Overdue</h6>
-                            <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Balance</h6>
+                    (<div className="overflow-auto mb-5 pt-3" style={{transform:'rotateX(180deg)'}}>
+                        <div style={{transform:'rotateX(180deg)'}}>
+                            <h5 className='py-2'>Result</h5>
+                            <div className='row flex-nowrap text-white bg-secondary pt-2 pb-1' 
+                            style={{
+                                marginLeft:0,
+                                marginRight:0,
+                                /*width to total all child widths since parent container width doesn't cover overflow due to nowrap*/
+                                width:calculatedWidth
+                                }}>
+                                <h6 style={{flex:'1 0 34px',paddingLeft:10,paddingRight:10}}></h6>
+                                <h6 style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10}}>Debtor No.</h6>
+                                <h6 style={{flex:'1 0 200px',paddingLeft:10,paddingRight:10}}>Name</h6>
+                                <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Current</h6>
+                                {populateMonthsHeader(resultInput['agingMonths'])}
+                                <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>
+                                    {'> '+resultInput['agingMonths']+' Month'}
+                                    </h6>
+                                <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Total Overdue</h6>
+                                <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Balance</h6>
                             
-                        </div>
-                        {populateDebtor(resultInput['currDate'],resultInput['debtorID'],resultInput['agingMonths'])}
+                            </div>
+                            {populateDebtor(resultInput['currDate'],resultInput['debtorID'],resultInput['agingMonths'])}
 
-                    
+                        </div>
                     </div>):null}
                 </div>
             </AppLayout>
