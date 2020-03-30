@@ -51,7 +51,7 @@ import BankAndCashSVG from './svg/027-money.svg';
 //AccountsReceivable
 import DebtorMaintenance from '../AccountsReceivable/DebtorMaintenance';
 import DebtorAgingReport from '../AccountsReceivable/DebtorAgingReport';
-import DebtorBalanceReport from '../AccountsReceivable/DebtorBalanceReport';
+import DebtorStatementReport from '../AccountsReceivable/DebtorStatementReport';
 import DebtorCollectionReport from '../AccountsReceivable/DebtorCollectionReport';
 import DebtorItem from '../AccountsReceivable/DebtorItem';
 import AccountsReceivableSVG from './svg/011-calendar.svg';
@@ -95,7 +95,7 @@ const ComponentSummary = [
     {name:'Purchase',svg:PurchaseSVG ,process:[PurchaseReturn,PurchaseInvoice,PurchaseDebitNote,PurchaseCreditNote], item:[PurchaseReturnItem,PurchaseInvoiceItem,PurchaseDebitNoteItem,PurchaseCreditNoteItem], report:[PurchaseReport,SupplierPriceListReport]},
     {name:'Inventory',svg:InventorySVG ,process:[StockItemMaintenance], item:[StockItem], report:[StockCardReport,StockAgingReport]},
     {name:'Bank and Cash',svg:BankAndCashSVG ,process:[BankMaintenance,BankReceipt,BankPayment,CashReceipt,CashPayment], item:[BankItem,BankReceiptItem,BankPaymentItem,CashReceiptItem,CashPaymentItem], report:[]},
-    {name:'Accounts Receivable',svg:AccountsReceivableSVG ,process:[DebtorMaintenance], item:[DebtorItem], report:[DebtorAgingReport,DebtorBalanceReport,DebtorCollectionReport]},
+    {name:'Accounts Receivable',svg:AccountsReceivableSVG ,process:[DebtorMaintenance], item:[DebtorItem], report:[DebtorAgingReport,DebtorStatementReport,DebtorCollectionReport]},
     {name:'Accounts Payable',svg:AccountsPayableSVG ,process:[CreditorMaintenance], item:[CreditorItem], report:[CreditorAgingReport,CreditorBalanceReport]},
     {name:'General Ledger',svg:GeneralLedgerSVG ,process:[AccountMaintenance,JournalEntry,ProfitAndLoss,BalanceSheet], item:[JournalItem,ProfitAndLossItem,BalanceSheetItem], report:[]},
 ]

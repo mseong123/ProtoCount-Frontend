@@ -215,8 +215,8 @@ function Item(props) {
     function inputNumberRender(inputNumberProps) {
         return (
             <div className={inputNumberProps.layout+ ' input-group'}>
-                <input type='text' maxLength={4} value={IDInfo.currentIDPrefix} required className='form-control col-3' 
-                pattern='[A-Z]+' title='Use UpperCase Prefix only (MAX 4 Letters And No Numbers)' disabled={disabled} 
+                <input type='text' maxLength={10} value={IDInfo.currentIDPrefix} required className='form-control 
+                col-5 col-md-4' pattern='[A-Za-z]+' title='Use Alphabets only (Max 4)' disabled={disabled} 
                 onChange={(e)=>{
                     let matchedIndex=IDInfo.IDPrefix.indexOf(e.target.value);
                     if (matchedIndex!==-1) {
@@ -264,7 +264,7 @@ function Item(props) {
                         </option>)
                     )}
                 </select>
-                <input type='number' id={inputNumberProps.labelID} 
+                <input type='number' id={inputNumberProps.labelID} max='999999999'
                 value={props.inputState[inputNumberProps.position].substring(props.inputState[inputNumberProps.position].indexOf("-")+1)} 
                 onChange={(e)=>inputNumberProps.onChange(IDInfo.currentIDPrefix+'-'+e.target.value,inputNumberProps.position)} 
                 disabled={disabled} required className='form-control' placeholder={'Next Number : '+(IDInfo.minIDNumber)} 

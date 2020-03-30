@@ -11,6 +11,7 @@ import authContext from '../Shared/authContext';
 import {useHistory} from 'react-router-dom';
 import $ from 'jquery'
 import numberFormatParser from '../Shared/numberFormatParser';
+import dateFormatParser from '../Shared/dateFormatParser';
 import DebtorCreditorAgingOne from '../Shared/preview/DebtorCreditorAgingOne';
 
 function DebtorAgingReport(props) {
@@ -24,7 +25,7 @@ function DebtorAgingReport(props) {
         }
     });
 
-    const [{data:dataSelectDebtorAging,error:errorSelectDebtorAging},changeParamDebtorAging]=useFetch({
+    const [{data:dataSelectDebtorAging,error:errorSelectDebtorAging}]=useFetch({
         url:'./ReportItem',
         init:{
             method:'POST',
@@ -101,15 +102,15 @@ function DebtorAgingReport(props) {
     },[resultInput])
 
     useEffect(()=>{
-    function setScale() {
-        document.querySelector("meta[name=viewport]").setAttribute(
-            'content','width=device-width, initial-scale=1.0');
-    }
-    window.addEventListener('popstate',setScale)
-        
-    return function unattach() {
-            window.removeEventListener('popstate',setScale)
+        function setScale() {
+            document.querySelector("meta[name=viewport]").setAttribute(
+                'content','width=device-width, initial-scale=1.0');
         }
+        window.addEventListener('popstate',setScale)
+        
+        return function unattach() {
+                window.removeEventListener('popstate',setScale)
+            }
     },[])
 
 
@@ -252,7 +253,6 @@ function DebtorAgingReport(props) {
         const amount=field[5].name;
         const creditTerm=field[6].name;
 
-    
         const debtorAlreadyParsed=[];
         const result=[];
 
@@ -370,14 +370,14 @@ function DebtorAgingReport(props) {
                                                 history.push('./'+createLink(item2[type].toLowerCase(),item2[docNum]))
                                                 }>
                                                 <td className='text-nowrap'>{item2[docNum]}</td>
-                                                <td className='text-nowrap'>{item2[docDate]}</td>
+                                                <td className='text-nowrap'>{dateFormatParser(item2[docDate])}</td>
                                                 <td className='text-nowrap'>{item2[type]}</td>
                                                 <td className='text-nowrap'>{
                                                 item2[creditTerm] && item2[creditTerm]!=='COD'? 
-                                                    getFormattedDate(
+                                                dateFormatParser(getFormattedDate(
                                                         new Date(new Date(item2[docDate])
-                                                        .setDate(new Date(item2[docDate]).getDate()+Number(item2[creditTerm])))
-                                                    ):item2[docDate]
+                                                        .setDate(new Date(item2[docDate]).getDate()+Number(item2[creditTerm]))))
+                                                    ):dateFormatParser(item2[docDate])
                                                     }</td>
                                                 <td className='text-nowrap'>{
                                                     numberFormatParser(calculateAgingCurrentAmount(
@@ -488,7 +488,7 @@ function DebtorAgingReport(props) {
                                 <label className='offset-md-1 col-md-2 col-form-label' style={{paddingLeft:0}} htmlFor='agingMonths'>
                                     Aging Month(s)
                                 </label>
-                                <select className='form-control col-md-2' required value={agingMonths} onChange={e=>
+                                <select id='agingMonths' className='form-control col-md-2' required value={agingMonths} onChange={e=>
                                     changeAgingMonths(e.target.value)
                                 }>
                                     <option value='1'>1</option>
@@ -529,8 +529,7 @@ function DebtorAgingReport(props) {
                                 </div>
                             </div>
                         
-                            <fieldset className='form-group pb-3 border border-secondary 
-                            rounded col-md-6'>
+                            <fieldset className='form-group pb-3 border border-secondary rounded col-md-6'>
                                 <legend className='col-form-label col-md-6 offset-md-3 col-8 offset-2 text-center'>
                                     <h6>Preview Options</h6>
                                 </legend>
@@ -594,6 +593,7 @@ function DebtorAgingReport(props) {
 
                         </div>
                     </div>):null}
+                    <hr className='pb-3'/>
                 </div>
             </AppLayout>
         </Route>

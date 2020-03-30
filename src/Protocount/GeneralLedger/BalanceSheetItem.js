@@ -3,6 +3,7 @@ import AppLayout from '../Shared/AppLayout';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
 import numberFormatParser from '../Shared/numberFormatParser'
+import dateFormatParser from '../Shared/dateFormatParser';
 import $ from 'jquery'
 import {useHistory} from 'react-router-dom';
 
@@ -242,7 +243,7 @@ function BalanceSheetItem (props) {
                                                 <tr key={i} style={{cursor:'pointer'}} onClick={(e)=>
                                                     history.push('./'+createLink(item2[itemType].toLowerCase(),item2[itemNumber]))
                                                     }>
-                                                    <td className='text-nowrap'>{item2[itemDate]}</td>
+                                                    <td className='text-nowrap'>{dateFormatParser(item2[itemDate])}</td>
                                                     <td className='text-nowrap'>{item2[itemType]}</td>
                                                     <td className='text-nowrap'>{item2[itemNumber]}</td>
                                                     <td className='text-nowrap'>{numberFormatParser(item2[itemDebit])}</td>
@@ -315,7 +316,7 @@ function BalanceSheetItem (props) {
                                                     <tr key={i} style={{cursor:'pointer'}} onClick={(e)=>
                                                         history.push('./'+createLink(item2[itemType].toLowerCase(),item2[itemNumber]))
                                                         }>
-                                                        <td className='text-nowrap'>{item2[itemDate]}</td>
+                                                        <td className='text-nowrap'>{dateFormatParser(item2[itemDate])}</td>
                                                         <td className='text-nowrap'>{item2[itemType]}</td>
                                                         <td className='text-nowrap'>{item2[itemNumber]}</td>
                                                         <td className='text-nowrap'>{numberFormatParser(item2[itemDebit])}</td>

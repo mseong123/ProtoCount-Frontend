@@ -3,6 +3,8 @@ import {useHistory} from 'react-router-dom';
 import useFetch from './useFetch'
 import authContext from './authContext';
 import {sort} from './sort';
+import numberFormatParser from '../Shared/numberFormatParser';
+import dateFormatParser from '../Shared/dateFormatParser';
 
 
 
@@ -180,7 +182,7 @@ function Process(props) {
             if(data.selected) {
                 return (
                     <tr key={data[props.item.toUpperCase()+'_NUM']}>
-                        <td className='align-baseline'>
+                        <td className='align-baseline py-2'>
                             <input type='checkbox' id={data[props.item.toUpperCase()+'_NUM']} onChange={(e)=>{
                                 const targetPosition = itemsToBeDeleted.indexOf(data[props.item.toUpperCase()+'_NUM'])
                                 if (e.target.checked) 
@@ -196,16 +198,21 @@ function Process(props) {
                             }}/>
                             
                         </td>
-                        <td className='align-baseline'>
-                            <button className='btn btn-dark ' 
+                        <td className='align-baseline py-2'>
+                            <button className='btn btn-dark btn-sm' 
                                 onClick={()=>/*closure in effect here*/onItemClick(data)}>
-                                View
+                                VIEW
                             </button>
                         </td>
                         {filteredData && filteredData.field? filteredData.field.map(field=>{
                             {/*use Math.random cos filteredData.data[field] might have repeated null values or same cell value in same tr 
                             and hence duplicate keys*/}
-                            return (<td className='text-nowrap align-baseline' key={Math.random()}>{data[field]}</td>)
+                            return (<td className='text-nowrap align-baseline py-2' key={Math.random()}>
+                                {field.indexOf('DATE')!==-1? 
+                                    dateFormatParser(data[field]):
+                                        typeof data[field]==='number'? numberFormatParser(data[field]):data[field]}
+                                    
+                                </td>)
                         }):null}
                     </tr>)
                     }
@@ -218,9 +225,8 @@ function Process(props) {
         if (filteredData && !filteredData.error && !errorSelect) 
             result=
             (
-            <div className='overflow-auto'style={{transform:'rotateX(180deg)'}}>
-                <table id='table' className='table table-bordered table-hover' 
-            style={{transform:'rotateX(180deg)'}}>
+            <div className='overflow-auto'style={{maxHeight:'50vh'}}>
+                <table id='table' className='table table-bordered table-hover' >
                         <thead>
                             <tr>
                                 <th className='text-nowrap'><input type='checkbox' onChange={(e)=>{

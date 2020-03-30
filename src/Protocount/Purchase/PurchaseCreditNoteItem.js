@@ -10,6 +10,7 @@ import {
 } from 'react-router-dom';
 import DocumentOne from '../Shared/preview/DocumentOne';
 import numberFormatParser from '../Shared/numberFormatParser';
+import dateFormatParser from '../Shared/dateFormatParser';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
 import LineRender from '../Shared/LineRender';
@@ -56,10 +57,11 @@ function PurchaseCreditNoteItem (props) {
 
     /*Position of inputState variable used in other components. */
     const creditorNumPosition=0;
-    const oldNumPosition=7;
-    const linePosition=8;
-    const offsetPositionPurchaseInvoice=9;
-    const offsetPositionPurchaseDebitNote=10;
+    const creditTermPosition=6;
+    const oldNumPosition=8;
+    const linePosition=9;
+    const offsetPositionPurchaseInvoice=10;
+    const offsetPositionPurchaseDebitNote=11;
 
     /*inputState offset inner positions*/
     const offsetDocNumPosition=0;
@@ -72,7 +74,7 @@ function PurchaseCreditNoteItem (props) {
     const [stockList,changeStockList] = useState(null);
     const [GLCodeList,changeGLCodeList] = useState(null);
     const [errorUnappliedAmount,changeErrorUnappliedAmount] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','','',[],[],[]]) 
+    const [inputState,changeInputState]=useState(['','','','','','','COD','','',[],[],[]]) 
     
     const {path} = useRouteMatch();
     const {changeAuth} = useContext(authContext);
@@ -238,8 +240,8 @@ function PurchaseCreditNoteItem (props) {
                     <DocumentOne description={PurchaseCreditNoteItem.description} 
                         backPath={'.'+PurchaseCreditNoteItem.path} 
                         topLeftInput={[inputState[1],inputState[2]]}
-                        topRightField={[PurchaseCreditNoteItem.description+' No','Date','Other Description']}
-                        topRightInput={[inputState[3],inputState[4],inputState[5]]}
+                        topRightField={[PurchaseCreditNoteItem.description+' No','Date','Credit Term','Other Description']}
+                        topRightInput={[inputState[3],dateFormatParser(inputState[4]),inputState[6]==='COD'?'C.O.D.':inputState[6]+' Days',inputState[5]]}
                         bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
                         bottomInput={inputState[linePosition]}
                         calculateSubtotal={calculateSubtotal}
@@ -261,17 +263,9 @@ function PurchaseCreditNoteItem (props) {
                     validation only works if submit event is handled here*/}
                     <form onSubmit={(e)=>{
                         e.preventDefault(); 
-                        if (calculateUnappliedAmount()!==0) {
-                            changeErrorUnappliedAmount(
-                                (<p className='col-md-12 text-right alert alert-warning mx-3'>
-                                    Total not fully offset. Please amend. 
-                                </p>)
-                            )
-                        }
-                        else {
-                            if(usage==='INSERT') onInsert(); 
-                            else onUpdate()
-                        }
+                        if(usage==='INSERT') onInsert(); 
+                        else onUpdate()
+                        
                         }}>
                         <div className='row'>
                             <fieldset className='form-group form-row col-md-5 mx-3 border border-secondary pb-4 rounded' disabled={disabled}>
@@ -285,17 +279,21 @@ function PurchaseCreditNoteItem (props) {
                                     <select className='form-control' style={{flex:'0 1 0'}} onChange={(e)=>{
                                         let creditorName='';
                                         let creditorAddress='';
+                                        let creditorDefaultCreditTerm='';
                                     
                                         dataSelectCreditor.data.forEach(data=>{
                                             
                                             if(data[dataSelectCreditor.field[0].name]===e.target.value) {
                                                 creditorName=data[dataSelectCreditor.field[1].name]?data[dataSelectCreditor.field[1].name]:'';
                                                 creditorAddress=data[dataSelectCreditor.field[2].name]?data[dataSelectCreditor.field[2].name]:'';
+                                                creditorDefaultCreditTerm=data[dataSelectCreditor.field[7].name]?data[dataSelectCreditor.field[7].name]:'';
                                             }
                                             
                                         })
                                     
-                                    changeInputState([e.target.value,creditorName,creditorAddress,...inputState.slice(3,inputState.length)])
+                                    changeInputState([e.target.value,creditorName,creditorAddress,
+                                        ...inputState.slice(3,creditTermPosition),creditorDefaultCreditTerm,
+                                        ...inputState.slice(creditTermPosition+1)])
                                     changeParamCreditorOutstanding(
                                         paramCreditorOutstanding(e.target.value,inputState[oldNumPosition])
                                         )
@@ -322,15 +320,26 @@ function PurchaseCreditNoteItem (props) {
                                 
                                 <label className='mt-3' htmlFor='glCode' >GL Code <span className='text-warning'>*</span></label>
                                 <div className='input-group'>
-                                    <input type='text' id='glCode' value={inputState[6]} onChange={(e)=>e} required className='form-control' 
+                                    <input type='text' id='glCode' value={inputState[7]} onChange={(e)=>e} required className='form-control' 
                                     disabled={disabled}/>
                                     <select className='form-control' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>{
-                                    onChange(e.target.value,6)
+                                    onChange(e.target.value,7)
                                     }}>
                                         <option value=''> -select an option- </option>
                                         {GLCodeList}
                                     </select>
                                 </div>
+
+                                <label htmlFor='creditTerm' className='mt-3'>Credit Term</label>
+                                <select id='creditTerm' onChange={(e)=> onChange(e.target.value,6)} value={inputState[6]} disabled={disabled} 
+                                className='form-control'>
+                                    <option value='COD'>C.O.D.</option>
+                                    <option value='30'>30 Days</option>
+                                    <option value='45'>45 Days</option>
+                                    <option value='60'>60 Days</option>
+                                    <option value='90'>90 Days</option>
+                                </select>
+
                                 <label htmlFor='description' className='mt-3'>Description</label>
                                 <textarea id='description' onChange={(e)=>onChange(e.target.value,5)} value={inputState[5]} 
                                 disabled={disabled} className='form-control'/>

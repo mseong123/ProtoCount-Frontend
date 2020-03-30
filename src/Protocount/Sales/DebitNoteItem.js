@@ -10,6 +10,7 @@ import {
 } from 'react-router-dom';
 import DocumentOne from '../Shared/preview/DocumentOne';
 import numberFormatParser from '../Shared/numberFormatParser';
+import dateFormatParser from '../Shared/dateFormatParser';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
 import LineRender from '../Shared/LineRender';
@@ -51,13 +52,13 @@ function DebitNoteItem (props) {
     });//extension of Item component
 
     /*Position of inputState variable used in other components. */
-    const creditTermPosition=7;
-    const linePosition=10;
+    const creditTermPosition=6;
+    const linePosition=9;
 
     const [debtorList,changeDebtorList] = useState(null);
     const [stockList,changeStockList] = useState(null);
     const [GLCodeList,changeGLCodeList] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','','COD','','',[]]) 
+    const [inputState,changeInputState]=useState(['','','','','','','COD','','',[]]) 
     
     const {path} = useRouteMatch();
     const {changeAuth} = useContext(authContext);
@@ -174,7 +175,7 @@ function DebitNoteItem (props) {
                     backPath={DebitNoteItem.path} 
                     topLeftInput={[inputState[1],inputState[2]]}
                     topRightField={[DebitNoteItem.description+' No','Date','Credit Term','Other Description']}
-                    topRightInput={[inputState[4],inputState[5],inputState[7]==='COD'?'C.O.D.':inputState[7]+' Days',inputState[6]]}
+                    topRightInput={[inputState[3],dateFormatParser(inputState[4]),inputState[6]==='COD'?'C.O.D.':inputState[6]+' Days',inputState[5]]}
                     bottomField={['','Item Code','Description','Price','Qty','Discount','Subtotal']}
                     bottomInput={inputState[linePosition]}
                     calculateSubtotal={calculateSubtotal}
@@ -240,21 +241,21 @@ function DebitNoteItem (props) {
                                 {inputNumberRender({
                                     onChange:onChange,
                                     layout:'',
-                                    position:4,
+                                    position:3,
                                     labelID:'debitNoteNumber'
                                 })
                                 }
                                 
                                 <label htmlFor='date' className='mt-3'>Date <span className='text-warning'>*</span></label>
-                                <input type='date' disabled={disabled} required value={inputState[5]} onChange={(e)=>onChange(e.target.value,5)} 
+                                <input type='date' disabled={disabled} required value={inputState[4]} onChange={(e)=>onChange(e.target.value,4)} 
                                 className='form-control'/>
                                 
                                 <label className='mt-3' htmlFor='glCode' >GL Code <span className='text-warning'>*</span></label>
                                 <div className='input-group'>
-                                    <input type='text' id='glCode' value={inputState[8]} onChange={(e)=>e} required className='form-control' 
+                                    <input type='text' id='glCode' value={inputState[7]} onChange={(e)=>e} required className='form-control' 
                                     disabled={disabled}/>
                                     <select className='form-control' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>{
-                                    onChange(e.target.value,8)
+                                    onChange(e.target.value,7)
                                     }}>
                                         <option value=''> -select an option- </option>
                                         {GLCodeList}
@@ -262,7 +263,7 @@ function DebitNoteItem (props) {
                                 </div>
                                 
                                 <label htmlFor='creditTerm' className='mt-3'>Credit Term</label>
-                                <select id='creditTerm' onChange={(e)=> onChange(e.target.value,7)} value={inputState[7]} disabled={disabled} 
+                                <select id='creditTerm' onChange={(e)=> onChange(e.target.value,6)} value={inputState[6]} disabled={disabled} 
                                 className='form-control'>
                                     <option value='COD'>C.O.D.</option>
                                     <option value='30'>30 Days</option>
@@ -272,7 +273,7 @@ function DebitNoteItem (props) {
                                 </select>
 
                                 <label htmlFor='description' className='mt-3'>Description</label>
-                                <textarea id='description' onChange={(e)=>onChange(e.target.value,6)} value={inputState[6]} 
+                                <textarea id='description' onChange={(e)=>onChange(e.target.value,5)} value={inputState[5]} 
                                 disabled={disabled} className='form-control'/>
                                 
                             </div>

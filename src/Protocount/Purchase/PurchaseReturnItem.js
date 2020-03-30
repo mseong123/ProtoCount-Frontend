@@ -10,6 +10,7 @@ import {
 } from 'react-router-dom';
 import DocumentOne from '../Shared/preview/DocumentOne';
 import numberFormatParser from '../Shared/numberFormatParser';
+import dateFormatParser from '../Shared/dateFormatParser';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
 
@@ -201,7 +202,7 @@ function PurchaseReturnItem (props) {
                         backPath={PurchaseReturnItem.path} 
                         topLeftInput={[inputState[1],inputState[2]]}
                         topRightField={[PurchaseReturnItem.description+' No','Date','Other Description']}
-                        topRightInput={[inputState[3],inputState[4]]}
+                        topRightInput={[inputState[3],dateFormatParser(inputState[4])]}
                         bottomField={['','Item Code','Description','Qty']}
                         bottomInput={inputState[linePosition]}
                         calculateTotal={calculateTotal}

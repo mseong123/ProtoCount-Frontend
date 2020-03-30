@@ -1,5 +1,6 @@
 import React from 'react';
 import numberFormatParser from '../numberFormatParser';
+import dateFormatParser from '../dateFormatParser';
 import {useHistory} from 'react-router-dom';
 
 /*Layout for Debtor Aging Report and Creditor Aging Report*/
@@ -123,14 +124,14 @@ function populateDebtor(currDate,debtorID,agingMonths) {
                             return (
                                 <tr key={item2[docNum]} >
                                     <td className='align-top'>{item2[docNum]}</td>
-                                    <td className='align-top'>{item2[docDate]}</td>
+                                    <td className='align-top'>{dateFormatParser(item2[docDate])}</td>
                                     <td className='align-top'>{item2[type]}</td>
                                     <td className='align-top'>{
                                         item2[creditTerm] && item2[creditTerm]!=='COD'? 
-                                        props.getFormattedDate(
+                                        dateFormatParser(props.getFormattedDate(
                                             new Date(new Date(item2[docDate])
-                                            .setDate(new Date(item2[docDate]).getDate()+Number(item2[creditTerm])))
-                                        ):item2[docDate]
+                                            .setDate(new Date(item2[docDate]).getDate()+Number(item2[creditTerm]))))
+                                        ):dateFormatParser(item2[docDate])
                                     }</td>
                                     <td className='align-top'>{
                                         numberFormatParser(props.calculateAgingCurrentAmount(
@@ -186,7 +187,7 @@ function populateDebtor(currDate,debtorID,agingMonths) {
                     history.push(props.backPath)
             }}>Back</button>
             <h2 className='text-center mb-3'>
-                {props.description+' as at '+ (props.resultInput['currDate'])}
+                {props.description+' as at '+ (dateFormatParser(props.resultInput['currDate']))}
             </h2>
             <hr className='border border-dark'/>
             <table className='table table-borderless'>

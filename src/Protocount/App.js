@@ -20,12 +20,6 @@ function App() {
     const [isLoading,changeIsLoading]=useState(false);
 
     
-    useEffect(()=>{
-        document.querySelector("meta[name=viewport]").setAttribute(
-            'content','width=device-width, initial-scale=1.0');
-        }
-    )
-    
     let appRoutes=[];
     ComponentSummary.forEach(category=>{
         category.process.forEach(component=>
