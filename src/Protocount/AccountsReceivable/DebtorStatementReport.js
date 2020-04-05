@@ -11,6 +11,7 @@ import authContext from '../Shared/authContext';
 import {useHistory} from 'react-router-dom';
 import numberFormatParser from '../Shared/numberFormatParser';
 import dateFormatParser from '../Shared/dateFormatParser';
+import sortData from '../Shared/sort';
 import DebtorCreditorStatementOne from '../Shared/preview/DebtorCreditorStatementOne';
 
 function DebtorStatementReport(props) {
@@ -29,13 +30,15 @@ function DebtorStatementReport(props) {
     const [debtorID,changeDebtorID] = useState('');
     const [dateStart,changeDateStart] = useState(new Date().getFullYear()+'-01-01');
     const [dateEnd,changeDateEnd] = useState(getFormattedDate(new Date()));
-    const [resultInput,changeResultInput]=useState({});
+    const [resultInput,changeResultInput]=useState(null);
     
 
     /*Preview states*/
     const agingMonthsMax=12 /*variable used for db fetching purpose. Change this if aging month option is changed*/
     const [agingMonths,changeAgingMonths]=useState(6);
     const [debtorOtherInfo,changeDebtorOtherInfo] =useState(null)
+    const [sortCriteriaList,changeSortCriteriaList]=useState(null);
+    const [sortCriteria,changeSortCriteria]=useState('');
     const [generateReportWarning,changeGenerateReportWarning]=useState(false);
 
     const {path} = useRouteMatch();
@@ -59,13 +62,36 @@ function DebtorStatementReport(props) {
 
     useEffect(()=>{
         
+
         if (dataSelectDebtorStatement && dataSelectDebtorStatement.auth===false) {
                 alert('Cookies Expired or Authorisation invalid. Please Login again!');
                 changeAuth(false);
             }
-        else if (dataSelectDebtorStatement && dataSelectDebtorStatement.data && dataSelectDebtorStatement.field)
-            changeResultInput({data:dataSelectDebtorStatement.data,field:dataSelectDebtorStatement.field,
+        else if (dataSelectDebtorStatement && dataSelectDebtorStatement.data && dataSelectDebtorStatement.field) {
+            const field=dataSelectDebtorStatement.field[1];
+            const date=field[0].name;
+            const docNum=field[1].name;
+            const ref=field[2].name;
+            const type=field[3].name;
+            const dr=field[4].name;
+            const cr=field[5].name;
+            
+            changeResultInput({data:dataSelectDebtorStatement.data,
+                dataPreview:[...dataSelectDebtorStatement.data],field:dataSelectDebtorStatement.field,
             dateStart,dateEnd,debtorID})
+
+            changeSortCriteriaList(
+                (<>
+                    <option value={date}>Date</option>
+                    <option value={docNum}>Doc No.</option>
+                    <option value={ref}>Ref.</option>
+                    <option value={type}>Type</option>
+                    <option value={dr}>Dr</option>
+                    <option value={cr}>Cr</option>
+                </>)
+            )
+        
+        }
 
     },[dataSelectDebtorStatement,errorSelectDebtorStatement])
 
@@ -80,7 +106,7 @@ function DebtorStatementReport(props) {
                 window.removeEventListener('popstate',setScale)
             }
     },[])
-
+    
     function getFormattedDate(date) {
         let currDate=new Date(date)
         
@@ -115,7 +141,8 @@ function DebtorStatementReport(props) {
     
     function populateDebtor(preview) {
         const dbBroughtForwardAmount=resultInput['data'][0][0][resultInput['field'][0][0].name];
-        const data=resultInput['data'][1];
+
+        const data=preview?sortData(resultInput['dataPreview'][1],sortCriteria,'asc'):resultInput['data'][1];
         const field=resultInput['field'][1];
         const date=field[0].name;
         const docNum=field[1].name;
@@ -134,15 +161,145 @@ function DebtorStatementReport(props) {
 
         return (
         <div>
-            <table className='table'>
+            <table className='table table-responsive-md'>
                 <thead>
                     <tr>
-                        <th className='text-nowrap'>Date</th>
-                        <th className='text-nowrap'>Doc No.</th>
-                        <th className='text-nowrap'>Ref.</th>
-                        <th className='text-nowrap'>Type</th>
-                        <th className='text-nowrap'>Dr</th>
-                        <th className='text-nowrap'>Cr</th>
+                        <th className='text-nowrap' style={preview? null:{cursor:'pointer'}}  data-order='asc'
+                        onClick={(e)=>{
+                            if(!preview) {
+                                e.target.setAttribute('data-order',
+                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                resultInput['data'][1]=sortData(resultInput['data'][1],date,e.target.getAttribute('data-order'))
+                                changeResultInput({...resultInput})
+
+                                if (e.target.getAttribute('data-order')==='asc') {
+                                    document.getElementById('date').classList.remove('fa-caret-up');
+                                    document.getElementById('date').classList.add('fa-caret-down')
+                                }
+                                else {
+                                    document.getElementById('date').classList.remove('fa-caret-down');
+                                    document.getElementById('date').classList.add('fa-caret-up')
+                                }
+                            }
+                        }
+                        }
+                        >
+                            Date
+                            {preview?null:<i id='date' className='fa fa-caret-down ml-2'></i>}
+                        </th>
+                        <th className='text-nowrap' style={preview?null:{cursor:'pointer'}} data-order='asc'
+                        onClick={(e)=>{
+                            if(!preview) {
+                                e.target.setAttribute('data-order',
+                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                resultInput['data'][1]=sortData(resultInput['data'][1],docNum,e.target.getAttribute('data-order'))
+                                changeResultInput({...resultInput})
+
+                                if (e.target.getAttribute('data-order')==='asc') {
+                                    document.getElementById('docNo').classList.remove('fa-caret-up');
+                                    document.getElementById('docNo').classList.add('fa-caret-down')
+                                }
+                                else {
+                                    document.getElementById('docNo').classList.remove('fa-caret-down');
+                                    document.getElementById('docNo').classList.add('fa-caret-up')
+                                }
+                            }
+                        }
+                        }>
+                            Doc No.
+                            {preview?null:<i id='docNo' className='fa fa-caret-down ml-2'></i>}
+                        </th>
+                        <th className='text-nowrap' style={preview?null:{cursor:'pointer'}}  data-order='asc'
+                        onClick={(e)=>{
+                            if (!preview) {
+                                e.target.setAttribute('data-order',
+                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                resultInput['data'][1]=sortData(resultInput['data'][1],ref,e.target.getAttribute('data-order'))
+                                changeResultInput({...resultInput})
+
+                                if (e.target.getAttribute('data-order')==='asc') {
+                                    document.getElementById('ref').classList.remove('fa-caret-up');
+                                    document.getElementById('ref').classList.add('fa-caret-down')
+                                }
+                                else {
+                                    document.getElementById('ref').classList.remove('fa-caret-down');
+                                    document.getElementById('ref').classList.add('fa-caret-up')
+                                }
+                            }
+                        }
+                        }>
+                            Ref.
+                            {preview?null:<i id='ref' className='fa fa-caret-down ml-2'></i>}
+                        </th>
+                        <th className='text-nowrap' style={preview?null:{cursor:'pointer'}}  data-order='asc'
+                        onClick={(e)=>{
+                            if (!preview) {
+                                e.target.setAttribute('data-order',
+                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                resultInput['data'][1]=sortData(resultInput['data'][1],type,e.target.getAttribute('data-order'))
+                                changeResultInput({...resultInput})
+
+                                if (e.target.getAttribute('data-order')==='asc') {
+                                    document.getElementById('type').classList.remove('fa-caret-up');
+                                    document.getElementById('type').classList.add('fa-caret-down')
+                                }
+                                else {
+                                    document.getElementById('type').classList.remove('fa-caret-down');
+                                    document.getElementById('type').classList.add('fa-caret-up')
+                                }
+                            }
+                        }
+                        }
+                        >
+                            Type
+                            {preview?null:<i id='type' className='fa fa-caret-down ml-2'></i>}
+                        </th>
+                        <th className='text-nowrap' style={preview?null:{cursor:'pointer'}}  data-order='asc'
+                        onClick={(e)=>{
+                            if (!preview) {
+                                e.target.setAttribute('data-order',
+                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                resultInput['data'][1]=sortData(resultInput['data'][1],dr,e.target.getAttribute('data-order'))
+                                changeResultInput({...resultInput})
+
+                                if (e.target.getAttribute('data-order')==='asc') {
+                                    document.getElementById('dr').classList.remove('fa-caret-up');
+                                    document.getElementById('dr').classList.add('fa-caret-down')
+                                }
+                                else {
+                                    document.getElementById('dr').classList.remove('fa-caret-down');
+                                    document.getElementById('dr').classList.add('fa-caret-up')
+                                }
+                            }
+                        }
+                        }
+                        >
+                            Dr
+                            {preview?null:<i id='dr' className='fa fa-caret-down ml-2'></i>}
+                        </th>
+                        <th className='text-nowrap' style={preview?null:{cursor:'pointer'}}  data-order='asc'
+                        onClick={(e)=>{
+                            if (!preview) {
+                                e.target.setAttribute('data-order',
+                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                resultInput['data'][1]=sortData(resultInput['data'][1],cr,e.target.getAttribute('data-order'))
+                                changeResultInput({...resultInput})
+
+                                if (e.target.getAttribute('data-order')==='asc') {
+                                    document.getElementById('cr').classList.remove('fa-caret-up');
+                                    document.getElementById('cr').classList.add('fa-caret-down')
+                                }
+                                else {
+                                    document.getElementById('cr').classList.remove('fa-caret-down');
+                                    document.getElementById('cr').classList.add('fa-caret-up')
+                                }
+                            }
+                        }
+                        }
+                        >
+                            Cr
+                            {preview?null:<i id='cr' className='fa fa-caret-down ml-2'></i>}
+                        </th>
                         <th className='text-nowrap'>Balance</th>
                     </tr>
                 </thead>
@@ -214,7 +371,7 @@ function DebtorStatementReport(props) {
     return (
         <Switch>
             <Route exact path={`${path}/Preview`}>
-                {resultInput['data'] ? 
+                {resultInput? 
                 (<DebtorCreditorStatementOne
                     backPath={DebtorStatementReport.path}
                     description='Debtor Statement'
@@ -224,12 +381,12 @@ function DebtorStatementReport(props) {
                         [dateFormatParser(resultInput['dateStart'])+' to '+ dateFormatParser(resultInput['dateEnd']),
                         debtorOtherInfo[2]==='COD'?'C.O.D.':debtorOtherInfo[2]+' days']}
                     populateDebtor={populateDebtor}
-                    data={resultInput['data'][1]}
+                    data={resultInput['dataPreview'][1]}
                     field={resultInput['field'][1]}
                     dateEnd={resultInput['dateEnd']}
                     agingMonths={agingMonths}
                     dateStartForAging={getDateStartForAging(resultInput['dateStart'],resultInput['dateEnd'])}
-                    dbBroughtForwardAmount={resultInput['data'][0][0][resultInput['field'][0][0].name]}
+                    dbBroughtForwardAmount={resultInput['dataPreview'][0][0][resultInput['field'][0][0].name]}
                     
                    
                 
@@ -298,30 +455,45 @@ function DebtorStatementReport(props) {
                                 </select>
                             </div>
 
-                            <fieldset className='form-group form-row pb-3 border border-secondary rounded col-md-6 mx-0'>
+                            <fieldset className='form-group pb-3 border border-secondary rounded col-md-7 mx-0'>
                                 <legend className='col-form-label col-md-6 offset-md-3 col-8 offset-2 text-center'>
                                     <h6>Preview Options</h6>
                                 </legend>
-                                <div className='col-md-12 form-row'>
-                                    <label className='col-6 col-md-4 col-form-label' htmlFor='agingMonths'>
-                                        Aging Months
-                                    </label>
-                                    <select id='agingMonths' className='form-control col-3 col-md-2' required value={agingMonths}
-                                        onChange={e=>
-                                            changeAgingMonths(e.target.value)
+                                <div className='form-row'>
+                                    <div className='form-group col-md-6 form-row'>
+                                        <label className='col-6 col-md-6 col-form-label' htmlFor='agingMonths'>
+                                            Aging Months
+                                        </label>
+                                        <select id='agingMonths' className='form-control col-3 col-md-3' required value={agingMonths}
+                                            onChange={e=>
+                                                changeAgingMonths(e.target.value)
+                                            }>
+                                            <option value='6'>6</option>
+                                            <option value='9'>9</option>
+                                            <option value='12'>12</option>
+                                        </select>
+                                    </div>
+                                
+                                    <div className='form-group col-md-6 form-row '>
+                                        <label className='col-3 col-md-3 col-form-label' htmlFor='sort'>
+                                            Sort
+                                        </label>
+                                        <select id='sort' className='form-control col-8 col-md-8' value={sortCriteria} onChange={e=>
+                                            changeSortCriteria(e.target.value)
                                         }>
-                                        <option value='6'>6</option>
-                                        <option value='9'>9</option>
-                                        <option value='12'>12</option>
-                                    </select>
+                                            <option value=''> -select an option- </option>
+                                            {sortCriteriaList}
+                                        </select>
+                                    </div>
                                 </div>
+
                             </fieldset>
 
                             <button type='submit' className='btn btn-primary mx-2'>Generate</button>
                             <button type='button' className='btn btn-warning' onClick={e=>
-                                changeResultInput({})}>Clear</button>
+                                changeResultInput(null)}>Clear</button>
                             <button type='button' onClick={(e)=>{
-                                if (!resultInput['data']) {
+                                if (!resultInput) {
                                     changeGenerateReportWarning(true)
                                 }
                                 else {
@@ -339,7 +511,7 @@ function DebtorStatementReport(props) {
                         
                         <hr/>
 
-                        {resultInput['data']? 
+                        {resultInput? 
                         (<div className='mb-5'>
                             <h5 className='py-2'>Result</h5>
                             {populateDebtor()}

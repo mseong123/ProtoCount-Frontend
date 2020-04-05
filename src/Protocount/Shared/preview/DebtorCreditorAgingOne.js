@@ -2,17 +2,19 @@ import React from 'react';
 import numberFormatParser from '../numberFormatParser';
 import dateFormatParser from '../dateFormatParser';
 import {useHistory} from 'react-router-dom';
+import setPageSize from '../setPageSize';
 
 /*Layout for Debtor Aging Report and Creditor Aging Report*/
 
 function DebtorCreditorAgingOne(props) {
 
-const {currDate,debtorID,agingMonths}=props.resultInput;
+const {currDate,agingMonths}=props.resultInput;
 const history=useHistory();
 
-function populateDebtor(currDate,debtorID,agingMonths) {
-        const data=props.dataSelectDebtorAging.data;
-        const field=props.dataSelectDebtorAging.field;
+function populateDebtor(currDate,agingMonths) {
+        const data=props.data;
+        const dataDetail=props.dataDetail;
+        const field=props.field;
         const debtorNum=field[0].name;
         const name=field[1].name;
         const docNum=field[2].name;
@@ -26,7 +28,7 @@ function populateDebtor(currDate,debtorID,agingMonths) {
         const result=[];
 
         data.forEach(item=>{
-            if(debtorID.indexOf(item[debtorNum])!==-1 && debtorAlreadyParsed.indexOf(item[debtorNum])===-1)  {
+            if(debtorAlreadyParsed.indexOf(item[debtorNum])===-1)  {
                 debtorAlreadyParsed.push(item[debtorNum]);
                 result.push(
                 (<tbody key={item[debtorNum]} className='border-bottom border-secondary'>
@@ -37,7 +39,7 @@ function populateDebtor(currDate,debtorID,agingMonths) {
                         {props.withDetails?(<th></th>):null}
                         <th className='align-top'>
                             {numberFormatParser(data.reduce((a,b)=>{
-                            if(b[debtorNum]===item[debtorNum] && (new Date(b[docDate])<=new Date(currDate)) ) {
+                            if(b[debtorNum]===item[debtorNum]) {
                                 let value=props.calculateAgingCurrentAmount(
                                     currDate,
                                     b[creditTerm] && b[creditTerm]!=='COD'? 
@@ -63,7 +65,7 @@ function populateDebtor(currDate,debtorID,agingMonths) {
                         )}
                         <th className='align-top'>
                             {numberFormatParser(data.reduce((a,b)=>{
-                            if(b[debtorNum]===item[debtorNum]  ) {
+                            if(b[debtorNum]===item[debtorNum]) {
                                 let value=props.calculateAgingRemainderAmount(
                                     currDate,
                                     b[creditTerm] && b[creditTerm]!=='COD'? 
@@ -85,12 +87,12 @@ function populateDebtor(currDate,debtorID,agingMonths) {
                         <th className='align-top'>
                             {numberFormatParser(
                                 data.reduce((a,b)=>{
-                                if(b[debtorNum]===item[debtorNum] && (new Date(b[docDate])<=new Date(currDate)))
+                                if(b[debtorNum]===item[debtorNum])
                                     return a+b[amount]
                                 else return a
                                 },0)-
                                 data.reduce((a,b)=>{
-                                if(b[debtorNum]===item[debtorNum] && (new Date(b[docDate])<=new Date(currDate)) ) {
+                                if(b[debtorNum]===item[debtorNum]) {
                                     let value=props.calculateAgingCurrentAmount(
                                         currDate,
                                         b[creditTerm] && b[creditTerm]!=='COD'? 
@@ -112,15 +114,15 @@ function populateDebtor(currDate,debtorID,agingMonths) {
                         <th className='align-top'>
                             {numberFormatParser(
                                 data.reduce((a,b)=>{
-                                if(b[debtorNum]===item[debtorNum] && (new Date(b[docDate])<=new Date(currDate)))
+                                if(b[debtorNum]===item[debtorNum])
                                     return a+b[amount]
                                 else return a
                                 },0)
                             )}</th>
                     </tr>
                             
-                    {props.withDetails? data.map((item2,i)=>{
-                        if (item2[debtorNum]===item[debtorNum] && (new Date(item2[docDate])<=new Date(currDate))) 
+                    {props.withDetails? dataDetail.map((item2,i)=>{
+                        if (item2[debtorNum]===item[debtorNum]) 
                             return (
                                 <tr key={item2[docNum]} >
                                     <td className='align-top'>{item2[docNum]}</td>
@@ -184,6 +186,7 @@ function populateDebtor(currDate,debtorID,agingMonths) {
                 onClick={()=>{
                     document.querySelector("meta[name=viewport]").setAttribute(
                     'content','width=device-width, initial-scale=1.0');
+                    setPageSize('a4 portrait');
                     history.push(props.backPath)
             }}>Back</button>
             <h2 className='text-center mb-3'>
@@ -222,7 +225,7 @@ function populateDebtor(currDate,debtorID,agingMonths) {
                     
 
                 </thead>
-                    {populateDebtor(currDate,debtorID,agingMonths)}
+                    {populateDebtor(currDate,agingMonths)}
             </table>
             <hr className='border border-dark'/>
             <small className='d-block text-center'>End of Report</small>

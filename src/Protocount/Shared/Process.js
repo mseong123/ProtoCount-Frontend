@@ -2,7 +2,7 @@ import React,{useState,useEffect,useContext} from 'react';
 import {useHistory} from 'react-router-dom';
 import useFetch from './useFetch'
 import authContext from './authContext';
-import {sort} from './sort';
+import sortData from './sort';
 import numberFormatParser from '../Shared/numberFormatParser';
 import dateFormatParser from '../Shared/dateFormatParser';
 
@@ -154,11 +154,11 @@ function Process(props) {
                 )
             )
             fieldList=filteredData.field.map(field=>(
-                <th key={field} style={{}} style={{cursor:'pointer'}} className='text-nowrap' data-order='asc'
+                <th key={field} style={{cursor:'pointer'}} className='text-nowrap' data-order='asc'
                 onClick={(e)=>{
                     e.target.setAttribute('data-order',e.target.getAttribute('data-order')==='asc'?'desc':'asc')
                     changeFilteredData({...filteredData,
-                        data:sort(filteredData.data,field,e.target.getAttribute('data-order'))
+                        data:sortData(filteredData.data,field,e.target.getAttribute('data-order'))
                     })
 
                     if (e.target.getAttribute('data-order')==='asc') {

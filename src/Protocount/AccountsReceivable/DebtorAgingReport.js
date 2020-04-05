@@ -12,6 +12,8 @@ import {useHistory} from 'react-router-dom';
 import $ from 'jquery'
 import numberFormatParser from '../Shared/numberFormatParser';
 import dateFormatParser from '../Shared/dateFormatParser';
+import sortData from '../Shared/sort';
+import setPageSize from '../Shared/setPageSize';
 import DebtorCreditorAgingOne from '../Shared/preview/DebtorCreditorAgingOne';
 
 function DebtorAgingReport(props) {
@@ -25,17 +27,7 @@ function DebtorAgingReport(props) {
         }
     });
 
-    const [{data:dataSelectDebtorAging,error:errorSelectDebtorAging}]=useFetch({
-        url:'./ReportItem',
-        init:{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({
-                item:'debtor_aging'
-            }),
-            credentials:'include'
-        }
-    });
+    const [{data:dataSelectDebtorAging,error:errorSelectDebtorAging},changeParamDebtorAging]=useFetch(null);
     
     const [debtorList,changeDebtorList] = useState(null);
 
@@ -46,7 +38,11 @@ function DebtorAgingReport(props) {
     const [collapsibleElementID,changeCollapsibleElementID]=useState([])
 
     /*Preview states*/
-    const [withDetails,changeWithDetails]=useState(false)
+    const [withDetails,changeWithDetails]=useState(false);
+    const [sortCriteriaList,changeSortCriteriaList]=useState(null);
+    const [detailSortCriteriaList,changeDetailSortCriteriaList]=useState(null);
+    const [sortCriteria,changeSortCriteria]=useState('');
+    const [detailSortCriteria,changeDetailSortCriteria]=useState('');
     const [generateReportWarning,changeGenerateReportWarning]=useState(false);
 
     const {path} = useRouteMatch();
@@ -54,9 +50,8 @@ function DebtorAgingReport(props) {
     const history=useHistory();
 
     const calculatedWidth=resultInput && resultInput['agingMonths']? 714+resultInput['agingMonths']*90:'auto';
-
     
-
+    
     useEffect(()=>{
         
         if (dataSelectDebtor && dataSelectDebtor.auth===false) {
@@ -73,15 +68,59 @@ function DebtorAgingReport(props) {
     },[dataSelectDebtor,errorSelectDebtor])
 
     useEffect(()=>{
-        
         if (dataSelectDebtorAging && dataSelectDebtorAging.auth===false) {
                 alert('Cookies Expired or Authorisation invalid. Please Login again!');
                 changeAuth(false);
             }
+        else if (dataSelectDebtorAging && dataSelectDebtorAging.data && dataSelectDebtorAging.field) {
+            const debtorAlreadyParsed=[];
+            const data=dataSelectDebtorAging.data;
+            const field=dataSelectDebtorAging.field;
+            const debtorNum=field[0].name;
+            const name=field[1].name;
+            const docNum=field[2].name;
+            const docDate=field[3].name;
+            const type=field[4].name;
+            /*The 3 useState functions below to create a separate data for each debtor to parse for sorting*/
+            /*1) reset to a new object with nothing in it because step 2 will have some previous debtor data in it
+            which will be combined with new data when refetched*/
+            changeResultInput(resultInput=>{})
 
+            /*2)for each debtor, assign a property name using the debtor num which will be used to parse the 
+            relevant data for the relevant debtor (and hence can be sorted separately)*/
+            data.forEach(item=>{
+                let newObject={}
+               if(debtorAlreadyParsed.indexOf(item[debtorNum])===-1) {
+                    debtorAlreadyParsed.push(item[debtorNum])
+                    newObject[item[debtorNum]]=data.filter(item2=>item2[debtorNum]===item[debtorNum])
+                    changeResultInput(resultInput=>(Object.assign({},resultInput,newObject)))
+               }
+            })
+            /*3) add remaining input data to resultInput for rendering*/
+            changeResultInput(resultInput=>({...resultInput,data:dataSelectDebtorAging.data,
+                dataPreview:[...dataSelectDebtorAging.data],field:dataSelectDebtorAging.field,
+                currDate,agingMonths}))
+
+            changeSortCriteriaList(
+                (<>
+                    <option value={debtorNum}>Debtor No.</option>
+                    <option value={name}>Name</option>
+                </>)
+            )
+            changeDetailSortCriteriaList(
+                (<>
+                    <option value={docNum}>Doc No.</option>
+                    <option value={docDate}>Doc Date</option>
+                    <option value={type}>Type</option>
+                </>)
+            )
+                                            
+                
+        }
+            
         
     },[dataSelectDebtorAging,errorSelectDebtorAging])
-
+    
     //attach bootstrap/jquery eventlisteners and callbacks
     useEffect(()=>{
 
@@ -113,6 +152,18 @@ function DebtorAgingReport(props) {
             }
     },[])
 
+    useEffect(()=>{
+        function setPage() {
+            setPageSize("a4 portrait");
+        }
+        window.addEventListener('popstate',setPage);
+
+        return function unattach() {
+                window.removeEventListener('popstate',setPage)
+            }
+    },[])
+
+
 
     function getFormattedDate(date) {
         let currDate=new Date(date)
@@ -133,8 +184,8 @@ function DebtorAgingReport(props) {
 
     function populateMonthsAmount(currDate,debtorID,months,type) {
         let result=[];
-        const data=dataSelectDebtorAging.data;
-        const field=dataSelectDebtorAging.field;
+        const data=resultInput['data'];
+        const field=resultInput['field'];
         const debtorNum=field[0].name;
         const docDate=field[3].name;
         const amount=field[5].name;
@@ -242,9 +293,9 @@ function DebtorAgingReport(props) {
         return WIPstring.join('')+'Item?item='+string.replace(/ /g,'_')+'&id='+encodeURIComponent(id)
     }
 
-    function populateDebtor(currDate,debtorID,agingMonths) {
-        const data=dataSelectDebtorAging.data;
-        const field=dataSelectDebtorAging.field;
+    function populateDebtor(currDate,agingMonths) {
+        const data=resultInput['data'];
+        const field=resultInput['field'];
         const debtorNum=field[0].name;
         const name=field[1].name;
         const docNum=field[2].name;
@@ -257,7 +308,7 @@ function DebtorAgingReport(props) {
         const result=[];
 
         data.forEach(item=>{
-            if(debtorID.indexOf(item[debtorNum])!==-1 && debtorAlreadyParsed.indexOf(item[debtorNum])===-1)  {
+            if(debtorAlreadyParsed.indexOf(item[debtorNum])===-1)  {
                 debtorAlreadyParsed.push(item[debtorNum]);
                 result.push(
                 (<div key={item[debtorNum]}>
@@ -268,7 +319,7 @@ function DebtorAgingReport(props) {
                         <p className='mb-0' style={{flex:'1 0 200px',paddingLeft:10,paddingRight:10}}>{item[name]}</p>
                         <p className='mb-0' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>
                             {numberFormatParser(data.reduce((a,b)=>{
-                            if(b[debtorNum]===item[debtorNum] && (new Date(b[docDate])<=new Date(currDate)) ) {
+                            if(b[debtorNum]===item[debtorNum]) {
                                 let value=calculateAgingCurrentAmount(
                                     currDate,
                                     b[creditTerm] && b[creditTerm]!=='COD'? 
@@ -315,12 +366,12 @@ function DebtorAgingReport(props) {
                         <p className='mb-0' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>
                             {numberFormatParser(
                                 data.reduce((a,b)=>{
-                                if(b[debtorNum]===item[debtorNum] && (new Date(b[docDate])<=new Date(currDate)))
+                                if(b[debtorNum]===item[debtorNum])
                                     return a+b[amount]
                                 else return a
                                 },0)-
                                 data.reduce((a,b)=>{
-                                if(b[debtorNum]===item[debtorNum] && (new Date(b[docDate])<=new Date(currDate)) ) {
+                                if(b[debtorNum]===item[debtorNum]) {
                                     let value=calculateAgingCurrentAmount(
                                         currDate,
                                         b[creditTerm] && b[creditTerm]!=='COD'? 
@@ -342,7 +393,7 @@ function DebtorAgingReport(props) {
                         <p className='mb-0' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>
                             {numberFormatParser(
                                 data.reduce((a,b)=>{
-                                if(b[debtorNum]===item[debtorNum] && (new Date(b[docDate])<=new Date(currDate)))
+                                if(b[debtorNum]===item[debtorNum])
                                     return a+b[amount]
                                 else return a
                                 },0)
@@ -353,9 +404,67 @@ function DebtorAgingReport(props) {
                         <table id='table' className='table-dark table table-hover'>
                             <thead>
                                 <tr>
-                                    <th className='text-nowrap'>Doc No.</th>
-                                    <th className='text-nowrap'>Doc Date</th>
-                                    <th className='text-nowrap'>Type</th>
+                                    <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                    onClick={(e)=>{
+                                        e.target.setAttribute('data-order',
+                                        e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                        let sortedData={}
+                                        sortedData[item[debtorNum]]=sortData(resultInput[item[debtorNum]],docNum,e.target.getAttribute('data-order'))
+                                        changeResultInput(Object.assign({},resultInput,sortedData))
+                    
+                                        if (e.target.getAttribute('data-order')==='asc') {
+                                            document.getElementById('docNo'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.remove('fa-caret-up');
+                                            document.getElementById('docNo'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.add('fa-caret-down')
+                                        }
+                                        else {
+                                            document.getElementById('docNo'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.remove('fa-caret-down');
+                                            document.getElementById('docNo'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.add('fa-caret-up')
+                                        }
+                                        }}>
+                                        Doc No.
+                                        <i id={'docNo'+item[debtorNum].replace(/[ ._\-()]/g,'')} className='fa fa-caret-down ml-2'></i>
+                                    </th>
+                                    <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                    onClick={(e)=>{
+                                        e.target.setAttribute('data-order',
+                                        e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                        let sortedData={}
+                                        sortedData[item[debtorNum]]=sortData(resultInput[item[debtorNum]],docDate,e.target.getAttribute('data-order'))
+                                        changeResultInput(Object.assign({},resultInput,sortedData))
+                    
+                                        if (e.target.getAttribute('data-order')==='asc') {
+                                            document.getElementById('docDate'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.remove('fa-caret-up');
+                                            document.getElementById('docDate'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.add('fa-caret-down')
+                                        }
+                                        else {
+                                            document.getElementById('docDate'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.remove('fa-caret-down');
+                                            document.getElementById('docDate'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.add('fa-caret-up')
+                                        }
+                                        }}>
+                                        Doc Date
+                                        <i id={'docDate'+item[debtorNum].replace(/[ ._\-()]/g,'')} className='fa fa-caret-down ml-2'></i>
+                                    </th>
+                                    <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                    onClick={(e)=>{
+                                        e.target.setAttribute('data-order',
+                                        e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                        let sortedData={}
+                                        sortedData[item[debtorNum]]=sortData(resultInput[item[debtorNum]],type,e.target.getAttribute('data-order'))
+                                        changeResultInput(Object.assign({},resultInput,sortedData))
+                    
+                                        if (e.target.getAttribute('data-order')==='asc') {
+                                            document.getElementById('type'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.remove('fa-caret-up');
+                                            document.getElementById('type'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.add('fa-caret-down')
+                                        }
+                                        else {
+                                            document.getElementById('type'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.remove('fa-caret-down');
+                                            document.getElementById('type'+item[debtorNum].replace(/[ ._\-()]/g,'')).classList.add('fa-caret-up')
+                                        }
+                                        }}
+                                    >
+                                        Type
+                                        <i id={'type'+item[debtorNum].replace(/[ ._\-()]/g,'')} className='fa fa-caret-down ml-2'></i>
+                                    </th>
                                     <th className='text-nowrap'>Due Date</th>
                                     <th className='text-nowrap'>Current</th>
                                     {populateTableMonthsHeader(agingMonths)}
@@ -363,8 +472,7 @@ function DebtorAgingReport(props) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {data.map((item2,i)=>{
-                                    if (item2[debtorNum]===item[debtorNum] && (new Date(item2[docDate])<=new Date(currDate))) 
+                                {resultInput[item[debtorNum]].map(item2=>{
                                         return (
                                             <tr key={item2[docNum]} style={{cursor:'pointer'}} onClick={(e)=>
                                                 history.push('./'+createLink(item2[type].toLowerCase(),item2[docNum]))
@@ -414,7 +522,7 @@ function DebtorAgingReport(props) {
 
                                             </tr>
                                         )
-                                    else return null; 
+                                    
                                     })
                                 }
                                 </tbody>
@@ -461,7 +569,9 @@ function DebtorAgingReport(props) {
                 description={DebtorAgingReport.description}
                 resultInput={resultInput}
                 withDetails={withDetails}
-                dataSelectDebtorAging={dataSelectDebtorAging}
+                data={sortData(resultInput['dataPreview'],sortCriteria,'asc')}
+                field={resultInput['field']}
+                dataDetail={sortData(resultInput['dataPreview'],detailSortCriteria,'asc')}
                 populateTableMonthsHeader={populateTableMonthsHeader}
                 populateTableMonthsAmount={populateTableMonthsAmount}
                 calculateAgingCurrentAmount={calculateAgingCurrentAmount}
@@ -477,7 +587,19 @@ function DebtorAgingReport(props) {
                     <form className='mt-3' onSubmit={e=>{
                         e.preventDefault();
                         changeGenerateReportWarning(false);
-                        changeResultInput({currDate,debtorID,agingMonths});
+                        changeParamDebtorAging({
+                            url:'./ReportItem',
+                            init:{
+                                method:'POST',
+                                headers:{'Content-Type':'application/json'},
+                                body:JSON.stringify({
+                                    item:'debtor_aging',
+                                    param:[debtorID,currDate]
+                                }),
+                                credentials:'include'
+                            }
+                        })
+                        
                         changeCollapsibleElementID(debtorID.map(id=>id.replace(/[ ._\-()]/g,'')))
                         }
                         }>
@@ -529,17 +651,43 @@ function DebtorAgingReport(props) {
                                 </div>
                             </div>
                         
-                            <fieldset className='form-group pb-3 border border-secondary rounded col-md-6'>
+                            <fieldset className='form-group pb-3 border border-secondary rounded col-md-7'>
                                 <legend className='col-form-label col-md-6 offset-md-3 col-8 offset-2 text-center'>
                                     <h6>Preview Options</h6>
                                 </legend>
-                                <div className='form-check'>
-                                    <input type='checkbox' className='form-check-input' id='witDetails' onChange={e=>{
-                                        if (e.target.checked) 
-                                            changeWithDetails(true)
-                                        else changeWithDetails(false)
-                                    }} checked={withDetails}/>
-                                    <label htmlFor='witDetails' className='form-check-label'>With Details</label>
+                                <div className='form-row'>
+                                    <div className='form-group form-row col-md-12'>
+                                        <label className='col-md-2 col-form-label' style={{paddingLeft:0}} htmlFor='sort'>
+                                            Sort
+                                        </label>
+                                        <select id='sort' className='form-control col-md-5' value={sortCriteria} onChange={e=>
+                                            changeSortCriteria(e.target.value)
+                                        }>
+                                            <option value=''> -select an option- </option>
+                                            {sortCriteriaList}
+                                        </select>
+                                    </div>
+
+                                    <div className='form-check col-md-4 form-group col-form-label' style={{paddingLeft:20}}>
+                                        <input type='checkbox' className='form-check-input' id='witDetails' onChange={e=>{
+                                            if (e.target.checked) 
+                                                changeWithDetails(true)
+                                            else changeWithDetails(false)
+                                        }} checked={withDetails}/>
+                                        <label htmlFor='witDetails' className='form-check-label'>With Details</label>
+                                    </div>
+
+                                    <div className='col-md-7 form-row form-group'>
+                                        <label className='col-md-4 col-form-label' style={{paddingLeft:0}} htmlFor='sort'>
+                                            Detail Sort
+                                        </label>
+                                        <select id='sort' className='form-control col-md-8' value={detailSortCriteria} onChange={e=>
+                                            changeDetailSortCriteria(e.target.value)
+                                        }>
+                                            <option value=''> -select an option- </option> 
+                                            {detailSortCriteriaList}
+                                        </select>
+                                    </div>
                                 </div>
                             </fieldset>
 
@@ -553,6 +701,7 @@ function DebtorAgingReport(props) {
                             else {
                                 document.querySelector("meta[name=viewport]").setAttribute(
                                 'content','width=device-width, initial-scale=0.4');
+                                setPageSize('a4 landscape')
                                 history.push('./DebtorAgingReport/Preview')
                             }}
                         } 
@@ -562,9 +711,9 @@ function DebtorAgingReport(props) {
                             Please generate report first!
                         </div>):null}
                     </form>
-                    
-                    
+
                     <hr/>
+                    {errorDisplay}
                     
                     {resultInput? 
                     (<div className="overflow-auto mb-5 pt-3" style={{transform:'rotateX(180deg)'}}>
@@ -578,8 +727,47 @@ function DebtorAgingReport(props) {
                                 width:calculatedWidth
                                 }}>
                                 <h6 style={{flex:'1 0 34px',paddingLeft:10,paddingRight:10}}></h6>
-                                <h6 style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10}}>Debtor No.</h6>
-                                <h6 style={{flex:'1 0 200px',paddingLeft:10,paddingRight:10}}>Name</h6>
+                                <h6 style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10,cursor:'pointer'}}
+                                data-order='asc' onClick={(e)=>{
+                                    e.target.setAttribute('data-order',
+                                    e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                    changeResultInput({...resultInput,
+                                        data:sortData(resultInput['data'],'DEBTOR_NUM',e.target.getAttribute('data-order'))})
+
+                                    if (e.target.getAttribute('data-order')==='asc') {
+                                        document.getElementById('debtorNo').classList.remove('fa-caret-up');
+                                        document.getElementById('debtorNo').classList.add('fa-caret-down')
+                                    }
+                                    else {
+                                        document.getElementById('debtorNo').classList.remove('fa-caret-down');
+                                        document.getElementById('debtorNo').classList.add('fa-caret-up')
+                                    }
+                                }
+                                    
+                                }>
+                                    Debtor No.
+                                    <i id='debtorNo' className='fa fa-caret-down ml-2'></i>
+                                </h6>
+                                <h6 style={{flex:'1 0 200px',paddingLeft:10,paddingRight:10,cursor:'pointer'}}
+                                data-order='asc' onClick={(e)=>{
+                                    e.target.setAttribute('data-order',
+                                    e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                    changeResultInput({...resultInput,
+                                        data:sortData(resultInput['data'],'NAME',e.target.getAttribute('data-order'))})
+
+                                    if (e.target.getAttribute('data-order')==='asc') {
+                                        document.getElementById('name').classList.remove('fa-caret-up');
+                                        document.getElementById('name').classList.add('fa-caret-down')
+                                    }
+                                    else {
+                                        document.getElementById('name').classList.remove('fa-caret-down');
+                                        document.getElementById('name').classList.add('fa-caret-up')
+                                    }
+                                }
+                                }>
+                                    Name
+                                    <i id='name' className='fa fa-caret-down ml-2'></i>
+                                </h6>
                                 <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Current</h6>
                                 {populateMonthsHeader(resultInput['agingMonths'])}
                                 <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>
@@ -589,7 +777,7 @@ function DebtorAgingReport(props) {
                                 <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Balance</h6>
                             
                             </div>
-                            {populateDebtor(resultInput['currDate'],resultInput['debtorID'],resultInput['agingMonths'])}
+                            {populateDebtor(resultInput['currDate'],resultInput['agingMonths'])}
 
                         </div>
                     </div>):null}

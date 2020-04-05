@@ -4,7 +4,7 @@ import AppLayout from '../Shared/AppLayout'
 function DebtorCollectionReport(props) {
     return (
         <AppLayout>
-                <h1>Debtor Collection Report</h1>
+                <h1>Coming Soon!</h1>
         </AppLayout>
     )
 }
