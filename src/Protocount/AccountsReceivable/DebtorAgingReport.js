@@ -114,16 +114,12 @@ function DebtorAgingReport(props) {
                     <option value={type}>Type</option>
                 </>)
             )
-                                            
-                
+            changeCollapsibleElementID(debtorAlreadyParsed.map(item=>item.replace(/[ ._\-()]/g,'')))
         }
-            
-        
     },[dataSelectDebtorAging,errorSelectDebtorAging])
     
     //attach bootstrap/jquery eventlisteners and callbacks
     useEffect(()=>{
-
         if (collapsibleElementID) {
             collapsibleElementID.forEach(ID=>{
                 $('#'+ID).on('show.bs.collapse',e=>{
@@ -137,7 +133,6 @@ function DebtorAgingReport(props) {
                 
         })
     }
-        
     },[resultInput])
 
     useEffect(()=>{
@@ -312,7 +307,7 @@ function DebtorAgingReport(props) {
                 debtorAlreadyParsed.push(item[debtorNum]);
                 result.push(
                 (<div key={item[debtorNum]}>
-                    <div className='d-flex' style={{width:calculatedWidth,cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[debtorNum].replace(/[ ._\-()]/g,'')}>
+                    <div className='d-flex' style={{cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[debtorNum].replace(/[ ._\-()]/g,'')}>
                         <i className='fa fa-plus-square mt-1' style={{flex:'1 0 14px',paddingLeft:10,paddingRight:10}}
                         id={'plusminus'+item[debtorNum].replace(/[ ._\-()]/g,'')}></i>
                         <p className='mb-0' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10}}>{item[debtorNum]}</p>
@@ -399,7 +394,7 @@ function DebtorAgingReport(props) {
                                 },0)
                             )}</p>
                     </div>
-                    <div className='collapse navbar-collapse my-2 pl-3 pl-md-5 pr-2' style={{width:calculatedWidth}}
+                    <div className='collapse navbar-collapse my-2 pl-3 pl-md-5 pr-2' 
                     id={item[debtorNum].replace(/[ ._\-()]/g,'')}>
                         <table id='table' className='table-dark table table-hover'>
                             <thead>
@@ -600,7 +595,6 @@ function DebtorAgingReport(props) {
                             }
                         })
                         
-                        changeCollapsibleElementID(debtorID.map(id=>id.replace(/[ ._\-()]/g,'')))
                         }
                         }>
                             <div className='form-group form-row mx-0'>
@@ -717,14 +711,24 @@ function DebtorAgingReport(props) {
                     
                     {resultInput? 
                     (<div className="overflow-auto mb-5 pt-3" style={{transform:'rotateX(180deg)'}}>
-                        <div style={{transform:'rotateX(180deg)'}}>
-                            <h5 className='py-2'>Result</h5>
+                        <div style={{width:calculatedWidth,transform:'rotateX(180deg)'}}>
+                            <h5 className='py-2'>
+                                Result
+                                <button className='btn btn-dark mx-2' 
+                                    onClick={(e)=>collapsibleElementID.forEach(ID=>
+                                        $('#'+ID).collapse('show')
+                                )}><i className='fa fa-plus-square'></i> Expand</button>
+                                <button className='btn btn-light'  
+                                    onClick={(e)=>collapsibleElementID.forEach(ID=>
+                                        $('#'+ID).collapse('hide')
+                                )}> <i className='fa fa-minus-square'></i> Collapse</button>
+                            </h5>
                             <div className='row flex-nowrap text-white bg-secondary pt-2 pb-1' 
                             style={{
                                 marginLeft:0,
                                 marginRight:0,
                                 /*width to total all child widths since parent container width doesn't cover overflow due to nowrap*/
-                                width:calculatedWidth
+                                
                                 }}>
                                 <h6 style={{flex:'1 0 34px',paddingLeft:10,paddingRight:10}}></h6>
                                 <h6 style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10,cursor:'pointer'}}
@@ -777,8 +781,9 @@ function DebtorAgingReport(props) {
                                 <h6 style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Balance</h6>
                             
                             </div>
-                            {populateDebtor(resultInput['currDate'],resultInput['agingMonths'])}
-
+                            <div style={{overflowY:'auto',overflowX:'hidden',maxHeight:'60vh'}}>
+                                {populateDebtor(resultInput['currDate'],resultInput['agingMonths'])}
+                            </div>
                         </div>
                     </div>):null}
                     <hr className='pb-3'/>

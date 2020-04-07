@@ -61,8 +61,6 @@ function DebtorStatementReport(props) {
     },[dataSelectDebtor,errorSelectDebtor])
 
     useEffect(()=>{
-        
-
         if (dataSelectDebtorStatement && dataSelectDebtorStatement.auth===false) {
                 alert('Cookies Expired or Authorisation invalid. Please Login again!');
                 changeAuth(false);
