@@ -453,7 +453,7 @@ function DebtorStatementReport(props) {
                                 </select>
                             </div>
 
-                            <fieldset className='form-group pb-3 border border-secondary rounded col-md-7 mx-0'>
+                            <fieldset className='form-group pl-4 pb-3 border border-secondary rounded col-md-7 mx-0'>
                                 <legend className='col-form-label col-md-6 offset-md-3 col-8 offset-2 text-center'>
                                     <h6>Preview Options</h6>
                                 </legend>

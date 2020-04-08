@@ -225,7 +225,7 @@ function populateDebtor(currDate,agingMonths) {
                     
 
                 </thead>
-                    {populateDebtor(currDate,agingMonths)}
+                {populateDebtor(currDate,agingMonths)}
             </table>
             <hr className='border border-dark'/>
             <small className='d-block text-center'>End of Report</small>

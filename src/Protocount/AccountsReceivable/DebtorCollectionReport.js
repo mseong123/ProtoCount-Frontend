@@ -13,6 +13,7 @@ import $ from 'jquery'
 import numberFormatParser from '../Shared/numberFormatParser';
 import dateFormatParser from '../Shared/dateFormatParser';
 import sortData from '../Shared/sort';
+import setPageSize from '../Shared/setPageSize';
 import DebtorCollectionOne from '../Shared/preview/DebtorCollectionOne';
 
 function DebtorCollectionReport(props) {
@@ -34,7 +35,7 @@ function DebtorCollectionReport(props) {
     const [collapsibleElementID,changeCollapsibleElementID]=useState([])
 
     /*Preview states*/
-    const [withDetails,changeWithDetails]=useState(false);
+    const [withReceiptDetails,changeWithReceiptDetails]=useState(false);
     const [sortCriteriaList,changeSortCriteriaList]=useState(null);
     const [detailSortCriteriaList,changeDetailSortCriteriaList]=useState(null);
     const [sortCriteria,changeSortCriteria]=useState('');
@@ -94,6 +95,7 @@ function DebtorCollectionReport(props) {
 
             changeResultInput(resultInput=>({...resultInput,
                 data:dataSelectDebtorCollection.data,
+                dataPreview:[...dataSelectDebtorCollection.data],
                 field:dataSelectDebtorCollection.field,
                 dateStart,
                 dateEnd,
@@ -152,6 +154,17 @@ function DebtorCollectionReport(props) {
         
         return function unattach() {
                 window.removeEventListener('popstate',setScale)
+            }
+    },[])
+
+    useEffect(()=>{
+        function setPage() {
+            setPageSize("a4 portrait");
+        }
+        window.addEventListener('popstate',setPage);
+
+        return function unattach() {
+                window.removeEventListener('popstate',setPage)
             }
     },[])
 
@@ -435,7 +448,9 @@ function DebtorCollectionReport(props) {
                                                                              +Number(item3[receiptDataCreditTerm]))))
                                                                          ):dateFormatParser(item3[receiptDataDate])
                                                                     }</td>
-                                                                    <td className='text-nowrap'>{item3[receiptDataCreditTerm]}</td>
+                                                                    <td className='text-nowrap'>{
+                                                                    item3[receiptDataCreditTerm]==='COD'?'C.O.D.':item3[receiptDataCreditTerm]+' days'}
+                                                                    </td>
                                                                     <td className='text-nowrap'>{numberFormatParser(item3[receiptDataAmount])}</td>
                                                                     <td className='text-nowrap'>{numberFormatParser(item3[receiptAmount])}</td>
                                                                 </tr>
@@ -538,6 +553,15 @@ function DebtorCollectionReport(props) {
                 (<DebtorCollectionOne
                     backPath={DebtorCollectionReport.path}
                     description={DebtorCollectionReport.description}
+                    resultInput={resultInput}
+                    withReceiptDetails={withReceiptDetails}
+                    data={sortData(resultInput['dataPreview'][0],sortCriteria,'asc')}
+                    dataDetail={sortData(resultInput['dataPreview'][0],detailSortCriteria,'asc')}
+                    field={resultInput['field'][0]}
+                    receiptData={resultInput['dataPreview'][1]}
+                    receiptField={resultInput['field'][1]}
+                    getFormattedDate={getFormattedDate}
+                   
                     
                 />):<Redirect to={DebtorCollectionReport.path}/>}
             </Route>
@@ -612,6 +636,47 @@ function DebtorCollectionReport(props) {
                                 </div>
                             </div>
 
+                            <fieldset className='form-group pl-4 pb-3 border border-secondary rounded col-md-8'>
+                                <legend className='col-form-label col-md-6 offset-md-3 col-8 offset-2 text-center'>
+                                    <h6>Preview Options</h6>
+                                </legend>
+                                <div className='form-row'>
+                                <div className='form-check col-md-12 form-group col-form-label' style={{paddingLeft:20}}>
+                                    <input type='checkbox' className='form-check-input' id='withReceiptDetails' onChange={e=>{
+                                        if (e.target.checked) 
+                                            changeWithReceiptDetails(true)
+                                        else changeWithReceiptDetails(false)
+                                        }} checked={withReceiptDetails}/>
+                                    <label htmlFor='withReceiptDetails' className='form-check-label'>With Receipt Details</label>
+                                </div>
+
+                                <div className='form-group form-row col-md-6'>
+                                    <label className='col-md-4 col-form-label' style={{paddingLeft:0}} htmlFor='sort'>
+                                        Sort
+                                    </label>
+                                    <select id='sort' className='form-control col-md-6' value={sortCriteria} onChange={e=>
+                                        changeSortCriteria(e.target.value)
+                                    }>
+                                        <option value=''> -select an option- </option>
+                                        {sortCriteriaList}
+                                    </select>
+                                </div>
+
+                                <div className='form-group col-md-6 form-row'>
+                                    <label className='col-md-4 col-form-label' style={{paddingLeft:0}} htmlFor='sort'>
+                                        Detail Sort
+                                    </label>
+                                    <select id='sort' className='form-control col-md-6' value={detailSortCriteria} onChange={e=>
+                                        changeDetailSortCriteria(e.target.value)
+                                    }>
+                                        <option value=''> -select an option- </option> 
+                                        {detailSortCriteriaList}
+                                    </select>
+                                </div>
+                                </div>
+
+                            </fieldset>
+
                             <button type='submit' className='btn btn-primary mx-2'>Generate</button>
                             <button type='button' className='btn btn-warning' onClick={e=>
                                 changeResultInput(null)}>Clear</button>
@@ -622,6 +687,7 @@ function DebtorCollectionReport(props) {
                                 else {
                                     document.querySelector("meta[name=viewport]").setAttribute(
                                     'content','width=device-width, initial-scale=0.4');
+                                    setPageSize('a4 landscape')
                                     history.push('./DebtorCollectionReport/Preview')
                                 }}
                             } 

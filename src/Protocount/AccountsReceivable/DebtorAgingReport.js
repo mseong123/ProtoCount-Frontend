@@ -97,9 +97,13 @@ function DebtorAgingReport(props) {
                }
             })
             /*3) add remaining input data to resultInput for rendering*/
-            changeResultInput(resultInput=>({...resultInput,data:dataSelectDebtorAging.data,
-                dataPreview:[...dataSelectDebtorAging.data],field:dataSelectDebtorAging.field,
-                currDate,agingMonths}))
+            changeResultInput(resultInput=>({...resultInput,
+                data:dataSelectDebtorAging.data,
+                dataPreview:[...dataSelectDebtorAging.data],
+                field:dataSelectDebtorAging.field,
+                currDate,
+                agingMonths
+            }))
 
             changeSortCriteriaList(
                 (<>
@@ -645,7 +649,7 @@ function DebtorAgingReport(props) {
                                 </div>
                             </div>
                         
-                            <fieldset className='form-group pb-3 border border-secondary rounded col-md-7'>
+                            <fieldset className='form-group pl-4 pb-3 border border-secondary rounded col-md-7'>
                                 <legend className='col-form-label col-md-6 offset-md-3 col-8 offset-2 text-center'>
                                     <h6>Preview Options</h6>
                                 </legend>
@@ -663,12 +667,12 @@ function DebtorAgingReport(props) {
                                     </div>
 
                                     <div className='form-check col-md-4 form-group col-form-label' style={{paddingLeft:20}}>
-                                        <input type='checkbox' className='form-check-input' id='witDetails' onChange={e=>{
+                                        <input type='checkbox' className='form-check-input' id='withDetails' onChange={e=>{
                                             if (e.target.checked) 
                                                 changeWithDetails(true)
                                             else changeWithDetails(false)
                                         }} checked={withDetails}/>
-                                        <label htmlFor='witDetails' className='form-check-label'>With Details</label>
+                                        <label htmlFor='withDetails' className='form-check-label'>With Details</label>
                                     </div>
 
                                     <div className='col-md-7 form-row form-group'>
