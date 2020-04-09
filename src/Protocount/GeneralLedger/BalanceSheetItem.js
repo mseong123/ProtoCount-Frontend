@@ -4,6 +4,7 @@ import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
 import numberFormatParser from '../Shared/numberFormatParser'
 import dateFormatParser from '../Shared/dateFormatParser';
+import sortData from '../Shared/sort';
 import $ from 'jquery'
 import {useHistory} from 'react-router-dom';
 
@@ -22,7 +23,7 @@ function BalanceSheetItem (props) {
             credentials:'include'
         }
     });
-    
+    const [sortedData,changeSortedData]=useState(null);
     const [netAssets,changeNetAssets]=useState(null);
     const [netAssetsTotal,changeNetAssetsTotal]=useState(0);
     const [netEquity,changeNetEquity]=useState(null);
@@ -30,6 +31,7 @@ function BalanceSheetItem (props) {
     const [currentProfitAndLoss,changeCurrentProfitAndLoss]=useState(0);
     const [retainedEarnings,changeRetainedEarnings]=useState(0);
     const [collapsibleElementID,changeCollapsibleElementID]=useState([])
+    const [printFormat,changePrintFormat]=useState(false);
 
     const {changeAuth} = useContext(authContext)
     const history=useHistory();
@@ -41,32 +43,64 @@ function BalanceSheetItem (props) {
             }
                 
         else if (dataSelectBalanceSheet && dataSelectBalanceSheet.data && dataSelectBalanceSheet.field) {
+            let glDescAlreadyParsed=[];
+            let itemNameAlreadyParsed=[];
+            const data=dataSelectBalanceSheet.data[1];
+            const field=dataSelectBalanceSheet.field[1];
+            const glDesc=field[2].name;
+            const itemName=field[3].name;
+
+            let ID=[]
+
+            data.forEach(item=>{
+                let newObject={}
+                if(glDescAlreadyParsed.indexOf(item[glDesc])===-1) {
+                    glDescAlreadyParsed.push(item[glDesc])
+                    newObject[item[glDesc]]=data.filter(item2=>item2[glDesc]===item[glDesc])
+                    changeSortedData(sortedData=>(Object.assign({},{...sortedData},newObject)))
+                }
+            })
+
+            data.forEach(item=>{
+                let newObject={}
+                if(itemNameAlreadyParsed.indexOf(item[itemName])===-1 && item[itemName]!==null) {
+                    itemNameAlreadyParsed.push(item[itemName])
+                    newObject[item[itemName]]=data.filter(item2=>item2[itemName]===item[itemName])
+                    changeSortedData(sortedData=>(Object.assign({},{...sortedData},newObject)))
+                }
+            })
+
+            dataSelectBalanceSheet.data[1].forEach(item=>{
+                if(ID.indexOf(item[glDesc].replace(/[ ._()]/g,''))===-1) 
+                    ID.push(item[glDesc].replace(/[ ._()]/g,''))
+                else if (item[itemName] && ID.indexOf(item[itemName].replace(/[ ._()]/g,''))===-1)
+                    ID.push(item[itemName].replace(/[ ._()]/g,''))
+                
+            })
+            changeCollapsibleElementID(ID)
+        }
+    },[dataSelectBalanceSheet,errorSelectBalanceSheet])
+
+    useEffect(()=>{
+        if(sortedData) {
             const category=dataSelectBalanceSheet.data[0].map(category=>category[dataSelectBalanceSheet.field[0][0].name])
             const currentProfitAndLoss=calculateCurrentProfitAndLoss(dataSelectBalanceSheet.data[2],dataSelectBalanceSheet.field[2]);
             const retainedEarnings=calculateRetainedEarnings(dataSelectBalanceSheet.data[2],dataSelectBalanceSheet.field[2]);
-            let ID=[]
 
-            changeNetAssets(populateCategory(category.slice(0,6),dataSelectBalanceSheet.data[1],dataSelectBalanceSheet.field[1],false))
+            changeNetAssets(populateCategory(category.slice(0,6),dataSelectBalanceSheet.data[1],sortedData,dataSelectBalanceSheet.field[1],false))
             changeNetAssetsTotal(numberFormatParser(calculateCategoryTotal(category.slice(0,6),dataSelectBalanceSheet.data[1],dataSelectBalanceSheet.field[1],false)));
 
-            changeNetEquity(populateCategory(category.slice(6),dataSelectBalanceSheet.data[1],dataSelectBalanceSheet.field[1],true))
+            changeNetEquity(populateCategory(category.slice(6),dataSelectBalanceSheet.data[1],sortedData,dataSelectBalanceSheet.field[1],true))
 
             changeCurrentProfitAndLoss(numberFormatParser(currentProfitAndLoss))
             changeRetainedEarnings(numberFormatParser(retainedEarnings))
 
             changeNetEquityTotal(numberFormatParser(calculateCategoryTotal(category.slice(6),dataSelectBalanceSheet.data[1],dataSelectBalanceSheet.field[1],true)
             +currentProfitAndLoss+retainedEarnings));
-
-            dataSelectBalanceSheet.data[1].forEach(item=>{
-                if(ID.indexOf(item[dataSelectBalanceSheet.field[1][2].name].replace(/[ ._()]/g,''))===-1) 
-                    ID.push(item[dataSelectBalanceSheet.field[1][2].name].replace(/[ ._()]/g,''))
-                else if (item[dataSelectBalanceSheet.field[1][3].name] && ID.indexOf(item[dataSelectBalanceSheet.field[1][3].name].replace(/[ ._()]/g,''))===-1)
-                    ID.push(item[dataSelectBalanceSheet.field[1][3].name].replace(/[ ._()]/g,''))
-                
-            })
-            changeCollapsibleElementID(ID)
+        
+            
         }
-    },[dataSelectBalanceSheet,errorSelectBalanceSheet])
+    },[sortedData,printFormat])
     
     //attach bootstrap/jquery eventlisteners and callbacks
     useEffect(()=>{
@@ -126,7 +160,7 @@ function BalanceSheetItem (props) {
         const itemCredit=field[7].name;
         
         return data.reduce((a,b)=>{        
-            if (new Date(b[itemDate])<=new Date(new Date(url.date).getFullYear()+'-01-01')) 
+            if (new Date(b[itemDate])<new Date(new Date(url.date).getFullYear()+'-01-01')) 
                 return a+b[itemCredit]-b[itemDebit];
             else return a;
         },0)
@@ -145,10 +179,10 @@ function BalanceSheetItem (props) {
         return WIPstring.join('')+'Item?item='+string.replace(/ /g,'_')+'&id='+encodeURIComponent(id)
     }
 
-    function populateCategory(category=[],data,field,debitCreditOpposite) {
+    function populateCategory(category=[],data,sortedData1,field,debitCreditOpposite) {
         return (
             category.map(category=>{
-                let accounts=populateAccount(category,data,field,debitCreditOpposite);
+                let accounts=populateAccount(category,data,sortedData1,field,debitCreditOpposite);
                 if (accounts.length>0)
                     return (
                     <section key={category}>
@@ -161,7 +195,7 @@ function BalanceSheetItem (props) {
         )
     }
     
-    function populateAccount(category,data,field,debitCreditOpposite) {
+    function populateAccount(category,data,sortedData1,field,debitCreditOpposite) {
         const glCategory=field[0].name;
         const glAccount=field[1].name;
         const glDesc=field[2].name;
@@ -196,7 +230,7 @@ function BalanceSheetItem (props) {
                         return (
                         <div key={item[itemName]}>
                             <div className='row my-1 py-1 rounded bg-secondary text-white' style={{cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[itemName].replace(/[ ._()]/g,'')}>
-                                <p className='col-1'><i className='fa fa-plus-square mt-1 ' id={'plusminus'+item[itemName].replace(/[ ._()]/g,'')}></i></p>
+                                <p className='col-1'><i className='fa fa-plus-square mt-1 d-print-none' id={'plusminus'+item[itemName].replace(/[ ._()]/g,'')}></i></p>
                                 <p className='h6 col-5 mb-0'>{item[itemName]}</p>
                                 <p className='h6 col text-right mb-0'>{numberFormatParser(data.reduce(
                                     (a,b)=>{
@@ -213,14 +247,121 @@ function BalanceSheetItem (props) {
                                 </p>
                             </div>
                             <div className='collapse navbar-collapse my-2 row pl-3 pl-md-5 pr-2' id={item[itemName].replace(/[ ._()]/g,'')}>
-                                <table id='table' className='table table-hover table-responsive-md'>
+                                <div style={printFormat?
+                                    {width:'100%'}:{width:'100%',overflowY:'auto',overflowX:'hidden',maxHeight:'60vh'}}>
+                                <table id='table' className={printFormat?'table table-hover':'table table-hover table-responsive-md'}>
                                     <thead>
                                         <tr>
-                                            <th className='text-nowrap'>DATE</th>
-                                            <th className='text-nowrap'>ITEM TYPE</th>
-                                            <th className='text-nowrap'>ITEM NUMBER</th>
-                                            <th className='text-nowrap'>DR</th>
-                                            <th className='text-nowrap'>CR</th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='date'+item[itemName].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[itemName]]=sortData(sortedData[item[itemName]],itemDate,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}
+                                                >
+                                                DATE
+                                                <i id={'date'+item[itemName].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='type'+item[itemName].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[itemName]]=sortData(sortedData[item[itemName]],itemType,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}
+                                                >
+                                                ITEM TYPE
+                                                <i id={'type'+item[itemName].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='number'+item[itemName].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[itemName]]=sortData(sortedData[item[itemName]],itemNumber,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}
+                                                >
+                                                ITEM NUMBER
+                                                <i id={'number'+item[itemName].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='dr'+item[itemName].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[itemName]]=sortData(sortedData[item[itemName]],itemDebit,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}
+                                            >
+                                                DR
+                                                <i id={'dr'+item[itemName].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='cr'+item[itemName].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[itemName]]=sortData(sortedData[item[itemName]],itemCredit,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}
+                                            >
+                                                CR
+                                                <i id={'cr'+item[itemName].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -234,7 +375,7 @@ function BalanceSheetItem (props) {
                                                 <td colSpan='1'>{numberFormatParser(-getBroughtForwardAmount(item))}</td>
                                             </tr>)
                                             }
-                                    {data.map((item2,i)=>{
+                                    {sortedData1[item[itemName]].map((item2,i)=>{
                                         if (item2[glAccount]===targetItem[glAccount] && item2[itemName]===item[itemName] 
                                             && (new Date(item2[itemDate])>=new Date(new Date(url.date).getFullYear()+'-01-01'))
                                             && (new Date(item2[itemDate])<=new Date(url.date))
@@ -255,6 +396,7 @@ function BalanceSheetItem (props) {
                                     }
                                     </tbody>
                                 </table>
+                                </div>
                             </div>
                     </div>
                     )} else return null;
@@ -269,7 +411,7 @@ function BalanceSheetItem (props) {
                 result.push(
                     (<div key={item[glAccount]}>
                         <div className='row background' style={{cursor:'pointer'}} data-toggle='collapse' data-target={'#'+item[glDesc].replace(/[ ._()]/g,'')}>
-                            <i className='fa fa-plus-square mt-1 col-1' id={'plusminus'+item[glDesc].replace(/[ ._()]/g,'')}></i>
+                            <i className='fa fa-plus-square mt-1 col-1 d-print-none' id={'plusminus'+item[glDesc].replace(/[ ._()]/g,'')}></i>
                             <p className='col-2 mb-0'>{item[glAccount]}</p>
                             <p className='col-6 mb-0'>{item[glDesc]}</p>
                             <p className='col text-right mb-0'>{numberFormatParser(data.reduce(
@@ -285,15 +427,117 @@ function BalanceSheetItem (props) {
                             </p>
                         </div>
                         <div className='collapse navbar-collapse my-2 pl-3 pl-md-5 pr-2' id={item[glDesc].replace(/[ ._()]/g,'')}>
-                            {item[itemName]? populateItemName(item):(
-                                <table id='table' className='table table-hover table-responsive-md'>
+                            {item[itemName]?populateItemName(item):(
+                            <div style={printFormat?null:{overflowY:'auto',overflowX:'hidden',maxHeight:'60vh'}}>
+                                <table id='table' className={printFormat?'table table-hover':'table table-hover table-responsive-md'}>
                                     <thead>
                                         <tr>
-                                            <th className='text-nowrap'>DATE</th>
-                                            <th className='text-nowrap'>ITEM TYPE</th>
-                                            <th className='text-nowrap'>ITEM NUMBER</th>
-                                            <th className='text-nowrap'>DR</th>
-                                            <th className='text-nowrap'>CR</th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='date'+item[glDesc].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[glDesc]]=sortData(sortedData[item[glDesc]],itemDate,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}
+                                            >
+                                                DATE
+                                                <i id={'date'+item[glDesc].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='type'+item[glDesc].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[glDesc]]=sortData(sortedData[item[glDesc]],itemType,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}>
+                                                ITEM TYPE
+                                                <i id={'type'+item[glDesc].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='number'+item[glDesc].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[glDesc]]=sortData(sortedData[item[glDesc]],itemNumber,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}>
+                                                ITEM NUMBER
+                                                <i id={'number'+item[glDesc].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='dr'+item[glDesc].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[glDesc]]=sortData(sortedData[item[glDesc]],itemDebit,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}>
+                                                DR
+                                                <i id={'dr'+item[glDesc].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
+                                            <th className='text-nowrap' style={{cursor:'pointer'}} data-order='asc'
+                                            onClick={(e)=>{
+                                                const id='cr'+item[glDesc].replace(/[ ._\-()]/g,'')
+                                                e.target.setAttribute('data-order',
+                                                e.target.getAttribute('data-order')==='asc'?'desc':'asc')
+                                                
+                                                sortedData[item[glDesc]]=sortData(sortedData[item[glDesc]],itemCredit,e.target.getAttribute('data-order'))
+                                                changeSortedData({...sortedData})
+                            
+                                                if (e.target.getAttribute('data-order')==='asc') {
+                                                    document.getElementById(id).classList.remove('fa-caret-up');
+                                                    document.getElementById(id).classList.add('fa-caret-down')
+                                                }
+                                                else {
+                                                    document.getElementById(id).classList.remove('fa-caret-down');
+                                                    document.getElementById(id).classList.add('fa-caret-up')
+                                                }
+                                                }}>
+                                                CR
+                                                <i id={'cr'+item[glDesc].replace(/[ ._\-()]/g,'')} className='d-print-none fa fa-caret-down ml-2'></i>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -307,7 +551,7 @@ function BalanceSheetItem (props) {
                                                 <td colSpan='1'>{numberFormatParser(-getBroughtForwardAmount(item))}</td>
                                             </tr>)
                                         }
-                                        {data.map((item2,i)=>{
+                                        {sortedData1[item[glDesc]].map((item2,i)=>{
                                             if (item2[glAccount]===item[glAccount]
                                                 && (new Date(item2[itemDate])>=new Date(new Date(url.date).getFullYear()+'-01-01'))
                                                 && (new Date(item2[itemDate])<=new Date(url.date))
@@ -328,9 +572,10 @@ function BalanceSheetItem (props) {
                                         }
                                     </tbody>
                                 </table>
-                                )}
                             </div>
+                                )}
                         </div>
+                    </div>
                     )
                 )
             }
@@ -352,10 +597,19 @@ function BalanceSheetItem (props) {
         <AppLayout>
             <div className='container py-3 py-md-5 px-md-5 position-relative'>
                 <h4 className='text-center'>{url.companyTitle}</h4>
-                <h4 className='text-center mb-4'>{'Balance Sheet as at ' + url.date}</h4>
+                <h4 className='text-center mb-4'>{'Balance Sheet as at ' + dateFormatParser(url.date)}</h4>
                 {errorDisplay}
-                <div className='text-right'>
-                    <button className='btn btn-dark mr-2' 
+                <div className='text-right d-print-none mb-4'>
+                    <div className="form-check form-check-inline">
+                        <input className="form-check-input" type="checkbox" id="printFormat" checked={printFormat}
+                        onChange={(e)=>{
+                            if (e.target.checked) 
+                                changePrintFormat(true)
+                            else changePrintFormat(false)
+                        }}/>
+                        <label className="form-check-label" htmlFor="printFormat"> Print Format</label>
+                    </div>
+                    <button className='btn btn-dark mr-1 mr-md-2' 
                     onClick={(e)=>collapsibleElementID.forEach(ID=>
                         $('#'+ID).collapse('show')
                     )}><i className='fa fa-plus-square'></i> Expand</button>
