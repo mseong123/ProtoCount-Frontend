@@ -14,7 +14,7 @@ import isLoadingContext from './Shared/isLoadingContext';
 
 function App() {
     //auth default value is false and have to go through Login route when new App is served for first time. See route logic below.
-    const [auth,changeAuth]=useState(true);
+    const [auth,changeAuth]=useState(false);
     /*isLoading default value is false, when useFetch is called, will change to true and once fetch promise resolved/rejected, 
     will change to false again.*/
     const [isLoading,changeIsLoading]=useState(false);

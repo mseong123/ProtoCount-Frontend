@@ -30,7 +30,6 @@ function ProfitAndLoss(props) {
                                 <input type='date' id='date' onChange={(e)=>changeDate(e.target.value)} value={date} required 
                                 className='form-control'/>
                             </div>
-                            <small className="form-text text-muted">*required</small>
                             </div>
                         <div className='form-group form-row'>
                             <label className='col-md-2 col-form-label' htmlFor='companyTitle'>Company Title</label>

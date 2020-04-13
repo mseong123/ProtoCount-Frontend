@@ -164,7 +164,7 @@ function PurchaseCreditNoteItem (props) {
     function calculateSubtotal(i) {
         if (inputState[linePosition][i][3]!=='' && inputState[linePosition][i][4]!=='' && inputState[linePosition][i][5]!=='')
             return ((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
-            -parseFloat(inputState[linePosition][i][5])).toFixed(2)
+            -parseFloat(inputState[linePosition][i][5]))
         else return '';
     }
 
@@ -177,7 +177,7 @@ function PurchaseCreditNoteItem (props) {
              total=total+((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
              -parseFloat(inputState[linePosition][i][5]))
         })
-        return +(total.toFixed(2));
+        return total;
     }
 
     function calculateUnappliedAmount(exclude) {

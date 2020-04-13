@@ -14,6 +14,7 @@ import dateFormatParser from '../Shared/dateFormatParser';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
 import LineRender from '../Shared/LineRender';
+import ReceiptPaymentHistoryRender from '../Shared/ReceiptPaymentHistoryRender';
 
 
 
@@ -51,6 +52,19 @@ function PurchaseDebitNoteItem (props) {
             credentials:'include'
         }
     });//extension of Item component
+
+    const [{data:dataSelectPaymentHistory,error:errorSelectPaymentHistory}]=useFetch(url.item && url.id?{
+        url:'./getPaymentHistory',
+        init:{
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({
+                item:'purchase_debit_note',
+                param:[url.id]
+            }),
+            credentials:'include'
+        }
+    }:null);//extension of Item component
 
     /*Position of inputState variable used in other components. */
     const creditTermPosition=6;
@@ -105,7 +119,13 @@ function PurchaseDebitNoteItem (props) {
             )
         )
 
-    },[dataSelectCreditor,errorSelectCreditor,dataSelectStock,errorSelectStock,dataSelectGLCode,errorSelectGLCode])
+        if (dataSelectPaymentHistory && dataSelectPaymentHistory.auth===false) {
+            alert('Cookies Expired or Authorisation invalid. Please Login again!');
+            changeAuth(false);
+        }
+
+    },[dataSelectCreditor,errorSelectCreditor,dataSelectStock,errorSelectStock,dataSelectGLCode,errorSelectGLCode,
+    dataSelectPaymentHistory,errorSelectPaymentHistory])
 
     useEffect(()=>{
         function setScale() {
@@ -126,7 +146,7 @@ function PurchaseDebitNoteItem (props) {
     function calculateSubtotal(i) {
         if (inputState[linePosition][i][3]!=='' && inputState[linePosition][i][4]!=='' && inputState[linePosition][i][5]!=='')
             return ((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
-            -parseFloat(inputState[linePosition][i][5])).toFixed(2)
+            -parseFloat(inputState[linePosition][i][5]))
         else return '';
     }
 
@@ -139,17 +159,23 @@ function PurchaseDebitNoteItem (props) {
              total=total+((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
              -parseFloat(inputState[linePosition][i][5]))
         })
-        return +(total.toFixed(2));
+        return total;
     }
     
-    
+    function calculateOutstanding() {
+        const amount=dataSelectPaymentHistory? dataSelectPaymentHistory.field[4].name:null;
+        
+        return calculateTotal()-(dataSelectPaymentHistory? dataSelectPaymentHistory.data.reduce((a,b)=>
+            a+b[amount],0):0)
+    }
     
     /*error display extension from error display already provided by Item Component*/
     let errorDisplayExtension=null;
     
     
     if ((dataSelectCreditor && dataSelectCreditor.error) || errorSelectCreditor ||(dataSelectStock && dataSelectStock.error) || errorSelectStock ||
-    (dataSelectGLCode && dataSelectGLCode.error) || errorSelectGLCode) 
+    (dataSelectGLCode && dataSelectGLCode.error) || errorSelectGLCode || (dataSelectPaymentHistory && dataSelectPaymentHistory.error)
+    || errorSelectPaymentHistory ) 
     errorDisplayExtension=(
         <div className="alert alert-warning">
             {dataSelectCreditor && dataSelectCreditor.error? 'Creditor List RETRIEVAL for item failed errno: '+dataSelectCreditor.error.errno
@@ -165,6 +191,11 @@ function PurchaseDebitNoteItem (props) {
             {dataSelectGLCode && dataSelectGLCode.error? 'GL Code List RETRIEVAL for item failed errno: '+dataSelectGLCode.error.errno
             +' code: '+dataSelectGLCode.error.code+' message: '+dataSelectGLCode.error.sqlMessage:null}
             {errorSelectGLCode? 'GL Code List RETRIEVAL for item failed '+errorSelectGLCode : null}
+            <br/>
+            <br/>
+            {dataSelectPaymentHistory && dataSelectPaymentHistory.error? 'Payment History RETRIEVAL for item failed errno: '+dataSelectPaymentHistory.error.errno
+            +' code: '+dataSelectPaymentHistory.error.code+' message: '+dataSelectPaymentHistory.error.sqlMessage:null}
+            {errorSelectPaymentHistory? 'Payment History RETRIEVAL for item failed '+errorSelectPaymentHistory : null}
         </div>)
 
     
@@ -308,12 +339,24 @@ function PurchaseDebitNoteItem (props) {
                             <h5 className='text-right my-3 col-12'>
                                 {'Total: '+numberFormatParser(calculateTotal())}
                             </h5>
+                            {usage==='INSERT'?null:(<h6 className='text-right mb-4 col-12'>
+                                <span className="alert alert-secondary">
+                                    {'Outstanding Amount: '+numberFormatParser(calculateOutstanding())}
+                                </span>
+                            </h6>)}
+
+                            {usage==='INSERT'?null: 
+                            <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
+                                <legend className='col-form-label col-4 offset-4 text-center' >
+                                    <h6 className='d-inline-block mx-2 mx-md-4'>Payment History</h6>
+                                </legend>
+                                <ReceiptPaymentHistoryRender dataSelectReceiptPaymentHistory={dataSelectPaymentHistory}
+                                disabled={disabled}/>
+                            </fieldset>}
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 
                         changeDisabled={changeDisabled} path={`${path}/Preview`}/>
-                        
-                        
                         
                     </form>
                 </div>

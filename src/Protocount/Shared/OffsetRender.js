@@ -1,5 +1,6 @@
 import React from 'react';
 import numberFormatParser from './numberFormatParser';
+import dateFormatParser from '../Shared/dateFormatParser';
 
 function OffsetRender(props) {
     const docNum=props.dataSelectOutstanding?props.dataSelectOutstanding.field[0].name:null;
@@ -122,7 +123,7 @@ function OffsetRender(props) {
                 <p className='col border my-0' style={{flex:'1 0 200px',paddingLeft:10,paddingRight:10,paddingTop:'0.375rem',paddingBottom:'0.375rem'}}>{item[docNum]}</p>
                 <p className='col border my-0 text-truncate' style={{flex:'1 0 150px',paddingLeft:10,paddingRight:10,paddingTop:'0.375rem',paddingBottom:'0.375rem'}}>{item[name]}</p>
                 <p className='col border my-0' style={{flex:'1 0 200px',paddingLeft:10,paddingRight:10,paddingTop:'0.375rem',paddingBottom:'0.375rem'}}>{item[type]}</p>
-                <p className='col border my-0' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10,paddingTop:'0.375rem',paddingBottom:'0.375rem'}}>{item[date]}</p>
+                <p className='col border my-0' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10,paddingTop:'0.375rem',paddingBottom:'0.375rem'}}>{dateFormatParser(item[date])}</p>
                 <p className='col border my-0' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10,paddingTop:'0.375rem',paddingBottom:'0.375rem'}}>{numberFormatParser(item[original])}</p>
                 <p className='col border my-0' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10,paddingTop:'0.375rem',paddingBottom:'0.375rem'}}>{numberFormatParser(item[outstanding])}</p>
                 <label htmlFor='pay' className='sr-only'/>

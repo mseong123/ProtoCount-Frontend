@@ -167,7 +167,7 @@ function CreditNoteItem (props) {
         if (inputState[linePosition][i][3]!=='' && inputState[linePosition][i][4]!=='' && 
         inputState[linePosition][i][5]!=='')
             return ((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
-            -parseFloat(inputState[linePosition][i][5])).toFixed(2)
+            -parseFloat(inputState[linePosition][i][5]))
         else return '';
     }
 
@@ -180,7 +180,7 @@ function CreditNoteItem (props) {
              total=total+((parseFloat(inputState[linePosition][i][3])*parseFloat(inputState[linePosition][i][4]))
              -parseFloat(inputState[linePosition][i][5]))
         })
-        return +(total.toFixed(2));
+        return total;
     }
     
     function calculateUnappliedAmount(exclude) {
@@ -390,7 +390,9 @@ function CreditNoteItem (props) {
                                 {'Total: '+numberFormatParser(calculateTotal())}
                             </h5>
                             <h6 className='text-right mb-4 col-12'>
-                                <span className="alert alert-secondary">{'Unapplied Amount: '+numberFormatParser(calculateUnappliedAmount())}</span>
+                                <span className="alert alert-secondary">
+                                    {'Unapplied Amount: '+numberFormatParser(calculateUnappliedAmount())}
+                                </span>
                             </h6>
                             {errorUnappliedAmount}
 

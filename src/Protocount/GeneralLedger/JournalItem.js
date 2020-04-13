@@ -68,7 +68,7 @@ function JournalItem (props) {
             if(inputState[linePosition][i][4])
              total+=parseFloat(inputState[linePosition][i][4])
         })
-        return +(total.toFixed(2));
+        return total;
     }
 
     function calculateCreditTotal() {
@@ -78,7 +78,7 @@ function JournalItem (props) {
              total+=parseFloat(inputState[linePosition][i][5])
             }
         })
-        return +(total.toFixed(2));
+        return total;
     }
     
     function journallineListRender(disabled) {

@@ -29,6 +29,8 @@ function Process(props) {
         const [errorDeleteDisplay,changeErrorDeleteDisplay] = useState(null);
         
         const history=useHistory();
+        /*hardcoded 'NUM' instead of using field position because positions might be diff for each process*/
+        const docNum='NUM'
         
     //sanitize and filter initial DB dataSelect.data and dataSelect.field returned from fetch
     useEffect(()=>{
@@ -55,8 +57,9 @@ function Process(props) {
             changeErrorDeleteDisplay(null)
             changeItemsToBeDeleted([]);
             filteredData.data.forEach(data=>{
-                document.getElementById(data[props.item.toUpperCase()+'_NUM']).checked=false;
+                document.getElementById(data[docNum]).checked=false;
             });
+            document.getElementById('mainCheckBox').checked=false;
             changeParamSelect({
                 url:'./SelectItem',
                 init:{
@@ -107,8 +110,9 @@ function Process(props) {
         changeErrorDeleteDisplay(null);
         changeItemsToBeDeleted([]);
             filteredData.data.forEach(data=>{
-                document.getElementById(data[props.item.toUpperCase()+'_NUM']).checked=false;
+                document.getElementById(data[docNum]).checked=false;
             });
+        document.getElementById('mainCheckBox').checked=false;
         changeParamSelect({
             url:'./SelectItem',
             init:{
@@ -139,7 +143,7 @@ function Process(props) {
     
     function onItemClick(data){
         if(data)   
-            history.push('./'+props.createItemPath+'?item='+props.item+'&id='+data[props.item.toUpperCase()+'_NUM'])
+            history.push('./'+props.createItemPath+'?item='+props.item+'&id='+data[docNum])
         else 
             history.push('./'+props.createItemPath)
     }
@@ -181,13 +185,13 @@ function Process(props) {
         dataList=filteredData.data.map((data,i)=>{
             if(data.selected) {
                 return (
-                    <tr key={data[props.item.toUpperCase()+'_NUM']}>
+                    <tr key={data[docNum]}>
                         <td className='align-baseline py-2'>
-                            <input type='checkbox' id={data[props.item.toUpperCase()+'_NUM']} onChange={(e)=>{
-                                const targetPosition = itemsToBeDeleted.indexOf(data[props.item.toUpperCase()+'_NUM'])
+                            <input type='checkbox' id={data[docNum]} onChange={(e)=>{
+                                const targetPosition = itemsToBeDeleted.indexOf(data[docNum])
                                 if (e.target.checked) 
                                     changeItemsToBeDeleted(
-                                        [...itemsToBeDeleted,data[props.item.toUpperCase()+'_NUM']]
+                                        [...itemsToBeDeleted,data[docNum]]
                                     )
                                 else {
                                     if(targetPosition!==-1) 
@@ -229,18 +233,18 @@ function Process(props) {
                 <table id='table' className='table table-bordered table-hover' >
                         <thead>
                             <tr>
-                                <th className='text-nowrap'><input type='checkbox' onChange={(e)=>{
+                                <th className='text-nowrap'><input type='checkbox' id='mainCheckBox' onChange={(e)=>{
                                     if (e.target.checked) {
                                         let array=[]
                                         filteredData.data.forEach(data=>{
-                                            document.getElementById(data[props.item.toUpperCase()+'_NUM']).checked=true;
-                                            array.push(data[props.item.toUpperCase()+'_NUM'])
+                                            document.getElementById(data[docNum]).checked=true;
+                                            array.push(data[docNum])
                                         })
                                         changeItemsToBeDeleted(array)
                                     }
                                     else {
                                         filteredData.data.forEach(data=>{
-                                            document.getElementById(data[props.item.toUpperCase()+'_NUM']).checked=false;
+                                            document.getElementById(data[docNum]).checked=false;
                                         })
                                         changeItemsToBeDeleted([]);
                                     }
