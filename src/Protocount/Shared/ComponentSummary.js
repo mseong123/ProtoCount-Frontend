@@ -4,11 +4,13 @@ import DashboardSVG from './svg/030-presentation.svg';
 
 //Sales
 import DeliveryOrder from '../Sales/DeliveryOrder';
+import DeliveryReturn from '../Sales/DeliveryReturn';
 import SalesInvoice from '../Sales/SalesInvoice';
 import DebitNote from '../Sales/DebitNote';
 import CreditNote from '../Sales/CreditNote';
 import SalesReport from '../Sales/SalesReport';
 import DeliveryOrderItem from '../Sales/DeliveryOrderItem';
+import DeliveryReturnItem from '../Sales/DeliveryReturnItem';
 import SalesInvoiceItem from '../Sales/SalesInvoiceItem';
 import DebitNoteItem from '../Sales/DebitNoteItem';
 import CreditNoteItem from '../Sales/CreditNoteItem';
@@ -16,12 +18,14 @@ import SalesSVG from './svg/006-call.svg';
 
 
 //Purchase
+import GoodsReceivedNote from '../Purchase/GoodsReceivedNote';
 import PurchaseReturn from '../Purchase/PurchaseReturn';
 import PurchaseInvoice from '../Purchase/PurchaseInvoice';
 import PurchaseDebitNote from '../Purchase/PurchaseDebitNote';
 import PurchaseCreditNote from '../Purchase/PurchaseCreditNote';
 import PurchaseReport from '../Purchase/PurchaseReport';
 import SupplierPriceListReport from '../Purchase/SupplierPriceListReport';
+import GoodsReceivedNoteItem from '../Purchase/GoodsReceivedNoteItem';
 import PurchaseReturnItem from '../Purchase/PurchaseReturnItem';
 import PurchaseInvoiceItem from '../Purchase/PurchaseInvoiceItem';
 import PurchaseDebitNoteItem from '../Purchase/PurchaseDebitNoteItem';
@@ -91,8 +95,8 @@ Same with description string (ie DeliveryOrder.description='Delivery Order') use
 //NO SPACE BETWEEN NAMES! as they are used for keys and spaces have unpredictable behaviors (i.e. Accounts Receivable should be Accounts-Receivable)
 const ComponentSummary = [ 
     {name:'Dashboard',svg:DashboardSVG ,process:[Dashboard], item:[], report:[]},
-    {name:'Sales',svg:SalesSVG ,process:[DeliveryOrder,SalesInvoice,DebitNote,CreditNote], item:[DeliveryOrderItem,SalesInvoiceItem,DebitNoteItem,CreditNoteItem], report:[SalesReport]},
-    {name:'Purchase',svg:PurchaseSVG ,process:[PurchaseReturn,PurchaseInvoice,PurchaseDebitNote,PurchaseCreditNote], item:[PurchaseReturnItem,PurchaseInvoiceItem,PurchaseDebitNoteItem,PurchaseCreditNoteItem], report:[PurchaseReport,SupplierPriceListReport]},
+    {name:'Sales',svg:SalesSVG ,process:[DeliveryOrder,DeliveryReturn,SalesInvoice,DebitNote,CreditNote], item:[DeliveryOrderItem,DeliveryReturnItem,SalesInvoiceItem,DebitNoteItem,CreditNoteItem], report:[SalesReport]},
+    {name:'Purchase',svg:PurchaseSVG ,process:[GoodsReceivedNote,PurchaseReturn,PurchaseInvoice,PurchaseDebitNote,PurchaseCreditNote], item:[GoodsReceivedNoteItem,PurchaseReturnItem,PurchaseInvoiceItem,PurchaseDebitNoteItem,PurchaseCreditNoteItem], report:[PurchaseReport,SupplierPriceListReport]},
     {name:'Inventory',svg:InventorySVG ,process:[StockItemMaintenance], item:[StockItem], report:[StockCardReport,StockAgingReport]},
     {name:'Bank and Cash',svg:BankAndCashSVG ,process:[BankMaintenance,BankReceipt,BankPayment,CashReceipt,CashPayment], item:[BankItem,BankReceiptItem,BankPaymentItem,CashReceiptItem,CashPaymentItem], report:[]},
     {name:'Accounts Receivable',svg:AccountsReceivableSVG ,process:[DebtorMaintenance], item:[DebtorItem], report:[DebtorAgingReport,DebtorStatementReport,DebtorCollectionReport]},
