@@ -335,17 +335,14 @@ function BankPaymentItem (props) {
                             {errorUnappliedAmount}
 
                             {isCreditorPayment?
-                            (<fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>OFFSET <br/> Purchase Invoice / Purchase Debit Note</h6>
-                                </legend>
-                                <OffsetRender dataSelectOutstanding={dataSelectCreditorOutstanding} inputState={inputState} 
+                            <OffsetRender dataSelectOutstanding={dataSelectCreditorOutstanding} inputState={inputState} 
                                 changeInputState={changeInputState} disabled={disabled}
                                 calculateUnappliedAmount={calculateUnappliedAmount} calculateTotal={calculateTotal}
                                 offsetPositionOne={offsetPositionPurchaseInvoice} offsetPositionTwo={offsetPositionPurchaseDebitNote}
                                 offsetDescriptionOne={offsetDescriptionOne} offsetDescriptionTwo={offsetDescriptionTwo}
-                                changeErrorUnappliedAmount={changeErrorUnappliedAmount}/>
-                            </fieldset>):null}
+                                changeErrorUnappliedAmount={changeErrorUnappliedAmount}
+                                offsetDescription={'Purchase Invoice / Purchase Debit Note'}/>
+                            :null}
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 

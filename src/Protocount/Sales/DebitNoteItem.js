@@ -37,7 +37,10 @@ function DebitNoteItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'stock'}),
+            body:JSON.stringify({
+                item:'stock',
+                param:url.id?[url.id]:null
+            }),
             credentials:'include'
         }
     });//extension of Item component
@@ -68,11 +71,12 @@ function DebitNoteItem (props) {
     /*Position of inputState variable used in other components. */
     const creditTermPosition=6;
     const linePosition=9;
+    const stockControlPosition=10;
 
     const [debtorList,changeDebtorList] = useState(null);
     const [stockList,changeStockList] = useState(null);
     const [GLCodeList,changeGLCodeList] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','COD','','',[]]) 
+    const [inputState,changeInputState]=useState(['','','','','','','COD','','',[],[]]) 
     
     const {path} = useRouteMatch();
     const {changeAuth} = useContext(authContext);
@@ -95,15 +99,22 @@ function DebitNoteItem (props) {
                     alert('Cookies Expired or Authorisation invalid. Please Login again!');
                     changeAuth(false);
                 }
-        else if (dataSelectStock && dataSelectStock.data && dataSelectStock.field) 
+        else if (dataSelectStock && dataSelectStock.data && dataSelectStock.field) {
+            const stockNum=dataSelectStock.field[0].name;
+            const stockDesc=dataSelectStock.field[1].name;
+            const stockPrice=dataSelectStock.field[2].name;
+            const stockBalQty=dataSelectStock.field[8].name;
+            
             changeStockList(dataSelectStock.data.map(data=>(
-            <option key={data[dataSelectStock.field[0].name]} value={data[dataSelectStock.field[0].name]}>
-                {data[dataSelectStock.field[0].name]+' | '
-                + (data[dataSelectStock.field[1].name]?data[dataSelectStock.field[1].name]:'')+' | '
-                + (data[dataSelectStock.field[2].name]?data[dataSelectStock.field[2].name]:'')}
-            </option>)
+                <option key={data[stockNum]} value={data[stockNum]}>
+                    {data[stockNum]+' | '
+                    + (data[stockDesc]?data[stockDesc]:'')+' | Price = '
+                    + (data[stockPrice]?data[stockPrice]:'')+' | Bal Qty = '
+                    + (data[stockBalQty]?data[stockBalQty]:'0')}
+                </option>)
+                )
             )
-        )
+        }
 
         if (dataSelectGLCode && dataSelectGLCode.auth===false) {
                 alert('Cookies Expired or Authorisation invalid. Please Login again!');
@@ -311,35 +322,14 @@ function DebitNoteItem (props) {
                                 
                             </div>
 
-                            <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
-                                    <button type='button' className='btn btn-primary' disabled={disabled}
-                                    onClick={()=>
-                                        changeInputState(
-                                            inputState.slice(0,linePosition)
-                                            .concat([inputState[linePosition].slice(0)
-                                                .concat(
-                                                    [[inputState[linePosition].length+1,'','','',0,0]])])
-                                            .concat(inputState.slice(linePosition+1))
-                                        )
-                                    }>
-                                        +</button>
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>Debit Note Line</h6>
-                                    <button type='button' className='btn btn-secondary' disabled={disabled}
-                                    onClick={()=>
-                                        changeInputState(
-                                            inputState.slice(0,linePosition)
-                                            .concat([inputState[linePosition].slice(0,inputState[linePosition].length-1)])
-                                            .concat(inputState.slice(linePosition+1))
-                                        )
-                                    }>-</button>
-                                </legend>
+                            
                                 
-                                <LineRender linePosition={linePosition} disabled={disabled} inputState={inputState}
-                                changeInputState={changeInputState} dataSelectStock={dataSelectStock} stockList={stockList}
-                                calculateSubtotal={calculateSubtotal} />
+                            <LineRender linePosition={linePosition} stockControlPosition={stockControlPosition}
+                            disabled={disabled} inputState={inputState} changeInputState={changeInputState} 
+                            dataSelectStock={dataSelectStock} stockList={stockList} stockDirection='out'
+                            calculateSubtotal={calculateSubtotal} lineDescription={'Debit Note Line'}/>
 
-                            </fieldset>
+                           
 
                             <h5 className='text-right my-3 col-12'>
                                 {'Total: '+numberFormatParser(calculateTotal())}
@@ -351,13 +341,10 @@ function DebitNoteItem (props) {
                             </h6>)}
 
                             {usage==='INSERT'?null: 
-                            <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-4 offset-4 text-center' >
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>Receipt History</h6>
-                                </legend>
-                                <ReceiptPaymentHistoryRender dataSelectReceiptPaymentHistory={dataSelectReceiptHistory}
-                                disabled={disabled}/>
-                            </fieldset>}
+                            
+                            <ReceiptPaymentHistoryRender dataSelectReceiptPaymentHistory={dataSelectReceiptHistory}
+                            disabled={disabled} historyDescription={'Receipt History'}/>
+                            }
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 

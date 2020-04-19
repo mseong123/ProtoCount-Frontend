@@ -13,7 +13,7 @@ import numberFormatParser from '../Shared/numberFormatParser';
 import dateFormatParser from '../Shared/dateFormatParser';
 import useFetch from '../Shared/useFetch';
 import authContext from '../Shared/authContext';
-
+import LineRenderQtyOnly from '../Shared/LineRenderQtyOnly';
 
 
 function PurchaseReturnItem (props) {
@@ -36,17 +36,21 @@ function PurchaseReturnItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'stock'}),
+            body:JSON.stringify({
+                item:'stock',
+                param:url.id?[url.id]:null
+            }),
             credentials:'include'
         }
     });//extension of Item component
 
 
     const linePosition=7;
+    const stockControlPosition=8;
 
     const [creditorList,changeCreditorList] = useState(null);
     const [stockList,changeStockList] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','',[]]) 
+    const [inputState,changeInputState]=useState(['','','','','','','',[],[]]) 
     
     const {path} = useRouteMatch();
     const {changeAuth} = useContext(authContext);
@@ -69,15 +73,23 @@ function PurchaseReturnItem (props) {
                     alert('Cookies Expired or Authorisation invalid. Please Login again!');
                     changeAuth(false);
                 }
-        else if (dataSelectStock && dataSelectStock.data && dataSelectStock.field) 
+        else if (dataSelectStock && dataSelectStock.data && dataSelectStock.field) {
+            const stockNum=dataSelectStock.field[0].name;
+            const stockDesc=dataSelectStock.field[1].name;
+            const stockPrice=dataSelectStock.field[2].name;
+            const stockBalQty=dataSelectStock.field[8].name;
+
             changeStockList(dataSelectStock.data.map(data=>(
-            <option key={data[dataSelectStock.field[0].name]} value={data[dataSelectStock.field[0].name]}>
-                {data[dataSelectStock.field[0].name]+' | '
-                + (data[dataSelectStock.field[1].name]?data[dataSelectStock.field[1].name]:'')+' | '
-                + (data[dataSelectStock.field[2].name]?data[dataSelectStock.field[2].name]:'')}
-            </option>)
+                <option key={data[stockNum]} value={data[stockNum]}>
+                    {data[stockNum]+' | '
+                    + (data[stockDesc]?data[stockDesc]:'')+' | Price = '
+                    + (data[stockPrice]?data[stockPrice]:'')+' | Bal Qty = '
+                    + (data[stockBalQty]?data[stockBalQty]:'0')}
+                </option>)
+                )
             )
-        )
+        }
+            
 
 
     },[dataSelectCreditor,errorSelectCreditor,dataSelectStock,errorSelectStock])
@@ -97,16 +109,6 @@ function PurchaseReturnItem (props) {
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1)])
     }
-    function onChangePurchaseReturnLineInput(e,order,lineNumber,innerOrder) {
-        changeInputState(inputState.slice(0,order)
-        .concat([inputState[order].slice(0,lineNumber)
-        .concat([inputState[order][lineNumber].slice(0,innerOrder)
-        .concat(e)
-        .concat(inputState[order][lineNumber].slice(innerOrder+1))])
-        .concat(inputState[order].slice(lineNumber+1))])
-        .concat(inputState.slice(order+1)))
-    }
-    
 
     function calculateTotal() {
         let total=0
@@ -117,61 +119,6 @@ function PurchaseReturnItem (props) {
         })
         return total;
     }
-    
-    function purchasereturnlineListRender(disabled) {
-    return(
-        inputState[linePosition].map((purchasereturnlineSet,i)=>
-        <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}} key={i}>
-            {/*set fixed flex basis so layout is consistent with h6 header as well*/}
-            <label htmlFor='lineNumber' className='sr-only'/>
-            <input type='number' id='lineNumber' className='col form-control rounded-0 text-center' 
-            value={inputState[linePosition][i][0]?inputState[linePosition][i][0]:''} 
-            onChange={(e)=>e} style={{flex:'1 0 50px',paddingLeft:10,paddingRight:0}} disabled={disabled}/>
-
-            <div className='col input-group' style={{flex:'1 0 50px',paddingLeft:0,paddingRight:0}}>
-                <label htmlFor='itemCode' className='sr-only'/>
-                <input type='text' id ='itemCode' className='form-control rounded-0' disabled={disabled}
-                style={{paddingLeft:10}}
-                value={inputState[linePosition][i][1]?inputState[linePosition][i][1]:''} 
-                onChange={(e)=>onChangePurchaseReturnLineInput(e.target.value,linePosition,i,1)}/>
-                <select className='form-control rounded-0' style={{flex:'0 1 0'}} disabled={disabled} onChange={(e)=>{
-                        let stockDescription='';
-                        
-                        dataSelectStock.data.forEach(data=>{
-                            
-                            if(data[dataSelectStock.field[0].name]===e.target.value) {
-                                stockDescription=data[dataSelectStock.field[1].name]?data[dataSelectStock.field[1].name]:'';
-                            }
-                        })
-                        
-                        changeInputState(inputState.slice(0,linePosition)
-                        .concat([inputState[linePosition].slice(0,i)
-                        .concat([inputState[linePosition][i].slice(0,1)
-                        .concat(e.target.value).concat(stockDescription)
-                        .concat(inputState[linePosition][i].slice(3))])
-                        .concat(inputState[linePosition].slice(i+1))])
-                        .concat(inputState.slice(linePosition+1)))
-
-                        }}>
-                    <option value=''>-select an option- </option>
-                    {stockList}
-                </select>
-            </div>
-            <label htmlFor='description' className='sr-only'/>
-            <input type='text' id='description' required className='col form-control rounded-0' value={inputState[linePosition][i][2]} 
-            onChange={(e)=>onChangePurchaseReturnLineInput(e.target.value,linePosition,i,2)} disabled={disabled}
-            style={{flex:'1 0 225px',paddingLeft:10,paddingRight:0}}/>
-
-            <label htmlFor='qty' className='sr-only'/>
-            <input type='number' required min='0' step='1' id='qty' className='col form-control rounded-0 text-center' value={inputState[linePosition][i][3]} 
-            onChange={(e)=>onChangePurchaseReturnLineInput(e.target.value,linePosition,i,3)} disabled={disabled}
-            style={{flex:'1 0 75px',paddingLeft:10,paddingRight:0}}/>
-
-            
-        </div>)
-        )
-    }
-    
     
     /*error display extension from error display already provided by Item Component*/
     let errorDisplayExtension=null;
@@ -278,48 +225,15 @@ function PurchaseReturnItem (props) {
                                 
                             </div>
 
-                            <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
-                                    <button type='button' className='btn btn-primary' disabled={disabled}
-                                    onClick={()=>
-                                        changeInputState(
-                                            inputState.slice(0,linePosition)
-                                            .concat([inputState[linePosition].slice(0)
-                                                .concat(
-                                                    [[inputState[linePosition].length+1,'','','']])])
-                                            .concat(inputState.slice(linePosition+1))
-                                        )
-                                    
-                                    }>
-                                        +</button>
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>Purchase Return Line</h6>
-                                    <button type='button' className='btn btn-secondary' disabled={disabled}
-                                    onClick={()=>
-                                        changeInputState(
-                                            inputState.slice(0,linePosition)
-                                            .concat([inputState[linePosition].slice(0,inputState[linePosition].length-1)])
-                                            .concat(inputState.slice(linePosition+1))
-                                        )
-                                    }>-</button>
-                                </legend>
-                                <div className="overflow-auto">
-                                    {/*flex nowrap and overflow auto for mobile view*/}
-                                    <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}}>
-                                        <h6 className='col' style={{flex:'1 0 50px',paddingLeft:10,paddingRight:10}}>Line Number</h6>
-                                        <h6 className='col' style={{flex:'1 0 50px',paddingLeft:10,paddingRight:10}}>Item Code</h6>
-                                        <h6 className='col' style={{flex:'1 0 225px',paddingLeft:10,paddingRight:10}}>Description</h6>
-                                        <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Qty</h6>
-                                        
-                                    </div>
-                                    {purchasereturnlineListRender(disabled)}
-                                    
-                                </div>
-                                <h5 className='text-right my-3'>
-                                    
-                                    {'Total: '+numberFormatParser(calculateTotal())}
-                                    </h5>
-                                
-                            </fieldset>
+                            <LineRenderQtyOnly linePosition={linePosition} stockControlPosition={stockControlPosition} 
+                            disabled={disabled} inputState={inputState} changeInputState={changeInputState} 
+                            dataSelectStock={dataSelectStock} stockList={stockList} stockDirection='out'
+                            lineDescription={'Purchase Return Line'}
+                            />
+
+                            <h5 className='text-right my-3 col-12'>
+                                {'Total: '+numberFormatParser(calculateTotal())}
+                            </h5>
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 

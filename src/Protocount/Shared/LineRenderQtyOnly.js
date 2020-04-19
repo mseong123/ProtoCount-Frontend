@@ -1,8 +1,8 @@
-import React from 'react';
-import numberFormatParser from './numberFormatParser';
+import React,{useState} from 'react';
 
-function LineRender(props) {
-    const minWidth=845;
+
+function LineRenderQtyOnly(props) {
+    const minWidth=575;
     const stockNum=props.dataSelectStock?props.dataSelectStock.field[0].name:null;
     const stockDesc=props.dataSelectStock?props.dataSelectStock.field[1].name:null;
     const stockBalQty=props.dataSelectStock?props.dataSelectStock.field[8].name:null;
@@ -74,6 +74,7 @@ function LineRender(props) {
                     else return a
                 },0)
     }
+    
 
     function populateNegativeStockBalanceTable () {
         const lineAlreadyFiltered=[]
@@ -112,6 +113,8 @@ function LineRender(props) {
         else return null
     }
 
+    
+console.log(props.inputState)
     return (
         <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
             <legend className='col-form-label col-12 col-md-6 offset-md-3 text-center' >
@@ -121,11 +124,13 @@ function LineRender(props) {
                         props.inputState.slice(0,props.linePosition)
                         .concat([props.inputState[props.linePosition].slice(0)
                             .concat(
-                                [[props.inputState[props.linePosition].length+1,'','','',0,0]])])
+                                [[props.inputState[props.linePosition].length+1,'','','']])])
                         .concat(props.inputState.slice(props.linePosition+1))
                     )
                 }>+</button>
+
                 <h6 className='d-inline-block mx-2 mx-md-4'>{props.lineDescription}</h6>
+
                 <button type='button' className='btn btn-secondary' disabled={props.disabled}
                 onClick={()=>{
                     removeStockControlItem(props.inputState[props.linePosition].length-1)
@@ -135,21 +140,16 @@ function LineRender(props) {
                         .concat([inputState[props.linePosition].slice(0,inputState[props.linePosition].length-1)])
                         .concat(inputState.slice(props.linePosition+1))
                     )
-                }
-                    
-                }>-</button>
+                }}>-</button>
             </legend>
             <div className="overflow-auto">
                 {/*flex nowrap and overflow auto for mobile view*/}
                 <div className='row flex-nowrap' style={{marginLeft:0,marginRight:0}}>
-                    <h6 className='col' style={{flex:'1 0 80px',paddingLeft:10,paddingRight:10}}>Line No.</h6>
-                    <h6 className='col' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10}}>Item Code</h6>
+                    <h6 className='col text-nowrap' style={{flex:'1 0 80px',paddingLeft:10,paddingRight:10}}>Line No.</h6>
+                    <h6 className='col text-nowrap' style={{flex:'1 0 120px',paddingLeft:10,paddingRight:10}}>Item Code</h6>
                     <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Stock Control</h6>
-                    <h6 className='col' style={{flex:'1 0 225px',paddingLeft:10,paddingRight:10}}>Description</h6>
-                    <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Price</h6>
-                    <h6 className='col' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Qty</h6>
-                    <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Discount</h6>
-                    <h6 className='col' style={{flex:'1 0 90px',paddingLeft:10,paddingRight:10}}>Subtotal</h6>
+                    <h6 className='col text-nowrap' style={{flex:'1 0 225px',paddingLeft:10,paddingRight:10}}>Description</h6>
+                    <h6 className='col text-nowrap' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10}}>Qty</h6>
                 </div>
 
                 {props.inputState[props.linePosition].map((lineSet,i)=>
@@ -171,41 +171,41 @@ function LineRender(props) {
                                 const stockNum=props.dataSelectStock.field[0].name;
                                 return item[stockNum]===e.target.value
                             }))
-                                addStockControlItem(i,e.target.value,props.inputState[props.linePosition][i][4])
+                                addStockControlItem(i,e.target.value,props.inputState[props.linePosition][i][3])
                             else
                                 removeStockControlItem(i)
                         }}/>
-                        <select className='form-control rounded-0' style={{flex:'0 1 0'}} disabled={props.disabled} onChange={(e)=>{
-                            let description='';
-                            let price='';
-                            let itemCode=e.target.value;
-
-                            props.dataSelectStock.data.forEach(data=>{
-                            
+                        <select className='form-control rounded-0' style={{flex:'0 1 0'}} disabled={props.disabled} 
+                        onChange={(e)=>{
+                            let stockDescription='';
+                            let itemCode=e.target.value
+                        
+                            props.dataSelectStock.data.forEach(data=>{        
                                 if(data[props.dataSelectStock.field[0].name]===e.target.value) {
-                                    description=data[props.dataSelectStock.field[1].name]?data[props.dataSelectStock.field[1].name]:'';
-                                    price=data[props.dataSelectStock.field[2].name]?data[props.dataSelectStock.field[2].name]:'';
+                                    stockDescription=data[props.dataSelectStock.field[1].name]?
+                                        data[props.dataSelectStock.field[1].name]:'';
                                 }
                             })
                         
                             props.changeInputState(inputState=>inputState.slice(0,props.linePosition)
-                                .concat([inputState[props.linePosition].slice(0,i)
-                                .concat([inputState[props.linePosition][i].slice(0,1)
-                                .concat(itemCode).concat(description).concat(price)
-                                .concat(inputState[props.linePosition][i].slice(4))])
-                                .concat(inputState[props.linePosition].slice(i+1))])
-                                .concat(inputState.slice(props.linePosition+1)))
-
+                            .concat([inputState[props.linePosition].slice(0,i)
+                            .concat([inputState[props.linePosition][i].slice(0,1)
+                            .concat(itemCode).concat(stockDescription)
+                            .concat(inputState[props.linePosition][i].slice(3))])
+                            .concat(inputState[props.linePosition].slice(i+1))])
+                            .concat(inputState.slice(props.linePosition+1))
+                            )
                             if (e.target.value!=='')
-                                addStockControlItem(i,e.target.value,props.inputState[props.linePosition][i][4])
+                                addStockControlItem(i,e.target.value,props.inputState[props.linePosition][i][3])
                             else
                                 removeStockControlItem(i)
-                            }}>
+
+                                }}>
                             <option value=''>-select an option- </option>
                             {props.stockList}
                         </select>
                     </div>
-
+            
                     <div className='text-center' style={{flex:'1 0 75px',paddingLeft:10,paddingRight:10,paddingTop:7,
                         border:'1px solid #ced4da',
                         backgroundColor:props.disabled? '#e9ecef': 
@@ -224,46 +224,27 @@ function LineRender(props) {
                 
                         onChange={e=>{
                         if (e.target.checked) 
-                            addStockControlItem(i,props.inputState[props.linePosition][i][1],props.inputState[props.linePosition][i][4]);
+                            addStockControlItem(i,props.inputState[props.linePosition][i][1],props.inputState[props.linePosition][i][3]);
                         else 
                             removeStockControlItem(i);
                         }}/>
                     </div>
-
-
-
+            
                     <label htmlFor='description' className='sr-only'/>
                     <input type='text' id='description' required className='col form-control rounded-0' 
                     value={props.inputState[props.linePosition][i][2]} 
                     onChange={(e)=>onChangeLineInput(e.target.value,props.linePosition,i,2)} disabled={props.disabled}
                     style={{flex:'1 0 225px',paddingLeft:10,paddingRight:0}}/>
 
-                    <label htmlFor='price' className='sr-only'/>
-                    <input type='number' required min='0' step='.01' id='price' className='col form-control rounded-0' 
-                    value={props.inputState[props.linePosition][i][3]} 
-                    onChange={(e)=>onChangeLineInput(e.target.value,props.linePosition,i,3)} disabled={props.disabled}
-                    style={{flex:'1 0 90px',paddingLeft:10,paddingRight:0}}/>
-
                     <label htmlFor='qty' className='sr-only'/>
                     <input type='number' required min='0' step='1' id='qty' className='col form-control rounded-0' 
-                    value={props.inputState[props.linePosition][i][4]} disabled={props.disabled}
+                    value={props.inputState[props.linePosition][i][3]} disabled={props.disabled}
                     style={{flex:'1 0 75px',paddingLeft:10,paddingRight:0}}
                     onChange={(e)=>{
-                        onChangeLineInput(e.target.value,props.linePosition,i,4)
+                        onChangeLineInput(e.target.value,props.linePosition,i,3);
                         if(props.inputState[props.stockControlPosition].some(item=>item[0]-1===i))
                             addStockControlItem(i,props.inputState[props.linePosition][i][1],e.target.value)
-                    }} />
-
-                    <label htmlFor='discount' className='sr-only'/>
-                    <input type='number' required min='0' step='.01' id='discount' className='col form-control rounded-0' 
-                    value={props.inputState[props.linePosition][i][5]} 
-                    onChange={(e)=>onChangeLineInput(e.target.value,props.linePosition,i,5)} disabled={props.disabled}
-                    style={{flex:'1 0 90px',paddingLeft:10,paddingRight:0}}/>
-
-                    <label htmlFor='subtotal' className='sr-only'/>
-                    <input type='text' step='.01' disabled id='subtotal' className='col form-control rounded-0' 
-                    value={numberFormatParser(props.calculateSubtotal(i))} 
-                    style={{flex:'1 0 90px',paddingLeft:10,paddingRight:0}}/>
+                    }}/>
                 </div>)}
                 {isNegativeStockBalance() && !props.disabled?
                 (<div style={{minWidth:minWidth}}> 
@@ -289,11 +270,10 @@ function LineRender(props) {
                         </table>
                     </div>
                 </div>):null}
-                                    
             </div>
         </fieldset>
     )
 }
 
 
-export default LineRender;
+export default LineRenderQtyOnly;

@@ -38,7 +38,10 @@ function CreditNoteItem (props) {
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'stock'}),
+            body:JSON.stringify({
+                item:'stock',
+                param:url.id?[url.id]:null
+            }),
             credentials:'include'
         }
     });//extension of Item component
@@ -62,6 +65,7 @@ function CreditNoteItem (props) {
     const linePosition=9;
     const offsetPositionSalesInvoice=10;
     const offsetPositionDebitNote=11;
+    const stockControlPosition=12;
 
     /*inputState offset inner positions*/
     const offsetDocNumPosition=0;
@@ -74,7 +78,7 @@ function CreditNoteItem (props) {
     const [stockList,changeStockList] = useState(null);
     const [GLCodeList,changeGLCodeList] = useState(null);
     const [errorUnappliedAmount,changeErrorUnappliedAmount] = useState(null);
-    const [inputState,changeInputState]=useState(['','','','','','','COD','','',[],[],[]]) 
+    const [inputState,changeInputState]=useState(['','','','','','','COD','','',[],[],[],[]]) 
 
     
     const {path} = useRouteMatch();
@@ -98,15 +102,23 @@ function CreditNoteItem (props) {
                     alert('Cookies Expired or Authorisation invalid. Please Login again!');
                     changeAuth(false);
                 }
-        else if (dataSelectStock && dataSelectStock.data && dataSelectStock.field) 
+        else if (dataSelectStock && dataSelectStock.data && dataSelectStock.field) {
+            const stockNum=dataSelectStock.field[0].name;
+            const stockDesc=dataSelectStock.field[1].name;
+            const stockPrice=dataSelectStock.field[2].name;
+            const stockBalQty=dataSelectStock.field[8].name;
+            
             changeStockList(dataSelectStock.data.map(data=>(
-            <option key={data[dataSelectStock.field[0].name]} value={data[dataSelectStock.field[0].name]}>
-                {data[dataSelectStock.field[0].name]+' | '
-                + (data[dataSelectStock.field[1].name]?data[dataSelectStock.field[1].name]:'')+' | '
-                + (data[dataSelectStock.field[2].name]?data[dataSelectStock.field[2].name]:'')}
-            </option>)
+                <option key={data[stockNum]} value={data[stockNum]}>
+                    {data[stockNum]+' | '
+                    + (data[stockDesc]?data[stockDesc]:'')+' | Price = '
+                    + (data[stockPrice]?data[stockPrice]:'')+' | Bal Qty = '
+                    + (data[stockBalQty]?data[stockBalQty]:'0')}
+                </option>)
+                )
             )
-        )
+        }
+            
 
         if (dataSelectGLCode && dataSelectGLCode.auth===false) {
                 alert('Cookies Expired or Authorisation invalid. Please Login again!');
@@ -354,37 +366,10 @@ function CreditNoteItem (props) {
                                 
                             </div>
 
-                            <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
-                                    <button type='button' className='btn btn-primary' disabled={disabled}
-                                    onClick={()=>{
-                                    
-                                        changeInputState(
-                                            inputState.slice(0,linePosition)
-                                            .concat([inputState[linePosition].slice(0)
-                                                .concat(
-                                                    [[inputState[linePosition].length+1,'','','',0,0]])])
-                                            .concat(inputState.slice(linePosition+1))
-                                        )
-                                    }}>
-                                        +</button>
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>Credit Note Line</h6>
-                                    <button type='button' className='btn btn-secondary' disabled={disabled}
-                                    onClick={()=>
-                                        changeInputState(
-                                            inputState.slice(0,linePosition)
-                                            .concat([inputState[linePosition].slice(0,inputState[linePosition].length-1)])
-                                            .concat(inputState.slice(linePosition+1))
-                                        )}>
-                                    -</button>
-                                </legend>
-
-                                <LineRender linePosition={linePosition} disabled={disabled} inputState={inputState}
-                                changeInputState={changeInputState} dataSelectStock={dataSelectStock} stockList={stockList}
-                                calculateSubtotal={calculateSubtotal} />
-                                
-                                
-                            </fieldset>
+                            <LineRender linePosition={linePosition} stockControlPosition={stockControlPosition}
+                            disabled={disabled} inputState={inputState} changeInputState={changeInputState} 
+                            dataSelectStock={dataSelectStock} stockList={stockList} stockDirection='in'
+                            calculateSubtotal={calculateSubtotal} lineDescription={'Credit Note Line'}/>
 
                             <h5 className='text-right mt-3 mb-4 col-12'>
                                 {'Total: '+numberFormatParser(calculateTotal())}
@@ -396,17 +381,14 @@ function CreditNoteItem (props) {
                             </h6>
                             {errorUnappliedAmount}
 
-                            <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>OFFSET <br/> Sales Invoice / Debit Note</h6>
-                                </legend>
-                                <OffsetRender dataSelectOutstanding={dataSelectDebtorOutstanding} inputState={inputState} 
+                            <OffsetRender dataSelectOutstanding={dataSelectDebtorOutstanding} inputState={inputState} 
                                 changeInputState={changeInputState} disabled={disabled}
                                 calculateUnappliedAmount={calculateUnappliedAmount} calculateTotal={calculateTotal}
                                 offsetPositionOne={offsetPositionSalesInvoice} offsetPositionTwo={offsetPositionDebitNote}
                                 offsetDescriptionOne={offsetDescriptionOne} offsetDescriptionTwo={offsetDescriptionTwo}
-                                changeErrorUnappliedAmount={changeErrorUnappliedAmount}/>
-                            </fieldset>
+                                changeErrorUnappliedAmount={changeErrorUnappliedAmount}
+                                offsetDescription={'Sales Invoice / Debit Note'}/>
+                            
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 

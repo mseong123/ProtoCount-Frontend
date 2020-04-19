@@ -335,17 +335,14 @@ function BankReceiptItem (props) {
                             {errorUnappliedAmount}
 
                             {isDebtorPayment?
-                            (<fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
-                                <legend className='col-form-label col-10 offset-1 col-md-4 offset-md-4 text-center' >
-                                    <h6 className='d-inline-block mx-2 mx-md-4'>OFFSET <br/> Sales Invoice / Debit Note</h6>
-                                </legend>
                                 <OffsetRender dataSelectOutstanding={dataSelectDebtorOutstanding} inputState={inputState} 
                                 changeInputState={changeInputState} disabled={disabled}
                                 calculateUnappliedAmount={calculateUnappliedAmount} calculateTotal={calculateTotal}
                                 offsetPositionOne={offsetPositionSalesInvoice} offsetPositionTwo={offsetPositionDebitNote}
                                 offsetDescriptionOne={offsetDescriptionOne} offsetDescriptionTwo={offsetDescriptionTwo}
-                                changeErrorUnappliedAmount={changeErrorUnappliedAmount}/>
-                            </fieldset>):null}
+                                changeErrorUnappliedAmount={changeErrorUnappliedAmount}
+                                offsetDescription={'Sales Invoice / Debit Note'}/>
+                            :null}
 
                         </div>
                         <ItemButton usage={usage} onInsert={onInsert} onUpdate={onUpdate} onDelete={onDelete} 

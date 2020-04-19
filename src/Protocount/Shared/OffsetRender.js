@@ -106,6 +106,10 @@ function OffsetRender(props) {
     }
 
     return (
+    <fieldset className='form-group col-md-12 mx-3 border border-secondary pb-4 rounded'>
+        <legend className='col-form-label col-12 col-md-6 offset-md-3 text-center' >
+            <h6 className='d-inline-block mx-2 mx-md-4'>OFFSET <br/> {props.offsetDescription}</h6>
+        </legend>
         <div className="overflow-auto">
             {/*flex nowrap and overflow auto for mobile view*/}
             <div className='row flex-nowrap ' style={{marginLeft:0,marginRight:0}}>
@@ -194,14 +198,8 @@ function OffsetRender(props) {
                 />
             </div>)
             ):null}
-            
-                
-
-           
-            
-            
-                                    
         </div>
+    </fieldset>
     )
 }
 

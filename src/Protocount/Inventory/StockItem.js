@@ -10,7 +10,7 @@ function StockItem (props) {
         id:new URLSearchParams(props.location.search).get('id'),
     }
     
-    const [inputState,changeInputState]=useState(['','','','','','','','','',''])
+    const [inputState,changeInputState]=useState(['','','','','','','','',''])
 
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1,inputState.length)])
@@ -97,13 +97,12 @@ function StockItem (props) {
                                     <input type='number' min='0' step='1' id='maxQTY' onChange={(e)=>onChange(e.target.value,7)} 
                                 value={inputState[7]} disabled={disabled} className='form-control'/>
                                 </div>
-                                <label htmlFor='balanceQTY' className='col-12'>Balance Quantity: <span className='text-warning'>*</span></label>
+                                <label htmlFor='balanceQTY' className='col-12'>Balance Quantity: </label>
                                 <div className='col-12'>
-                                    <input type='number' min='0' step='1' id='balanceQTY' onChange={(e)=>onChange(e.target.value,8)} 
-                                value={inputState[8]} disabled={disabled} 
+                                    <input type='number' min='0' step='1' id='balanceQTY' onChange={(e)=>e} 
+                                value={0} disabled 
                                 required className='form-control'/>
                                 </div>
-                                <small className='text-warning'>round numbers only</small>
                             </fieldset>
                         </div>
                         
