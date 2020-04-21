@@ -10,7 +10,7 @@ function StockItem (props) {
         id:new URLSearchParams(props.location.search).get('id'),
     }
     
-    const [inputState,changeInputState]=useState(['','','','','','','','',''])
+    const [inputState,changeInputState]=useState(['','','','','','','','','',''])
 
     function onChange(value,order) {
         changeInputState([...inputState.slice(0,order),value,...inputState.slice(order+1,inputState.length)])
@@ -99,8 +99,8 @@ function StockItem (props) {
                                 </div>
                                 <label htmlFor='balanceQTY' className='col-12'>Balance Quantity: </label>
                                 <div className='col-12'>
-                                    <input type='number' min='0' step='1' id='balanceQTY' onChange={(e)=>e} 
-                                value={0} disabled 
+                                    <input type='number' id='balanceQTY' onChange={(e)=>e} 
+                                value={inputState[8]} disabled 
                                 required className='form-control'/>
                                 </div>
                             </fieldset>
