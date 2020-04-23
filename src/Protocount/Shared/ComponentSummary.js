@@ -36,7 +36,6 @@ import PurchaseSVG from './svg/009-conversation.svg';
 import StockItemMaintenance from '../Inventory/StockItemMaintenance';
 import StockAdjustment from '../Inventory/StockAdjustment';
 import StockCardReport from '../Inventory/StockCardReport';
-import StockAgingReport from '../Inventory/StockAgingReport';
 import StockItem from '../Inventory/StockItem';
 import StockAdjustmentItem from '../Inventory/StockAdjustmentItem';
 import InventorySVG from './svg/020-folders.svg';
@@ -99,7 +98,7 @@ const ComponentSummary = [
     {name:'Dashboard',svg:DashboardSVG ,process:[Dashboard], item:[], report:[]},
     {name:'Sales',svg:SalesSVG ,process:[DeliveryOrder,DeliveryReturn,SalesInvoice,DebitNote,CreditNote], item:[DeliveryOrderItem,DeliveryReturnItem,SalesInvoiceItem,DebitNoteItem,CreditNoteItem], report:[SalesReport]},
     {name:'Purchase',svg:PurchaseSVG ,process:[GoodsReceivedNote,PurchaseReturn,PurchaseInvoice,PurchaseDebitNote,PurchaseCreditNote], item:[GoodsReceivedNoteItem,PurchaseReturnItem,PurchaseInvoiceItem,PurchaseDebitNoteItem,PurchaseCreditNoteItem], report:[PurchaseReport,SupplierPriceListReport]},
-    {name:'Inventory',svg:InventorySVG ,process:[StockItemMaintenance,StockAdjustment], item:[StockItem,StockAdjustmentItem], report:[StockCardReport,StockAgingReport]},
+    {name:'Inventory',svg:InventorySVG ,process:[StockItemMaintenance,StockAdjustment], item:[StockItem,StockAdjustmentItem], report:[StockCardReport]},
     {name:'Bank and Cash',svg:BankAndCashSVG ,process:[BankMaintenance,BankReceipt,BankPayment,CashReceipt,CashPayment], item:[BankItem,BankReceiptItem,BankPaymentItem,CashReceiptItem,CashPaymentItem], report:[]},
     {name:'Accounts Receivable',svg:AccountsReceivableSVG ,process:[DebtorMaintenance], item:[DebtorItem], report:[DebtorAgingReport,DebtorStatementReport,DebtorCollectionReport]},
     {name:'Accounts Payable',svg:AccountsPayableSVG ,process:[CreditorMaintenance], item:[CreditorItem], report:[CreditorAgingReport,CreditorBalanceReport]},
