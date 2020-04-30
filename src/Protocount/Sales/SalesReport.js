@@ -149,7 +149,6 @@ function SalesReport(props) {
 
         }
     },[dataSelectSalesAnalysis,errorSelectSalesAnalysis])
-console.log(resultInput)
 
 //attach bootstrap/jquery eventlisteners and callbacks
     useEffect(()=>{
