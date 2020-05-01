@@ -604,6 +604,7 @@ function StockCardReport(props) {
                         </form>
                         
                         <hr/>
+                        {errorDisplay}
 
                         {resultInput? 
                         (<div className='mb-5'>

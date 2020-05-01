@@ -860,6 +860,29 @@ function PurchaseReport(props) {
                 </div>
             </div>)
     }
+
+    let errorDisplay=null;
+
+    if ((dataSelectCreditor && dataSelectCreditor.error) || errorSelectCreditor || (dataSelectStock && dataSelectStock.error) || errorSelectStock 
+    || (dataSelectPurchaseAnalysis && dataSelectPurchaseAnalysis.error) || errorSelectPurchaseAnalysis )
+    errorDisplay=(
+        <div className="alert alert-warning">
+            {dataSelectCreditor && dataSelectCreditor.error? 'Creditor List RETRIEVAL for item failed errno: '+dataSelectCreditor.error.errno
+            +' code: '+dataSelectCreditor.error.code+' message: '+dataSelectCreditor.error.sqlMessage:null}
+            {errorSelectCreditor? 'Creditor List RETRIEVAL for item failed '+errorSelectCreditor : null}
+            <br/>
+            <br/>
+            {dataSelectStock && dataSelectStock.error? 'Stock List RETRIEVAL for item failed errno: '+dataSelectStock.error.errno
+            +' code: '+dataSelectStock.error.code+' message: '+dataSelectStock.error.sqlMessage:null}
+            {errorSelectStock? 'Stock List RETRIEVAL for item failed '+errorSelectStock : null}
+            <br/>
+            <br/>
+            {dataSelectPurchaseAnalysis && dataSelectPurchaseAnalysis.error? 'Purchase Report RETRIEVAL for item failed errno: '+dataSelectPurchaseAnalysis.error.errno
+            +' code: '+dataSelectPurchaseAnalysis.error.code+' message: '+dataSelectPurchaseAnalysis.error.sqlMessage:null}
+            {errorSelectPurchaseAnalysis? 'Purchase Report RETRIEVAL for item failed '+errorSelectPurchaseAnalysis : null}
+
+        </div>
+    )
     
     return (
         <Switch>
@@ -1105,6 +1128,7 @@ function PurchaseReport(props) {
                         </div>
                         </form>
                         <hr/>
+                        {errorDisplay}
 
                         {resultInput? 
                         (<div className='mb-5'>

@@ -859,6 +859,29 @@ function SalesReport(props) {
                 </div>
             </div>)
     }
+
+    let errorDisplay=null;
+
+    if ((dataSelectDebtor && dataSelectDebtor.error) || errorSelectDebtor || (dataSelectStock && dataSelectStock.error) || errorSelectStock 
+    || (dataSelectSalesAnalysis && dataSelectSalesAnalysis.error) || errorSelectSalesAnalysis )
+    errorDisplay=(
+        <div className="alert alert-warning">
+            {dataSelectDebtor && dataSelectDebtor.error? 'Debtor List RETRIEVAL for item failed errno: '+dataSelectDebtor.error.errno
+            +' code: '+dataSelectDebtor.error.code+' message: '+dataSelectDebtor.error.sqlMessage:null}
+            {errorSelectDebtor? 'Debtor List RETRIEVAL for item failed '+errorSelectDebtor : null}
+            <br/>
+            <br/>
+            {dataSelectStock && dataSelectStock.error? 'Stock List RETRIEVAL for item failed errno: '+dataSelectStock.error.errno
+            +' code: '+dataSelectStock.error.code+' message: '+dataSelectStock.error.sqlMessage:null}
+            {errorSelectStock? 'Stock List RETRIEVAL for item failed '+errorSelectStock : null}
+            <br/>
+            <br/>
+            {dataSelectSalesAnalysis && dataSelectSalesAnalysis.error? 'Sales Report RETRIEVAL for item failed errno: '+dataSelectSalesAnalysis.error.errno
+            +' code: '+dataSelectSalesAnalysis.error.code+' message: '+dataSelectSalesAnalysis.error.sqlMessage:null}
+            {errorSelectSalesAnalysis? 'Sales Report RETRIEVAL for item failed '+errorSelectSalesAnalysis : null}
+
+        </div>
+    )
     
     return (
         <Switch>
@@ -1104,6 +1127,7 @@ function SalesReport(props) {
                         </div>
                         </form>
                         <hr/>
+                        {errorDisplay}
 
                         {resultInput? 
                         (<div className='mb-5'>
