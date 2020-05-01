@@ -24,7 +24,6 @@ import PurchaseInvoice from '../Purchase/PurchaseInvoice';
 import PurchaseDebitNote from '../Purchase/PurchaseDebitNote';
 import PurchaseCreditNote from '../Purchase/PurchaseCreditNote';
 import PurchaseReport from '../Purchase/PurchaseReport';
-import SupplierPriceListReport from '../Purchase/SupplierPriceListReport';
 import GoodsReceivedNoteItem from '../Purchase/GoodsReceivedNoteItem';
 import PurchaseReturnItem from '../Purchase/PurchaseReturnItem';
 import PurchaseInvoiceItem from '../Purchase/PurchaseInvoiceItem';
@@ -64,7 +63,7 @@ import AccountsReceivableSVG from './svg/011-calendar.svg';
 //AccountsPayable
 import CreditorMaintenance from '../AccountsPayable/CreditorMaintenance';
 import CreditorAgingReport from '../AccountsPayable/CreditorAgingReport';
-import CreditorBalanceReport from '../AccountsPayable/CreditorBalanceReport';
+import CreditorStatementReport from '../AccountsPayable/CreditorStatementReport';
 import CreditorItem from '../AccountsPayable/CreditorItem';
 import AccountsPayableSVG from './svg/017-send.svg';
 
@@ -97,11 +96,11 @@ Same with description string (ie DeliveryOrder.description='Delivery Order') use
 const ComponentSummary = [ 
     {name:'Dashboard',svg:DashboardSVG ,process:[Dashboard], item:[], report:[]},
     {name:'Sales',svg:SalesSVG ,process:[DeliveryOrder,DeliveryReturn,SalesInvoice,DebitNote,CreditNote], item:[DeliveryOrderItem,DeliveryReturnItem,SalesInvoiceItem,DebitNoteItem,CreditNoteItem], report:[SalesReport]},
-    {name:'Purchase',svg:PurchaseSVG ,process:[GoodsReceivedNote,PurchaseReturn,PurchaseInvoice,PurchaseDebitNote,PurchaseCreditNote], item:[GoodsReceivedNoteItem,PurchaseReturnItem,PurchaseInvoiceItem,PurchaseDebitNoteItem,PurchaseCreditNoteItem], report:[PurchaseReport,SupplierPriceListReport]},
+    {name:'Purchase',svg:PurchaseSVG ,process:[GoodsReceivedNote,PurchaseReturn,PurchaseInvoice,PurchaseDebitNote,PurchaseCreditNote], item:[GoodsReceivedNoteItem,PurchaseReturnItem,PurchaseInvoiceItem,PurchaseDebitNoteItem,PurchaseCreditNoteItem], report:[PurchaseReport]},
     {name:'Inventory',svg:InventorySVG ,process:[StockItemMaintenance,StockAdjustment], item:[StockItem,StockAdjustmentItem], report:[StockCardReport]},
     {name:'Bank and Cash',svg:BankAndCashSVG ,process:[BankMaintenance,BankReceipt,BankPayment,CashReceipt,CashPayment], item:[BankItem,BankReceiptItem,BankPaymentItem,CashReceiptItem,CashPaymentItem], report:[]},
     {name:'Accounts Receivable',svg:AccountsReceivableSVG ,process:[DebtorMaintenance], item:[DebtorItem], report:[DebtorAgingReport,DebtorStatementReport,DebtorCollectionReport]},
-    {name:'Accounts Payable',svg:AccountsPayableSVG ,process:[CreditorMaintenance], item:[CreditorItem], report:[CreditorAgingReport,CreditorBalanceReport]},
+    {name:'Accounts Payable',svg:AccountsPayableSVG ,process:[CreditorMaintenance], item:[CreditorItem], report:[CreditorAgingReport,CreditorStatementReport]},
     {name:'General Ledger',svg:GeneralLedgerSVG ,process:[AccountMaintenance,JournalEntry,ProfitAndLoss,BalanceSheet], item:[JournalItem,ProfitAndLossItem,BalanceSheetItem], report:[]},
 ]
 

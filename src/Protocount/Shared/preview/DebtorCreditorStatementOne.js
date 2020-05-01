@@ -156,7 +156,7 @@ function DebtorCreditorStatementOne(props) {
                 </div>
             </div>
             <hr/>
-            {props.populateDebtor(true)}
+            {props.populateDebtorCreditor(true)}
             
             <h6 className='text-center'>Aged Analysis</h6>
             {populateAgingTable(props.agingMonths)}

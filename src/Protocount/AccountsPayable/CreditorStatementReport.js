@@ -14,20 +14,20 @@ import dateFormatParser from '../Shared/dateFormatParser';
 import sortData from '../Shared/sort';
 import DebtorCreditorStatementOne from '../Shared/preview/DebtorCreditorStatementOne';
 
-function DebtorStatementReport(props) {
-    const [{data:dataSelectDebtor,error:errorSelectDebtor}]=useFetch({
+function CreditorStatementReport(props) {
+    const [{data:dataSelectCreditor,error:errorSelectCreditor}]=useFetch({
         url:'./SelectItem',
         init:{
             method:'POST',
             headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({item:'debtor'}),
+            body:JSON.stringify({item:'creditor'}),
             credentials:'include'
         }
     });
-    const [{data:dataSelectDebtorStatement,error:errorSelectDebtorStatement},changeParamDebtorStatement]=useFetch(null);
+    const [{data:dataSelectCreditorStatement,error:errorSelectCreditorStatement},changeParamCreditorStatement]=useFetch(null);
     
-    const [debtorList,changeDebtorList] = useState(null);
-    const [debtorID,changeDebtorID] = useState('');
+    const [creditorList,changeCreditorList] = useState(null);
+    const [creditorID,changeCreditorID] = useState('');
     const [dateStart,changeDateStart] = useState(new Date().getFullYear()+'-01-01');
     const [dateEnd,changeDateEnd] = useState(getFormattedDate(new Date()));
     const [resultInput,changeResultInput]=useState(null);
@@ -36,7 +36,7 @@ function DebtorStatementReport(props) {
     /*Preview states*/
     const agingMonthsMax=12 /*variable used for db fetching purpose. Change this if aging month option is changed*/
     const [agingMonths,changeAgingMonths]=useState(6);
-    const [debtorOtherInfo,changeDebtorOtherInfo] =useState(null)
+    const [creditorOtherInfo,changeCreditorOtherInfo] =useState(null)
     const [sortCriteriaList,changeSortCriteriaList]=useState(null);
     const [sortCriteria,changeSortCriteria]=useState('');
     const [generateReportWarning,changeGenerateReportWarning]=useState(false);
@@ -47,26 +47,26 @@ function DebtorStatementReport(props) {
 
     useEffect(()=>{
         
-        if (dataSelectDebtor && dataSelectDebtor.auth===false) {
+        if (dataSelectCreditor && dataSelectCreditor.auth===false) {
                 alert('Cookies Expired or Authorisation invalid. Please Login again!');
                 changeAuth(false);
             }
-        else if (dataSelectDebtor && dataSelectDebtor.data && dataSelectDebtor.field) 
-            changeDebtorList(dataSelectDebtor.data.map(data=>(
-            <option key={data[dataSelectDebtor.field[0].name]} value={data[dataSelectDebtor.field[0].name]}>
-                {data[dataSelectDebtor.field[0].name]+' '+(data[dataSelectDebtor.field[1].name]?data[dataSelectDebtor.field[1].name]:'')}
+        else if (dataSelectCreditor && dataSelectCreditor.data && dataSelectCreditor.field) 
+            changeCreditorList(dataSelectCreditor.data.map(data=>(
+            <option key={data[dataSelectCreditor.field[0].name]} value={data[dataSelectCreditor.field[0].name]}>
+                {data[dataSelectCreditor.field[0].name]+' '+(data[dataSelectCreditor.field[1].name]?data[dataSelectCreditor.field[1].name]:'')}
             </option>)
             )
         )
-    },[dataSelectDebtor,errorSelectDebtor])
+    },[dataSelectCreditor,errorSelectCreditor])
 
     useEffect(()=>{
-        if (dataSelectDebtorStatement && dataSelectDebtorStatement.auth===false) {
+        if (dataSelectCreditorStatement && dataSelectCreditorStatement.auth===false) {
                 alert('Cookies Expired or Authorisation invalid. Please Login again!');
                 changeAuth(false);
             }
-        else if (dataSelectDebtorStatement && dataSelectDebtorStatement.data && dataSelectDebtorStatement.field) {
-            const field=dataSelectDebtorStatement.field[1];
+        else if (dataSelectCreditorStatement && dataSelectCreditorStatement.data && dataSelectCreditorStatement.field) {
+            const field=dataSelectCreditorStatement.field[1];
             const date=field[0].name;
             const docNum=field[1].name;
             const ref=field[2].name;
@@ -74,9 +74,9 @@ function DebtorStatementReport(props) {
             const dr=field[4].name;
             const cr=field[5].name;
             
-            changeResultInput({data:dataSelectDebtorStatement.data,
-                dataPreview:[...dataSelectDebtorStatement.data],field:dataSelectDebtorStatement.field,
-            dateStart,dateEnd,debtorID})
+            changeResultInput({data:dataSelectCreditorStatement.data,
+                dataPreview:[...dataSelectCreditorStatement.data],field:dataSelectCreditorStatement.field,
+            dateStart,dateEnd,creditorID})
 
             changeSortCriteriaList(
                 (<>
@@ -91,7 +91,7 @@ function DebtorStatementReport(props) {
         
         }
 
-    },[dataSelectDebtorStatement,errorSelectDebtorStatement])
+    },[dataSelectCreditorStatement,errorSelectCreditorStatement])
 
     useEffect(()=>{
         function setScale() {
@@ -137,7 +137,7 @@ function DebtorStatementReport(props) {
             return getFormattedDate(new Date(new Date(dateEnd).getFullYear(),Number(new Date(dateEnd).getMonth())-agingMonthsMax,1));
     }
     
-    function populateDebtor(preview) {
+    function populateCreditor(preview) {
         const dbBroughtForwardAmount=resultInput['data'][0][0][resultInput['field'][0][0].name];
 
         const data=preview?sortData(resultInput['dataPreview'][1],sortCriteria,'asc'):resultInput['data'][1];
@@ -350,18 +350,18 @@ function DebtorStatementReport(props) {
 
     let errorDisplay=null;
 
-    if ((dataSelectDebtor && dataSelectDebtor.error) || errorSelectDebtor || (dataSelectDebtorStatement && dataSelectDebtorStatement.error) 
-    || errorSelectDebtorStatement )
+    if ((dataSelectCreditor && dataSelectCreditor.error) || errorSelectCreditor || (dataSelectCreditorStatement && dataSelectCreditorStatement.error) 
+    || errorSelectCreditorStatement )
     errorDisplay=(
         <div className="alert alert-warning">
-            {dataSelectDebtor && dataSelectDebtor.error? 'Debtor List RETRIEVAL for item failed errno: '+dataSelectDebtor.error.errno
-            +' code: '+dataSelectDebtor.error.code+' message: '+dataSelectDebtor.error.sqlMessage:null}
-            {errorSelectDebtor? 'Debtor List RETRIEVAL for item failed '+errorSelectDebtor : null}
+            {dataSelectCreditor && dataSelectCreditor.error? 'Creditor List RETRIEVAL for item failed errno: '+dataSelectCreditor.error.errno
+            +' code: '+dataSelectCreditor.error.code+' message: '+dataSelectCreditor.error.sqlMessage:null}
+            {errorSelectCreditor? 'Creditor List RETRIEVAL for item failed '+errorSelectCreditor : null}
             <br/>
             <br/>
-            {dataSelectDebtorStatement && dataSelectDebtorStatement.error? 'Debtor Statement RETRIEVAL for item failed errno: '+dataSelectDebtorStatement.error.errno
-            +' code: '+dataSelectDebtorStatement.error.code+' message: '+dataSelectDebtorStatement.error.sqlMessage:null}
-            {errorSelectDebtorStatement? 'Debtor Statement RETRIEVAL for item failed '+errorSelectDebtorStatement : null}
+            {dataSelectCreditorStatement && dataSelectCreditorStatement.error? 'Creditor Statement RETRIEVAL for item failed errno: '+dataSelectCreditorStatement.error.errno
+            +' code: '+dataSelectCreditorStatement.error.code+' message: '+dataSelectCreditorStatement.error.sqlMessage:null}
+            {errorSelectCreditorStatement? 'Creditor Statement RETRIEVAL for item failed '+errorSelectCreditorStatement : null}
 
         </div>
     )
@@ -371,14 +371,14 @@ function DebtorStatementReport(props) {
             <Route exact path={`${path}/Preview`}>
                 {resultInput? 
                 (<DebtorCreditorStatementOne
-                    backPath={DebtorStatementReport.path}
-                    description='Debtor Statement'
-                    topLeftInput={[...debtorOtherInfo.slice(0,2)]}
+                    backPath={CreditorStatementReport.path}
+                    description='Creditor Statement'
+                    topLeftInput={[...creditorOtherInfo.slice(0,2)]}
                     topRightField={['Statement Date','Credit Term']}
                     topRightInput={
                         [dateFormatParser(resultInput['dateStart'])+' to '+ dateFormatParser(resultInput['dateEnd']),
-                        debtorOtherInfo[2]==='COD'?'C.O.D.':debtorOtherInfo[2]+' days']}
-                    populateDebtorCreditor={populateDebtor}
+                        creditorOtherInfo[2]==='COD'?'C.O.D.':creditorOtherInfo[2]+' days']}
+                    populateDebtorCreditor={populateCreditor}
                     data={resultInput['dataPreview'][1]}
                     field={resultInput['field'][1]}
                     dateEnd={resultInput['dateEnd']}
@@ -388,23 +388,23 @@ function DebtorStatementReport(props) {
                     
                    
                 
-                />):<Redirect to={DebtorStatementReport.path}/>}
+                />):<Redirect to={CreditorStatementReport.path}/>}
             </Route>
             <Route exact path={path}>
                 <AppLayout>
                     <div className='container pt-3' style={{paddingLeft:20,paddingRight:20}}>
-                        <h3>{DebtorStatementReport.description}</h3>
+                        <h3>{CreditorStatementReport.description}</h3>
                         <form className='mt-3' onSubmit={e=>{
                         e.preventDefault();
                         changeGenerateReportWarning(false);
-                        changeParamDebtorStatement({
+                        changeParamCreditorStatement({
                             url:'./ReportItem',
                             init:{
                                 method:'POST',
                                 headers:{'Content-Type':'application/json'},
                                 body:JSON.stringify({
-                                    item:'debtor_statement',
-                                    param:[getDateStartForAging(dateStart,dateEnd),dateEnd,debtorID]
+                                    item:'creditor_statement',
+                                    param:[getDateStartForAging(dateStart,dateEnd),dateEnd,creditorID]
                                 }),
                                 credentials:'include'
                             }
@@ -431,25 +431,25 @@ function DebtorStatementReport(props) {
                             </div>
 
                             <div className='form-group form-row mx-0'>
-                                <label className='col-md-2 col-form-label' style={{paddingLeft:0}} htmlFor='debtorID'>Debtor ID</label>
-                                <select className='form-control col-md-4' required value={debtorID} onChange={e=>{
-                                    let debtorName='';
-                                    let debtorAddress='';
-                                    let debtorDefaultCreditTerm='';
+                                <label className='col-md-2 col-form-label' style={{paddingLeft:0}} htmlFor='creditorID'>Creditor ID</label>
+                                <select className='form-control col-md-4' required value={creditorID} onChange={e=>{
+                                    let creditorName='';
+                                    let creditorAddress='';
+                                    let creditorDefaultCreditTerm='';
 
-                                    dataSelectDebtor.data.forEach(data=>{
-                                        if(data[dataSelectDebtor.field[0].name]===e.target.value) {
-                                            debtorName=data[dataSelectDebtor.field[1].name]?data[dataSelectDebtor.field[1].name]:'';
-                                            debtorAddress=data[dataSelectDebtor.field[2].name]?data[dataSelectDebtor.field[2].name]:'';
-                                            debtorDefaultCreditTerm=data[dataSelectDebtor.field[7].name]?data[dataSelectDebtor.field[7].name]:'';
+                                    dataSelectCreditor.data.forEach(data=>{
+                                        if(data[dataSelectCreditor.field[0].name]===e.target.value) {
+                                            creditorName=data[dataSelectCreditor.field[1].name]?data[dataSelectCreditor.field[1].name]:'';
+                                            creditorAddress=data[dataSelectCreditor.field[2].name]?data[dataSelectCreditor.field[2].name]:'';
+                                            creditorDefaultCreditTerm=data[dataSelectCreditor.field[7].name]?data[dataSelectCreditor.field[7].name]:'';
                                         }
                                     })
-                                    changeDebtorID(e.target.value);
-                                    changeDebtorOtherInfo([debtorName,debtorAddress,debtorDefaultCreditTerm])
+                                    changeCreditorID(e.target.value);
+                                    changeCreditorOtherInfo([creditorName,creditorAddress,creditorDefaultCreditTerm])
                                 
                                 }}>
                                     <option value=''> -select an option- </option>
-                                    {debtorList}
+                                    {creditorList}
                                 </select>
                             </div>
 
@@ -497,7 +497,7 @@ function DebtorStatementReport(props) {
                                 else {
                                     document.querySelector("meta[name=viewport]").setAttribute(
                                     'content','width=device-width, initial-scale=0.4');
-                                    history.push('./DebtorStatementReport/Preview')
+                                    history.push('./CreditorStatementReport/Preview')
                                 }}
                             } 
                             className='btn btn-info mx-1 my-1'>Preview</button>
@@ -512,7 +512,7 @@ function DebtorStatementReport(props) {
                         {resultInput? 
                         (<div className='mb-5'>
                             <h5 className='py-2'>Result</h5>
-                            {populateDebtor()}
+                            {populateCreditor()}
                             
                         </div>):null
                         }
@@ -520,11 +520,11 @@ function DebtorStatementReport(props) {
                     </div>
                 </AppLayout>
             </Route>
-            <Redirect to={DebtorStatementReport.path}/>
+            <Redirect to={CreditorStatementReport.path}/>
         </Switch>
     )
 }
-DebtorStatementReport.description='Debtor Statement Report';
-DebtorStatementReport.path='/DebtorStatementReport';
+CreditorStatementReport.description='Creditor Statement Report';
+CreditorStatementReport.path='/CreditorStatementReport';
 
-export default DebtorStatementReport;
+export default CreditorStatementReport;
